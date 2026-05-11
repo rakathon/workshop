@@ -78,7 +78,7 @@ Write-Header
 
 Write-Host "  This script will:"
 Write-Step "1" "Sign you in with your Rakuten account"
-Write-Step "2" "Install Git, VS Code, and the Claude Code extension"
+Write-Step "2" "Install Git, VS Code, Claude Code extension, and plugins"
 Write-Step "3" "Configure Claude Code automatically"
 Write-Host ""
 
@@ -194,7 +194,7 @@ Write-StepDone "1" "Signed in successfully"
 
 # ── step 2: install Git, VS Code, Claude Code extension ───────────────────────
 
-Write-StepActive "2" "Install Git, VS Code, and Claude Code extension"
+Write-StepActive "2" "Install Git, VS Code, Claude Code extension, and plugins"
 Write-Host ""
 
 # Git
@@ -259,8 +259,27 @@ if (Get-Command code -ErrorAction SilentlyContinue) {
     Write-Warn "VS Code CLI 'code' not on PATH — skipping extension install. Open VS Code and install 'Claude Code' from the Marketplace."
 }
 
+# Claude plugins
+if (Get-Command claude -ErrorAction SilentlyContinue) {
+    Write-Info "Adding claude-plugins-official registry..."
+    try {
+        & claude plugin add anthropics/claude-plugins-official 2>$null
+    } catch {
+        Write-Warn "Could not add plugin registry. Run manually: claude plugin add anthropics/claude-plugins-official"
+    }
+
+    Write-Info "Installing skill-creator plugin..."
+    try {
+        & claude plugin install skill-creator@claude-plugins-official --scope user 2>$null
+    } catch {
+        Write-Warn "Could not install skill-creator. Run manually: claude plugin install skill-creator@claude-plugins-official --scope user"
+    }
+} else {
+    Write-Warn "'claude' CLI not found — skipping plugin install. After installing Claude Code, run:`n        claude plugin add anthropics/claude-plugins-official`n        claude plugin install skill-creator@claude-plugins-official --scope user"
+}
+
 Write-Host ""
-Write-StepDone "2" "Git, VS Code, and Claude Code extension ready"
+Write-StepDone "2" "Git, VS Code, Claude Code extension, and plugins ready"
 
 # ── step 3: write settings.json ───────────────────────────────────────────────
 

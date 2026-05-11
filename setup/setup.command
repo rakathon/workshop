@@ -60,7 +60,7 @@ print_header
 
 printf "  This script will:\n"
 step "1" "Sign you in with your Rakuten account"
-step "2" "Install Git, VS Code, and the Claude Code extension"
+step "2" "Install Git, VS Code, Claude Code extension, and plugins"
 step "3" "Configure Claude Code automatically"
 printf "\n"
 
@@ -189,7 +189,7 @@ step_done "1" "Signed in successfully"
 
 # ── step 2: install Git, VS Code, Claude Code extension ───────────────────────
 
-step_active "2" "Install Git, VS Code, and Claude Code extension"
+step_active "2" "Install Git, VS Code, Claude Code extension, and plugins"
 printf "\n"
 
 # Git — already present on macOS via Xcode CLT; install CLT if absent
@@ -253,8 +253,21 @@ else
   warn "VS Code CLI 'code' not on PATH — skipping extension install. Open VS Code and install 'Claude Code' from the Marketplace."
 fi
 
+# Claude plugins
+if command -v claude &>/dev/null; then
+  info "Adding claude-plugins-official registry..."
+  claude plugin add anthropics/claude-plugins-official 2>/dev/null \
+    || warn "Could not add plugin registry — run manually: claude plugin add anthropics/claude-plugins-official"
+
+  info "Installing skill-creator plugin..."
+  claude plugin install skill-creator@claude-plugins-official --scope user 2>/dev/null \
+    || warn "Could not install skill-creator — run manually: claude plugin install skill-creator@claude-plugins-official --scope user"
+else
+  warn "'claude' CLI not found — skipping plugin install. After installing Claude Code, run:\n        claude plugin add anthropics/claude-plugins-official\n        claude plugin install skill-creator@claude-plugins-official --scope user"
+fi
+
 clear_lines 2
-step_done "2" "Git, VS Code, and Claude Code extension ready"
+step_done "2" "Git, VS Code, Claude Code extension, and plugins ready"
 
 # ── step 3: write ~/.claude/settings.json ─────────────────────────────────────
 
