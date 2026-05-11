@@ -93,7 +93,7 @@
       gap: 12px;
     }
 
-    .os-icon { font-size: 2.8rem; line-height: 1; }
+    .os-icon { font-size: 2.8rem; line-height: 1; display: flex; align-items: center; justify-content: center; }
 
     .os-card h3 { font-size: 1.2rem; font-weight: 700; }
 
@@ -195,7 +195,14 @@
 
     <!-- Windows -->
     <div class="os-card">
-      <div class="os-icon">&#8862;</div>
+      <div class="os-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 88" width="48" height="48">
+          <path fill="#f25022" d="M0 0h42v42H0z"/>
+          <path fill="#7fba00" d="M46 0h42v42H46z"/>
+          <path fill="#00a4ef" d="M0 46h42v42H0z"/>
+          <path fill="#ffb900" d="M46 46h42v42H46z"/>
+        </svg>
+      </div>
       <h3>Windows</h3>
       <span class="os-only-badge">Available Now</span>
       <p>Downloads a <code>.ps1</code> script. Right-click and select <code>Run with PowerShell</code> to begin.</p>
