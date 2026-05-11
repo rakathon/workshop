@@ -242,6 +242,21 @@ if (-not (Get-Command code -ErrorAction SilentlyContinue)) {
     Write-Info "VS Code already installed."
 }
 
+# Claude Code CLI
+if (-not (Get-Command claude -ErrorAction SilentlyContinue)) {
+    Write-Info "Installing Claude Code CLI..."
+    try {
+        irm https://claude.ai/install.ps1 | iex
+        # Refresh PATH
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" +
+                    [System.Environment]::GetEnvironmentVariable("Path", "User")
+    } catch {
+        Write-Warn "Could not install Claude Code CLI automatically. Visit https://claude.ai/install for instructions."
+    }
+} else {
+    Write-Info "Claude Code CLI already installed."
+}
+
 # Claude Code extension
 if (Get-Command code -ErrorAction SilentlyContinue) {
     $Extensions = & code --list-extensions 2>$null

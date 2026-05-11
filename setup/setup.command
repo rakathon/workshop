@@ -240,6 +240,17 @@ if ! command -v code &>/dev/null && [[ -f "$CODE_CLI" ]]; then
   export PATH="$PATH:$(dirname "$CODE_CLI")"
 fi
 
+# Claude Code CLI
+if ! command -v claude &>/dev/null; then
+  info "Installing Claude Code CLI..."
+  curl -fsSL https://claude.ai/install.sh | bash \
+    || warn "Could not install Claude Code CLI automatically. Visit https://claude.ai/install for instructions."
+  # Refresh PATH in case installer added to a new location
+  export PATH="$HOME/.local/bin:$PATH"
+else
+  info "Claude Code CLI already installed ($(claude --version 2>/dev/null || true))."
+fi
+
 # Claude Code VS Code extension
 if command -v code &>/dev/null; then
   if ! code --list-extensions 2>/dev/null | grep -qi "anthropic.claude-code"; then
