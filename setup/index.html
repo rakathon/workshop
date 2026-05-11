@@ -71,52 +71,6 @@
       line-height: 1.6;
     }
 
-    .steps-preview {
-      background: var(--surface);
-      border: 1px solid var(--surface-border);
-      border-radius: 14px;
-      padding: 24px 28px;
-      max-width: 680px;
-      width: 100%;
-      margin-bottom: 40px;
-    }
-
-    .steps-preview h2 {
-      font-size: 0.8rem;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 16px;
-    }
-
-    .step-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 14px;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--surface-border);
-    }
-
-    .step-row:last-child { border-bottom: none; }
-
-    .step-num {
-      flex-shrink: 0;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.7rem;
-      font-weight: 700;
-      margin-top: 2px;
-    }
-
-    .step-text strong { display: block; font-size: 0.95rem; margin-bottom: 2px; }
-    .step-text span   { font-size: 0.82rem; color: var(--text-muted); }
-
     .os-cards-wrap {
       display: flex;
       gap: 20px;
@@ -225,31 +179,6 @@
       Sign in, install tools, and start coding with AI.
     </p>
   </header>
-
-  <div class="steps-preview">
-    <h2>What the script does</h2>
-    <div class="step-row">
-      <div class="step-num">1</div>
-      <div class="step-text">
-        <strong>Sign in with your Rakuten account</strong>
-        <span>Authenticates via Okta and fetches your personal access key.</span>
-      </div>
-    </div>
-    <div class="step-row">
-      <div class="step-num">2</div>
-      <div class="step-text">
-        <strong>Install Git, VS Code, Claude Code &amp; plugins</strong>
-        <span>Installs missing tools silently, adds the Claude Code VS Code extension, CLI, and the <code>skill-creator</code> plugin.</span>
-      </div>
-    </div>
-    <div class="step-row">
-      <div class="step-num">3</div>
-      <div class="step-text">
-        <strong>Configure Claude Code automatically</strong>
-        <span>Writes <code>~/.claude/settings.json</code> with Bedrock endpoint, token, and telemetry settings.</span>
-      </div>
-    </div>
-  </div>
 
   <div class="os-cards-wrap">
 
