@@ -289,20 +289,6 @@ SETTINGS_DIR="$HOME/.claude"
 SETTINGS_FILE="$SETTINGS_DIR/settings.json"
 mkdir -p "$SETTINGS_DIR"
 
-# Keys and their desired values
-declare -A NEW_VALS=(
-  [ANTHROPIC_BEDROCK_BASE_URL]="https://api.ai.public.rakuten-it.com/claude-code-aws-bedrock/v1"
-  [AWS_BEARER_TOKEN_BEDROCK]="$PAT"
-  [CLAUDE_CODE_USE_BEDROCK]="1"
-  [CLAUDE_CODE_SKIP_BEDROCK_AUTH]="1"
-  [CLAUDE_CODE_ENABLE_TELEMETRY]="1"
-  [OTEL_METRICS_EXPORTER]="otlp"
-  [OTEL_LOGS_EXPORTER]="otlp"
-  [OTEL_EXPORTER_OTLP_PROTOCOL]="http/protobuf"
-  [OTEL_EXPORTER_OTLP_ENDPOINT]="https://api.ai.public.rakuten-it.com/otel"
-  [OTEL_EXPORTER_OTLP_HEADERS]="Authorization=$PAT"
-)
-
 if [[ -f "$SETTINGS_FILE" ]] && command -v python3 &>/dev/null; then
   # Merge: preserve existing keys not in our list, overwrite the ones we own
   UPDATED=$(python3 - "$SETTINGS_FILE" <<PYEOF
