@@ -498,6 +498,14 @@
           <div class="screenshot-wrap screenshot-wrap--narrow">
             <img src="macos/permission-give.png" alt="osascript dialog requesting username and password" />
           </div>
+          <p style="font-size:15px; color:var(--text-muted); line-height:1.65; margin-top:24px; margin-bottom:20px;">
+            Safari will then open automatically and prompt you to sign in with your
+            <strong>Rakuten OKTA account</strong>. Enter your INTRA username
+            (<code>username@rakuten.com</code>) and click <strong>Next</strong> to authenticate.
+          </p>
+          <div class="screenshot-wrap screenshot-wrap--narrow">
+            <img src="macos/rakuten-okta-sign-in.png" alt="Rakuten OKTA sign-in page in Safari" />
+          </div>
           <button class="btn-next" onclick="nextStep(4)">Next &rarr;</button>
         </div>
       </div>
@@ -675,25 +683,17 @@
         <div class="step-header" onclick="winToggle(1)">
           <div class="step-number">1</div>
           <div class="step-text">
-            <h2>Download &amp; Run the Setup Script</h2>
-            <p>Download the <code>.ps1</code> script and run it with PowerShell.</p>
+            <h2>Download the Setup Script</h2>
+            <p>Click the button below to download <code>setup.ps1</code> to your PC.</p>
           </div>
           <div class="step-chevron">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
         </div>
         <div class="step-body">
-          <p style="font-size:15px; color:var(--text-muted); line-height:1.65; margin-bottom:20px;">
-            Click the button below to download the setup script. Once downloaded,
-            <strong>right-click <code>setup.ps1</code></strong> and select
-            <strong>Run with PowerShell</strong> to begin. The script will install
-            Claude Code and Claude on your PC.
+          <p style="font-size:15px; color:var(--text-muted); line-height:1.65; margin-bottom:28px;">
+            This will install Claude Code and Claude on your PC using your organization's inference endpoint.
           </p>
-          <div class="tip" style="margin-top:0; margin-bottom:28px;">
-            <span class="tip-icon">&#9888;&#65039;</span>
-            <span>If PowerShell blocks the script, run this first in an elevated PowerShell window:<br />
-            <code>Set-ExecutionPolicy Bypass -Scope Process -Force</code></span>
-          </div>
           <div class="step-actions">
             <a class="btn-download" href="setup.ps1" download="setup.ps1">
               &#8659;&nbsp; Download for Windows
@@ -705,13 +705,13 @@
 
       <div class="connector"></div>
 
-      <!-- Win Step 2: Sign in with Bedrock -->
+      <!-- Win Step 2: Find downloaded file -->
       <div class="step collapsed" id="win-2">
         <div class="step-header" onclick="winToggle(2)">
           <div class="step-number">2</div>
           <div class="step-text">
-            <h2>Open Claude &amp; Sign in with Bedrock</h2>
-            <p>Launch Claude and select <strong>Continue with Bedrock</strong> on the login screen.</p>
+            <h2>Open <code>setup</code> from your Downloads</h2>
+            <p>Find the downloaded file in your Downloads folder.</p>
           </div>
           <div class="step-chevron">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -719,12 +719,11 @@
         </div>
         <div class="step-body">
           <p style="font-size:15px; color:var(--text-muted); line-height:1.65; margin-bottom:20px;">
-            Open <strong>Claude</strong> from the Start menu or your desktop shortcut.
-            On the login screen, select <strong>Continue with Bedrock</strong> — this connects
-            Claude to your organization's inference endpoint instead of Anthropic's default servers.
+            Open your <strong>Downloads</strong> folder — you'll see <strong>setup</strong> listed as a
+            Windows PowerShell script.
           </p>
           <div class="screenshot-wrap">
-            <img src="windows/first-time-open.png" alt="Claude login screen with Continue with Bedrock option highlighted" />
+            <img src="windows/downloaded.png" alt="Downloads folder showing the setup PowerShell script" />
           </div>
           <button class="btn-next" onclick="winNext(2)">Next &rarr;</button>
         </div>
@@ -732,10 +731,127 @@
 
       <div class="connector"></div>
 
-      <!-- Win Step 3: Done -->
+      <!-- Win Step 3: Run with PowerShell -->
       <div class="step collapsed" id="win-3">
         <div class="step-header" onclick="winToggle(3)">
           <div class="step-number">3</div>
+          <div class="step-text">
+            <h2>Right-click &amp; Select "Run with PowerShell"</h2>
+            <p>Right-click the file to open the context menu and run the script.</p>
+          </div>
+          <div class="step-chevron">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+        <div class="step-body">
+          <p style="font-size:15px; color:var(--text-muted); line-height:1.65; margin-bottom:20px;">
+            <strong>Right-click</strong> the <strong>setup</strong> file and select
+            <strong>Run with PowerShell</strong> from the context menu.
+          </p>
+          <div class="screenshot-wrap">
+            <img src="windows/ps1-run-with-powershell.png" alt="Right-click context menu with Run with PowerShell highlighted" />
+          </div>
+          <div class="tip" style="margin-top:20px;">
+            <span class="tip-icon">&#9888;&#65039;</span>
+            <span>If PowerShell blocks the script, run this first in an elevated PowerShell window:<br />
+            <code>Set-ExecutionPolicy Bypass -Scope Process -Force</code></span>
+          </div>
+          <button class="btn-next" onclick="winNext(3)">Next &rarr;</button>
+        </div>
+      </div>
+
+      <div class="connector"></div>
+
+      <!-- Win Step 4: Script running + OKTA login -->
+      <div class="step collapsed" id="win-4">
+        <div class="step-header" onclick="winToggle(4)">
+          <div class="step-number">4</div>
+          <div class="step-text">
+            <h2>Let the Script Run &amp; Sign in with Rakuten OKTA</h2>
+            <p>A PowerShell window will open and install everything automatically.</p>
+          </div>
+          <div class="step-chevron">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+        <div class="step-body">
+          <p style="font-size:15px; color:var(--text-muted); line-height:1.65; margin-bottom:20px;">
+            A PowerShell window will open and begin installing Claude Code, Claude, and all required
+            plugins. This may take a minute or two.
+          </p>
+          <div class="screenshot-wrap" style="margin-bottom:24px;">
+            <img src="windows/ps1-running.png" alt="PowerShell window showing the Rakuten Claude Code Setup script running" />
+          </div>
+          <p style="font-size:15px; color:var(--text-muted); line-height:1.65; margin-bottom:20px;">
+            Your browser will open automatically and prompt you to sign in with your
+            <strong>Rakuten OKTA account</strong>. Enter your INTRA username
+            (<code>username@rakuten.com</code>) and click <strong>Next</strong> to authenticate.
+          </p>
+          <div class="screenshot-wrap screenshot-wrap--narrow">
+            <img src="windows/rakuten-okta-sign-in.png" alt="Rakuten OKTA sign-in page" />
+          </div>
+          <button class="btn-next" onclick="winNext(4)">Next &rarr;</button>
+        </div>
+      </div>
+
+      <div class="connector"></div>
+
+      <!-- Win Step 5: Open Claude from Start -->
+      <div class="step collapsed" id="win-5">
+        <div class="step-header" onclick="winToggle(5)">
+          <div class="step-number">5</div>
+          <div class="step-text">
+            <h2>Open Claude from the Start Menu</h2>
+            <p>Search for <strong>Claude</strong> in the Windows search bar and launch it.</p>
+          </div>
+          <div class="step-chevron">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+        <div class="step-body">
+          <p style="font-size:15px; color:var(--text-muted); line-height:1.65; margin-bottom:20px;">
+            Once the script finishes, click the <strong>Start / Search</strong> button at the bottom
+            of your screen, type <kbd>Claude</kbd>, and click <strong>Open</strong>.
+          </p>
+          <div class="screenshot-wrap">
+            <img src="windows/claude-app-search.png" alt="Windows search showing Claude app as best match" />
+          </div>
+          <button class="btn-next" onclick="winNext(5)">Next &rarr;</button>
+        </div>
+      </div>
+
+      <div class="connector"></div>
+
+      <!-- Win Step 6: Sign in with Bedrock -->
+      <div class="step collapsed" id="win-6">
+        <div class="step-header" onclick="winToggle(6)">
+          <div class="step-number">6</div>
+          <div class="step-text">
+            <h2>Sign in with Bedrock</h2>
+            <p>Choose <strong>Continue with Bedrock</strong> on the login screen.</p>
+          </div>
+          <div class="step-chevron">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+        <div class="step-body">
+          <p style="font-size:15px; color:var(--text-muted); line-height:1.65; margin-bottom:20px;">
+            On the login screen, select <strong>Continue with Bedrock</strong> — this connects
+            Claude to your organization's inference endpoint instead of Anthropic's default servers.
+          </p>
+          <div class="screenshot-wrap">
+            <img src="windows/first-time-open.png" alt="Claude login screen with Continue with Bedrock option highlighted" />
+          </div>
+          <button class="btn-next" onclick="winNext(6)">Next &rarr;</button>
+        </div>
+      </div>
+
+      <div class="connector"></div>
+
+      <!-- Win Step 7: Done -->
+      <div class="step collapsed" id="win-7">
+        <div class="step-header" onclick="winToggle(7)">
+          <div class="step-number">7</div>
           <div class="step-text">
             <h2>You're all set!</h2>
             <p>Claude is ready to use with your organization's endpoint.</p>
@@ -801,7 +917,7 @@
     }
 
     // Windows flow
-    const WIN_TOTAL = 3;
+    const WIN_TOTAL = 7;
 
     function winToggle(n) {
       document.getElementById('win-' + n).classList.toggle('collapsed');
