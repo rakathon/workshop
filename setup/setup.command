@@ -60,7 +60,7 @@ print_header
 
 printf "  This script will:\n"
 step "1" "Sign you in with your Rakuten account"
-step "2" "Install Git, VS Code, Claude Code extension, and plugins"
+step "2" "Install Git, VS Code, Claude Code extension, Claude Desktop, and plugins"
 step "3" "Configure Claude Code automatically"
 step "4" "Install Claude Desktop configuration profile"
 printf "\n"
@@ -190,7 +190,7 @@ step_done "1" "Signed in successfully"
 
 # ── step 2: install Git, VS Code, Claude Code extension ───────────────────────
 
-step_active "2" "Install Git, VS Code, Claude Code extension, and plugins"
+step_active "2" "Install Git, VS Code, Claude Code extension, Claude Desktop, and plugins"
 printf "\n"
 
 # Git — already present on macOS via Xcode CLT; install CLT if absent
@@ -258,8 +258,28 @@ else
   warn "VS Code CLI 'code' not on PATH — skipping extension install. Open VS Code and install 'Claude Code' from the Marketplace."
 fi
 
+# Claude Desktop
+if [[ ! -d "/Applications/Claude.app" ]]; then
+  info "Downloading Claude Desktop..."
+  CLAUDE_DMG=/tmp/Claude-setup.dmg
+  curl -fsSL --progress-bar \
+    "https://downloads.claude.ai/releases/darwin/universal/1.5354.0/Claude-9a9e3d5a4a368f0f49a80dc303b0ed1a18bfedad.dmg" \
+    -o "$CLAUDE_DMG" \
+    || die "Failed to download Claude Desktop."
+  printf "\n"
+
+  info "Installing Claude Desktop..."
+  CLAUDE_MOUNT=$(hdiutil attach "$CLAUDE_DMG" -nobrowse -quiet | awk 'END{print $NF}')
+  cp -R "$CLAUDE_MOUNT/Claude.app" /Applications/
+  hdiutil detach "$CLAUDE_MOUNT" -quiet
+  rm -f "$CLAUDE_DMG"
+  info "Claude Desktop installed."
+else
+  info "Claude Desktop already installed."
+fi
+
 clear_lines 2
-step_done "2" "Git, VS Code, and Claude Code extension ready"
+step_done "2" "Git, VS Code, Claude Code extension, and Claude Desktop ready"
 
 # ── step 3: write ~/.claude/settings.json ─────────────────────────────────────
 
