@@ -1761,3 +1761,5 @@ Write-Host "  Next steps:" -ForegroundColor White
 Write-Host "      1. Open VS Code in your project folder" -ForegroundColor DarkGray
 Write-Host '      2. Press Ctrl+Shift+P -> "Claude: Open Chat" to start coding' -ForegroundColor DarkGray
 Write-Host ""
+Write-Host "  Press any key to close this window..." -ForegroundColor DarkGray
+$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
