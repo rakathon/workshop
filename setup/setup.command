@@ -211,25 +211,18 @@ fi
 # VS Code — install via direct download if not present
 if ! command -v code &>/dev/null && [[ ! -d "/Applications/Visual Studio Code.app" ]]; then
   info "Downloading VS Code..."
-  VSCODE_DMG=/tmp/vscode-setup.dmg
-  rm -f "$VSCODE_DMG"
+  VSCODE_ZIP=/tmp/vscode-setup.zip
+  rm -f "$VSCODE_ZIP"
   curl -fsSL --progress-bar \
     "https://update.code.visualstudio.com/latest/darwin-universal/stable" \
-    -o "$VSCODE_DMG" \
+    -o "$VSCODE_ZIP" \
     || die "Failed to download VS Code."
   printf "\n"
 
   info "Installing VS Code..."
-  VSCODE_MOUNT=/tmp/vscode-mount
-  rm -rf "$VSCODE_MOUNT"
-  mkdir "$VSCODE_MOUNT"
-  hdiutil attach "$VSCODE_DMG" -mountpoint "$VSCODE_MOUNT" -nobrowse -quiet \
-    || die "Failed to mount VS Code DMG."
-  cp -R "$VSCODE_MOUNT/Visual Studio Code.app" /Applications/ \
-    || { hdiutil detach "$VSCODE_MOUNT" -quiet; die "Failed to copy VS Code."; }
-  hdiutil detach "$VSCODE_MOUNT" -quiet
-  rm -f "$VSCODE_DMG"
-  rm -rf "$VSCODE_MOUNT"
+  unzip -q "$VSCODE_ZIP" -d /Applications/ \
+    || die "Failed to install VS Code."
+  rm -f "$VSCODE_ZIP"
   info "VS Code installed."
 else
   info "VS Code already installed."
