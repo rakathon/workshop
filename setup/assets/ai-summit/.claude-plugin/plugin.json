@@ -1,0 +1,10 @@
+{
+  "name": "ai-summit",
+  "description": "Tool kits for the AI summit",
+  "version": "1.0.0",
+  "author": {
+    "name": "Productivity Platform Team"
+  },
+  "license": "Rakuten Rewards",
+  "keywords": ["git", "automation"]
+}

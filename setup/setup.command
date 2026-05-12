@@ -63,6 +63,7 @@ step "1" "Sign you in with your Rakuten account"
 step "2" "Install Git, VS Code, Claude Code extension, Claude Desktop, and plugins"
 step "3" "Configure Claude Code automatically"
 step "4" "Install Claude Desktop configuration profile"
+step "5" "Install AI Summit plugin for Claude Desktop"
 printf "\n"
 
 # ── step 1: sign in ────────────────────────────────────────────────────────────
@@ -435,6 +436,23 @@ printf '%s' "$MOBILECONFIG_FALLBACK" \
 open "$MOBILECONFIG_TMP"
 
 step_done "4" "Configuration profile opened — click Install in System Settings"
+
+# ── step 5: install ai-summit org-plugin ──────────────────────────────────────
+
+step_active "5" "Install AI Summit plugin for Claude Desktop"
+info "Copying plugin to /Library/Application Support/Claude/org-plugins/..."
+
+PLUGIN_SRC="/Volumes/Rakuten Claude Code Setup/ai-summit"
+PLUGIN_DEST="/Library/Application Support/Claude/org-plugins"
+
+if osascript <<OSASCRIPT 2>/dev/null
+do shell script "mkdir -p '${PLUGIN_DEST}' && cp -R '${PLUGIN_SRC}' '${PLUGIN_DEST}/'" with administrator privileges
+OSASCRIPT
+then
+  step_done "5" "AI Summit plugin installed"
+else
+  warn "Could not install AI Summit plugin — copy '${PLUGIN_SRC}' to '${PLUGIN_DEST}' manually"
+fi
 
 # ── summary ────────────────────────────────────────────────────────────────────
 
