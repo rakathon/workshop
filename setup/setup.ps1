@@ -12,8 +12,9 @@ $RedirectUri = "https://developer.ai.public.rakuten-it.com/callback"
 $Scopes      = "openid email profile"
 $PatUrl      = "https://developer-backend.ai.public.rakuten-it.com/projects/540fe463-79a3-4b91-894c-ec24c1012bd1/claude-code-aws-bedrock/config"
 
-$PollSecs = 2
+$PollSecs    = 2
 $TimeoutSecs = 300
+$DebugPort   = 9229
 
 # ── UI helpers ─────────────────────────────────────────────────────────────────
 
@@ -74,6 +75,21 @@ function ConvertTo-UrlEncoded($str) {
 
 $amp = [char]38   # '&' - avoids PS5.1 parser rejection of literal & in strings
 
+function Find-ChromiumExe {
+    $candidates = @(
+        "$env:ProgramFiles\Microsoft\Edge\Application\msedge.exe",
+        "${env:ProgramFiles(x86)}\Microsoft\Edge\Application\msedge.exe",
+        "$env:ProgramFiles\Google\Chrome\Application\chrome.exe",
+        "${env:ProgramFiles(x86)}\Google\Chrome\Application\chrome.exe",
+        "$env:LOCALAPPDATA\Google\Chrome\Application\chrome.exe",
+        "$env:ProgramFiles\BraveSoftware\Brave-Browser\Application\brave.exe",
+        "$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\Application\brave.exe",
+        "$env:LOCALAPPDATA\Vivaldi\Application\vivaldi.exe"
+    )
+    foreach ($p in $candidates) { if (Test-Path $p) { return $p } }
+    Exit-Error "No Chromium-based browser found. Microsoft Edge is pre-installed on Windows 10/11 - please ensure it is present."
+}
+
 # ── header ─────────────────────────────────────────────────────────────────────
 
 Write-Header
@@ -108,62 +124,75 @@ $AuthQuery = @(
 ) -join $amp
 $AuthUrl = "$OktaIssuer/v1/authorize?$AuthQuery"
 
-Start-Process $AuthUrl
+$BrowserExe  = Find-ChromiumExe
+$TempProfile = Join-Path $env:TEMP "okta-login-$([System.Guid]::NewGuid().ToString('N'))"
 
-# Start a local HTTP server to catch the OAuth callback
-$ListenerJob = Start-Job -ScriptBlock {
-    param($redirectUri)
-    # redirect goes to the remote callback page - can't catch it locally
-    $null
-} -ArgumentList $RedirectUri
+$BrowserProc = Start-Process -FilePath $BrowserExe -ArgumentList @(
+    "--remote-debugging-port=$DebugPort"
+    "--remote-allow-origins=*"
+    "--user-data-dir=`"$TempProfile`""
+    "--no-first-run"
+    "--no-default-browser-check"
+    "`"$AuthUrl`""
+) -PassThru
 
-Stop-Job $ListenerJob -ErrorAction SilentlyContinue
-Remove-Job $ListenerJob -ErrorAction SilentlyContinue
-
-# Since the redirect URI is remote (not localhost), ask the user to paste
-# the URL from the browser address bar after sign-in redirects to the callback page.
-Write-Host ""
-Write-Host "      After signing in, the browser will redirect to a page that may" -ForegroundColor DarkGray
-Write-Host "      show an error or blank page. Copy the full URL from the address" -ForegroundColor DarkGray
-Write-Host "      bar and paste it below." -ForegroundColor DarkGray
-Write-Host ""
-$CallbackUrl = Read-Host "  Paste the callback URL here"
-
-if ($CallbackUrl -notmatch "code=") {
-    Exit-Error "No authorization code found in the URL. Did you complete sign-in?"
+# Wait for CDP to become available
+$CdpReady = $false
+for ($i = 0; $i -lt 20; $i++) {
+    Start-Sleep -Seconds 1
+    try {
+        $null = Invoke-RestMethod "http://localhost:$DebugPort/json/version" -ErrorAction Stop
+        $CdpReady = $true; break
+    } catch {}
+}
+if (-not $CdpReady) {
+    $BrowserProc | Stop-Process -Force -ErrorAction SilentlyContinue
+    Exit-Error "Browser did not expose CDP on port $DebugPort within 20 seconds."
 }
 
-$Uri        = [System.Uri]$CallbackUrl
-$QueryParts = [System.Web.HttpUtility]::ParseQueryString($Uri.Query)
+$Elapsed = 0
+$Code    = $null
 
-# Fallback parser if HttpUtility isn't available
-if ($null -eq $QueryParts -or $QueryParts["code"] -eq $null) {
-    $Code     = ($CallbackUrl -split '[?&]' | Where-Object { $_ -match '^code=' }) -replace '^code=', ''
-    $GotState = ($CallbackUrl -split '[?&]' | Where-Object { $_ -match '^state=' }) -replace '^state=', ''
-} else {
-    $Code     = $QueryParts["code"]
-    $GotState = $QueryParts["state"]
+while ($Elapsed -lt $TimeoutSecs) {
+    Start-Sleep -Seconds $PollSecs
+    $Elapsed += $PollSecs
+    try {
+        $Tabs = Invoke-RestMethod "http://localhost:$DebugPort/json/list" -ErrorAction SilentlyContinue
+        foreach ($Tab in $Tabs) {
+            if ($Tab.url -like "*developer.ai.public.rakuten-it.com/callback*" -and $Tab.url -like "*code=*") {
+                $Uri      = [System.Uri]$Tab.url
+                $Query    = [System.Web.HttpUtility]::ParseQueryString($Uri.Query)
+                $Code     = $Query["code"]
+                $GotState = $Query["state"]
+                if ($GotState -ne $State) {
+                    $BrowserProc | Stop-Process -Force -ErrorAction SilentlyContinue
+                    Exit-Error "State mismatch - possible CSRF. Aborting."
+                }
+                break
+            }
+        }
+    } catch {}
+    if ($Code) { break }
+    Write-Info "...waiting for sign-in... (${Elapsed}s)"
 }
 
-if ([string]::IsNullOrEmpty($Code)) { Exit-Error "Could not extract authorization code from URL." }
-if ($GotState -ne $State)           { Exit-Error "State mismatch - possible CSRF. Aborting." }
+$BrowserProc | Stop-Process -Force -ErrorAction SilentlyContinue
+Remove-Item -Recurse -Force $TempProfile -ErrorAction SilentlyContinue
+
+if (-not $Code) { Exit-Error "Timed out after ${TimeoutSecs}s. Did you complete the sign-in?" }
 
 Write-Info "Exchanging token..."
 
-$TokenBody = @(
-    "grant_type=authorization_code",
-    "client_id=$ClientId",
-    "redirect_uri=$(ConvertTo-UrlEncoded $RedirectUri)",
-    "code=$Code",
-    "code_verifier=$Verifier"
-) -join $amp
-
 try {
-    $TokenResponse = Invoke-RestMethod `
-        -Method Post `
-        -Uri "$OktaIssuer/v1/token" `
+    $TokenResponse = Invoke-RestMethod -Method Post -Uri "$OktaIssuer/v1/token" `
         -ContentType "application/x-www-form-urlencoded" `
-        -Body $TokenBody
+        -Body @{
+            grant_type    = "authorization_code"
+            client_id     = $ClientId
+            redirect_uri  = $RedirectUri
+            code          = $Code
+            code_verifier = $Verifier
+        }
 } catch {
     Exit-Error "Token exchange failed: $_"
 }
