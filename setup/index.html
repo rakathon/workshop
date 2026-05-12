@@ -154,8 +154,8 @@
 
     .step-body {
       overflow: hidden;
-      transition: max-height 0.35s ease, opacity 0.3s ease;
-      max-height: 1200px;
+      transition: max-height 0.5s ease, opacity 0.3s ease;
+      max-height: 3000px;
       opacity: 1;
     }
 
@@ -591,6 +591,13 @@
           <div class="tip">
             <span class="tip-icon">&#128274;</span>
             <span>This profile is <strong>Not Signed</strong>. That is expected — it is distributed internally by your organization and does not require an Apple developer signature.</span>
+          </div>
+          <p style="font-size:15px; color:var(--text-muted); line-height:1.65; margin-top:24px; margin-bottom:20px;">
+            A confirmation dialog will appear warning that the profile author is unknown.
+            This is expected for internally distributed profiles — click <strong>Install</strong> to continue.
+          </p>
+          <div class="screenshot-wrap screenshot-wrap--narrow">
+            <img src="macos/profile-installation-warning.png" alt="Confirmation dialog asking if you want to install the Claude Desktop Third-Party Inference profile" />
           </div>
           <button class="btn-next" onclick="nextStep(7)">Next &rarr;</button>
         </div>
