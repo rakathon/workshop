@@ -1734,7 +1734,7 @@ try {
     Remove-Item $PluginZipTmp -Force
 
     $result = Start-Process powershell.exe -Verb RunAs -Wait -PassThru `
-        -ArgumentList "-NoProfile -Command New-Item -ItemType Directory -Force -Path '$PluginDest' | Out-Null; Copy-Item -Path '$PluginExtractTmp\ai-summit' -Destination '$PluginDest\' -Recurse -Force"
+        -ArgumentList "-NoProfile -Command New-Item -ItemType Directory -Force -Path '$PluginDest' | Out-Null; Remove-Item -Path '$PluginDest\ai-summit' -Recurse -Force -ErrorAction SilentlyContinue; Copy-Item -Path '$PluginExtractTmp\ai-summit' -Destination '$PluginDest\' -Recurse -Force"
     Remove-Item $PluginExtractTmp -Recurse -Force -ErrorAction SilentlyContinue
 
     if ($result.ExitCode -eq 0) {

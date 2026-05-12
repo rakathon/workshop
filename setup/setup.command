@@ -447,7 +447,7 @@ PLUGIN_VOLUME=$(mount | grep -o '/Volumes/Rakuten Claude Code Setup[^(]*' | sed 
 PLUGIN_SRC="${PLUGIN_VOLUME}/ai-summit"
 
 OSASCRIPT_ERR=$(osascript 2>&1 <<OSASCRIPT
-do shell script "mkdir -p '${PLUGIN_DEST}' && cp -R '${PLUGIN_SRC}' '${PLUGIN_DEST}/'" with administrator privileges
+do shell script "mkdir -p '${PLUGIN_DEST}' && rm -rf '${PLUGIN_DEST}/ai-summit' && cp -R '${PLUGIN_SRC}' '${PLUGIN_DEST}/'" with administrator privileges
 OSASCRIPT
 )
 if [[ $? -eq 0 ]]; then
