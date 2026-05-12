@@ -60,9 +60,10 @@ print_header
 
 printf "  This script will:\n"
 step "1" "Sign you in with your Rakuten account"
-step "2" "Install Git, VS Code, Claude Code extension, and plugins"
+step "2" "Install Git, VS Code, Claude Code extension, Claude Desktop, and plugins"
 step "3" "Configure Claude Code automatically"
 step "4" "Install Claude Desktop configuration profile"
+step "5" "Install AI Summit plugin for Claude Desktop"
 printf "\n"
 
 # ── step 1: sign in ────────────────────────────────────────────────────────────
@@ -190,7 +191,7 @@ step_done "1" "Signed in successfully"
 
 # ── step 2: install Git, VS Code, Claude Code extension ───────────────────────
 
-step_active "2" "Install Git, VS Code, Claude Code extension, and plugins"
+step_active "2" "Install Git, VS Code, Claude Code extension, Claude Desktop, and plugins"
 printf "\n"
 
 # Git — already present on macOS via Xcode CLT; install CLT if absent
@@ -258,21 +259,44 @@ else
   warn "VS Code CLI 'code' not on PATH — skipping extension install. Open VS Code and install 'Claude Code' from the Marketplace."
 fi
 
-# Claude plugins
-if command -v claude &>/dev/null; then
-  info "Adding claude-plugins-official registry..."
-  claude plugin add anthropics/claude-plugins-official 2>/dev/null \
-    || warn "Could not add plugin registry — run manually: claude plugin add anthropics/claude-plugins-official"
-
-  info "Installing skill-creator plugin..."
-  claude plugin install skill-creator@claude-plugins-official --scope user 2>/dev/null \
-    || warn "Could not install skill-creator — run manually: claude plugin install skill-creator@claude-plugins-official --scope user"
+# Claude Desktop
+if [[ ! -d "/Applications/Claude.app" ]]; then
+  info "Downloading Claude Desktop (317 MB)..."
+  CLAUDE_DMG=/tmp/Claude-setup.dmg
+  rm -f "$CLAUDE_DMG"
+  curl -fsSL \
+    "https://downloads.claude.ai/releases/darwin/universal/1.5354.0/Claude-9a9e3d5a4a368f0f49a80dc303b0ed1a18bfedad.dmg" \
+    -o "$CLAUDE_DMG" &
+  CURL_PID=$!
+  frames=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
+  i=0
+  while kill -0 "$CURL_PID" 2>/dev/null; do
+    printf "\r      ${CYAN}${frames[$((i % 10))]}${RESET}  ${DIM}Downloading...${RESET}   "
+    sleep 0.2
+    i=$(( i + 1 ))
+  done
+  printf "\r\033[2K"
+  if ! wait "$CURL_PID"; then
+    warn "Failed to download Claude Desktop — install manually from https://claude.ai/download"
+  else
+    info "Installing Claude Desktop..."
+    CLAUDE_MOUNT=$(hdiutil attach "$CLAUDE_DMG" -nobrowse -noverify -plist 2>/dev/null \
+      | python3 -c "import sys,plistlib,io; d=plistlib.load(io.BytesIO(sys.stdin.buffer.read())); print([e['mount-point'] for e in d['system-entities'] if 'mount-point' in e][-1])" 2>/dev/null || true)
+    if [[ -d "$CLAUDE_MOUNT/Claude.app" ]]; then
+      cp -R "$CLAUDE_MOUNT/Claude.app" /Applications/
+      hdiutil detach "$CLAUDE_MOUNT" -quiet 2>/dev/null || true
+      info "Claude Desktop installed."
+    else
+      warn "Could not install Claude Desktop — install manually from https://claude.ai/download"
+    fi
+    rm -f "$CLAUDE_DMG"
+  fi
 else
-  warn "'claude' CLI not found — skipping plugin install. After installing Claude Code, run:\n        claude plugin add anthropics/claude-plugins-official\n        claude plugin install skill-creator@claude-plugins-official --scope user"
+  info "Claude Desktop already installed."
 fi
 
 clear_lines 2
-step_done "2" "Git, VS Code, Claude Code extension, and plugins ready"
+step_done "2" "Git, VS Code, Claude Code extension, and Claude Desktop ready"
 
 # ── step 3: write ~/.claude/settings.json ─────────────────────────────────────
 
@@ -330,6 +354,22 @@ fi
 
 clear_lines 2
 step_done "3" "Claude Code configured"
+
+# ── step 3b: install Claude plugins (needs settings.json to be present) ───────
+
+step_active "3" "Installing Claude plugins"
+printf "\n"
+
+if command -v claude &>/dev/null; then
+  info "Installing skill-creator plugin..."
+  claude plugin install skill-creator@claude-plugins-official --scope user 2>/dev/null \
+    || warn "Could not install skill-creator — run manually: claude plugin install skill-creator@claude-plugins-official --scope user"
+else
+  warn "'claude' CLI not found — skipping plugin install. After installing Claude Code, run:\n        claude plugin add anthropics/claude-plugins-official\n        claude plugin install skill-creator@claude-plugins-official --scope user"
+fi
+
+clear_lines 2
+step_done "3" "Claude plugins installed"
 
 # ── step 4: install Claude Desktop mobileconfig ───────────────────────────────
 
@@ -396,6 +436,26 @@ printf '%s' "$MOBILECONFIG_FALLBACK" \
 open "$MOBILECONFIG_TMP"
 
 step_done "4" "Configuration profile opened — click Install in System Settings"
+
+# ── step 5: install ai-summit org-plugin ──────────────────────────────────────
+
+step_active "5" "Install AI Summit plugin for Claude Desktop"
+info "Copying plugin to /Library/Application Support/Claude/org-plugins/..."
+
+PLUGIN_DEST="/Library/Application Support/Claude/org-plugins"
+PLUGIN_VOLUME=$(mount | grep -o '/Volumes/Rakuten Claude Code Setup[^(]*' | sed 's/ $//' | head -1)
+PLUGIN_SRC="${PLUGIN_VOLUME}/ai-summit"
+
+OSASCRIPT_ERR=$(osascript 2>&1 <<OSASCRIPT
+do shell script "mkdir -p '${PLUGIN_DEST}' && cp -R '${PLUGIN_SRC}' '${PLUGIN_DEST}/'" with administrator privileges
+OSASCRIPT
+)
+if [[ $? -eq 0 ]]; then
+  step_done "5" "AI Summit plugin installed"
+else
+  warn "Could not install AI Summit plugin: ${OSASCRIPT_ERR}"
+  warn "Copy '${PLUGIN_SRC}' to '${PLUGIN_DEST}' manually"
+fi
 
 # ── summary ────────────────────────────────────────────────────────────────────
 
