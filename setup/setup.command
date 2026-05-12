@@ -324,10 +324,6 @@ step_active "3" "Installing Claude plugins"
 printf "\n"
 
 if command -v claude &>/dev/null; then
-  info "Adding claude-plugins-official registry..."
-  claude plugin add anthropics/claude-plugins-official 2>/dev/null \
-    || warn "Could not add plugin registry — run manually: claude plugin add anthropics/claude-plugins-official"
-
   info "Installing skill-creator plugin..."
   claude plugin install skill-creator@claude-plugins-official --scope user 2>/dev/null \
     || warn "Could not install skill-creator — run manually: claude plugin install skill-creator@claude-plugins-official --scope user"

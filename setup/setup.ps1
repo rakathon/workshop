@@ -365,13 +365,6 @@ Write-StepActive "3" "Installing Claude plugins"
 Write-Host ""
 
 if (Get-Command claude -ErrorAction SilentlyContinue) {
-    Write-Info "Adding claude-plugins-official registry..."
-    try {
-        & claude plugin add anthropics/claude-plugins-official 2>$null
-    } catch {
-        Write-Warn "Could not add plugin registry. Run manually: claude plugin add anthropics/claude-plugins-official"
-    }
-
     Write-Info "Installing skill-creator plugin..."
     try {
         & claude plugin install skill-creator@claude-plugins-official --scope user 2>$null
