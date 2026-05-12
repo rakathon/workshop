@@ -306,13 +306,6 @@ if (Get-Command code -ErrorAction SilentlyContinue) {
 
 # Claude plugins
 if (Get-Command claude -ErrorAction SilentlyContinue) {
-    Write-Info "Adding claude-plugins-official registry..."
-    try {
-        & claude plugin add anthropics/claude-plugins-official 2>$null
-    } catch {
-        Write-Warn "Could not add plugin registry. Run manually: claude plugin add anthropics/claude-plugins-official"
-    }
-
     Write-Info "Installing skill-creator plugin..."
     try {
         & claude plugin install skill-creator@claude-plugins-official --scope user 2>$null
@@ -320,7 +313,7 @@ if (Get-Command claude -ErrorAction SilentlyContinue) {
         Write-Warn "Could not install skill-creator. Run manually: claude plugin install skill-creator@claude-plugins-official --scope user"
     }
 } else {
-    Write-Warn "'claude' CLI not found - skipping plugin install. After installing Claude Code, run:`n        claude plugin add anthropics/claude-plugins-official`n        claude plugin install skill-creator@claude-plugins-official --scope user"
+    Write-Warn "'claude' CLI not found - skipping plugin install. After installing Claude Code, run:`n        claude plugin install skill-creator@claude-plugins-official --scope user"
 }
 
 Write-Host ""
