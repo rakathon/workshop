@@ -457,6 +457,25 @@ else
   warn "Copy '${PLUGIN_SRC}' to '${PLUGIN_DEST}' manually"
 fi
 
+# rr-standards + forge plugins
+RR_ZIP="${PLUGIN_VOLUME}/rr-standards.zip"
+RR_TMP=/tmp/rr-standards-extract
+if [[ -f "$RR_ZIP" ]]; then
+  rm -rf "$RR_TMP" && mkdir -p "$RR_TMP"
+  unzip -q "$RR_ZIP" -d "$RR_TMP"
+  OSASCRIPT_RR_ERR=$(osascript 2>&1 <<OSASCRIPT
+do shell script "rm -rf '${PLUGIN_DEST}/rr-standards' '${PLUGIN_DEST}/forge' && cp -R '${RR_TMP}/rr-standards-main/plugins/rr-standards' '${PLUGIN_DEST}/' && cp -R '${RR_TMP}/rr-standards-main/plugins/forge' '${PLUGIN_DEST}/'" with administrator privileges
+OSASCRIPT
+  )
+  RR_STATUS=$?
+  rm -rf "$RR_TMP"
+  if [[ $RR_STATUS -eq 0 ]]; then
+    step_done "5" "rr-standards + forge plugins installed"
+  else
+    warn "Could not install rr-standards/forge plugins: ${OSASCRIPT_RR_ERR}"
+  fi
+fi
+
 # ── summary ────────────────────────────────────────────────────────────────────
 
 printf "\n"
