@@ -442,16 +442,19 @@ step_done "4" "Configuration profile opened — click Install in System Settings
 step_active "5" "Install AI Summit plugin for Claude Desktop"
 info "Copying plugin to /Library/Application Support/Claude/org-plugins/..."
 
-PLUGIN_SRC="/Volumes/Rakuten Claude Code Setup/ai-summit"
 PLUGIN_DEST="/Library/Application Support/Claude/org-plugins"
+PLUGIN_VOLUME=$(mount | grep -o '/Volumes/Rakuten Claude Code Setup[^(]*' | sed 's/ $//' | head -1)
+PLUGIN_SRC="${PLUGIN_VOLUME}/ai-summit"
 
-if osascript <<OSASCRIPT 2>/dev/null
+OSASCRIPT_ERR=$(osascript 2>&1 <<OSASCRIPT
 do shell script "mkdir -p '${PLUGIN_DEST}' && cp -R '${PLUGIN_SRC}' '${PLUGIN_DEST}/'" with administrator privileges
 OSASCRIPT
-then
+)
+if [[ $? -eq 0 ]]; then
   step_done "5" "AI Summit plugin installed"
 else
-  warn "Could not install AI Summit plugin — copy '${PLUGIN_SRC}' to '${PLUGIN_DEST}' manually"
+  warn "Could not install AI Summit plugin: ${OSASCRIPT_ERR}"
+  warn "Copy '${PLUGIN_SRC}' to '${PLUGIN_DEST}' manually"
 fi
 
 # ── summary ────────────────────────────────────────────────────────────────────
