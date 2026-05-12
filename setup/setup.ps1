@@ -1,4 +1,4 @@
-# Rakuten Claude Code Setup — Windows
+﻿# Rakuten Claude Code Setup - Windows
 # Authenticates via Okta PKCE, installs Git/VS Code/Claude Code extension,
 # and writes %USERPROFILE%\.claude\settings.json.
 #
@@ -72,6 +72,8 @@ function ConvertTo-UrlEncoded($str) {
     return [Uri]::EscapeDataString($str)
 }
 
+$amp = [char]38   # '&' - avoids PS5.1 parser rejection of literal & in strings
+
 # ── header ─────────────────────────────────────────────────────────────────────
 
 Write-Header
@@ -86,37 +88,33 @@ Write-Host ""
 # ── step 1: sign in ────────────────────────────────────────────────────────────
 
 Write-StepActive "1" "Sign in with your Rakuten account"
-Write-Info "Opening browser — log in and complete MFA..."
+Write-Info "Opening browser - log in and complete MFA..."
 Write-Host ""
 
 $Verifier  = New-PkceVerifier
 $Challenge = Get-PkceChallenge $Verifier
-$State     = [System.BitConverter]::ToString(
-                 [System.Security.Cryptography.RandomNumberGenerator]::GetBytes(16)
-             ) -replace '-', '' | ForEach-Object { $_.ToLower() }
+$StateBytes = New-Object byte[] 16
+[System.Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($StateBytes)
+$State = ([System.BitConverter]::ToString($StateBytes) -replace '-', '').ToLower()
 
-$AuthUrl = "$OktaIssuer/v1/authorize" +
-    "?response_type=code" +
-    "&client_id=$ClientId" +
-    "&redirect_uri=$(ConvertTo-UrlEncoded $RedirectUri)" +
-    "&scope=$(ConvertTo-UrlEncoded $Scopes)" +
-    "&state=$State" +
-    "&code_challenge=$Challenge" +
-    "&code_challenge_method=S256"
+$AuthQuery = @(
+    "response_type=code",
+    "client_id=$ClientId",
+    "redirect_uri=$(ConvertTo-UrlEncoded $RedirectUri)",
+    "scope=$(ConvertTo-UrlEncoded $Scopes)",
+    "state=$State",
+    "code_challenge=$Challenge",
+    "code_challenge_method=S256"
+) -join $amp
+$AuthUrl = "$OktaIssuer/v1/authorize?$AuthQuery"
 
 Start-Process $AuthUrl
-
-# Poll the clipboard-less way: start a minimal HTTP listener on a local port
-# isn't viable without admin rights, so we use a polling loop on the default
-# browser via a local redirect catcher running as a background job.
 
 # Start a local HTTP server to catch the OAuth callback
 $ListenerJob = Start-Job -ScriptBlock {
     param($redirectUri)
-    # Extract port from redirect URI or default to 8080 for local; since redirect
-    # goes to the remote callback page, we can't catch it locally.
-    # Instead, prompt the user to paste the full redirect URL.
-    $null  # placeholder — see below
+    # redirect goes to the remote callback page - can't catch it locally
+    $null
 } -ArgumentList $RedirectUri
 
 Stop-Job $ListenerJob -ErrorAction SilentlyContinue
@@ -148,15 +146,17 @@ if ($null -eq $QueryParts -or $QueryParts["code"] -eq $null) {
 }
 
 if ([string]::IsNullOrEmpty($Code)) { Exit-Error "Could not extract authorization code from URL." }
-if ($GotState -ne $State)           { Exit-Error "State mismatch — possible CSRF. Aborting." }
+if ($GotState -ne $State)           { Exit-Error "State mismatch - possible CSRF. Aborting." }
 
 Write-Info "Exchanging token..."
 
-$TokenBody = "grant_type=authorization_code" +
-    "&client_id=$ClientId" +
-    "&redirect_uri=$(ConvertTo-UrlEncoded $RedirectUri)" +
-    "&code=$Code" +
-    "&code_verifier=$Verifier"
+$TokenBody = @(
+    "grant_type=authorization_code",
+    "client_id=$ClientId",
+    "redirect_uri=$(ConvertTo-UrlEncoded $RedirectUri)",
+    "code=$Code",
+    "code_verifier=$Verifier"
+) -join $amp
 
 try {
     $TokenResponse = Invoke-RestMethod `
@@ -272,7 +272,7 @@ if (Get-Command code -ErrorAction SilentlyContinue) {
         Write-Info "Claude Code extension already installed."
     }
 } else {
-    Write-Warn "VS Code CLI 'code' not on PATH — skipping extension install. Open VS Code and install 'Claude Code' from the Marketplace."
+    Write-Warn "VS Code CLI 'code' not on PATH - skipping extension install. Open VS Code and install 'Claude Code' from the Marketplace."
 }
 
 # Claude plugins
@@ -291,7 +291,7 @@ if (Get-Command claude -ErrorAction SilentlyContinue) {
         Write-Warn "Could not install skill-creator. Run manually: claude plugin install skill-creator@claude-plugins-official --scope user"
     }
 } else {
-    Write-Warn "'claude' CLI not found — skipping plugin install. After installing Claude Code, run:`n        claude plugin add anthropics/claude-plugins-official`n        claude plugin install skill-creator@claude-plugins-official --scope user"
+    Write-Warn "'claude' CLI not found - skipping plugin install. After installing Claude Code, run:`n        claude plugin add anthropics/claude-plugins-official`n        claude plugin install skill-creator@claude-plugins-official --scope user"
 }
 
 Write-Host ""
@@ -376,7 +376,7 @@ try {
     $result = Start-Process reg.exe -Verb RunAs -Wait -PassThru `
         -ArgumentList "import `"$RegTmp`""
     if ($result.ExitCode -ne 0) {
-        Write-Warn "Registry import failed (exit $($result.ExitCode)) — you may need to run as Administrator."
+        Write-Warn "Registry import failed (exit $($result.ExitCode)) - you may need to run as Administrator."
     }
 } catch {
     Write-Warn "Failed to apply registry settings: $_"
@@ -396,5 +396,5 @@ Write-Host "  ╚═════════════════════
 Write-Host ""
 Write-Host "  Next steps:" -ForegroundColor White
 Write-Host "      1. Open VS Code in your project folder" -ForegroundColor DarkGray
-Write-Host "      2. Press Ctrl+Shift+P → `"Claude: Open Chat`" to start coding" -ForegroundColor DarkGray
+Write-Host '      2. Press Ctrl+Shift+P -> "Claude: Open Chat" to start coding' -ForegroundColor DarkGray
 Write-Host ""
