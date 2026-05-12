@@ -278,7 +278,8 @@ if [[ ! -d "/Applications/Claude.app" ]]; then
   wait "$CURL_PID" || die "Failed to download Claude Desktop."
 
   info "Installing Claude Desktop..."
-  CLAUDE_MOUNT=$(hdiutil attach "$CLAUDE_DMG" -nobrowse -noverify | grep '/Volumes/' | awk '{print $NF}')
+  CLAUDE_MOUNT=$(hdiutil attach "$CLAUDE_DMG" -nobrowse -noverify -plist 2>/dev/null \
+    | python3 -c "import sys,plistlib; d=plistlib.load(sys.stdin.buffer); print([e['mount-point'] for e in d['system-entities'] if 'mount-point' in e][-1])")
   [[ -d "$CLAUDE_MOUNT/Claude.app" ]] || die "Could not find Claude.app in mounted DMG at $CLAUDE_MOUNT"
   cp -R "$CLAUDE_MOUNT/Claude.app" /Applications/
   hdiutil detach "$CLAUDE_MOUNT" -quiet
