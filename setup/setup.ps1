@@ -351,9 +351,7 @@ Write-StepDone "3" "Claude Code configured"
 
 # ── step 4: apply Claude Desktop registry settings ────────────────────────────
 
-$RegTemplateUrl = "https://nexus2.corp.ebates.com/repository/raw-packages/claude-desktop/general/claude-desktop.reg"
-
-$RegFallback = @"
+$RegTemplate = @"
 Windows Registry Editor Version 5.00
 
 [HKEY_CURRENT_USER\SOFTWARE\Policies\Claude]
@@ -367,19 +365,9 @@ Windows Registry Editor Version 5.00
 "@
 
 Write-StepActive "4" "Apply Claude Desktop registry settings"
-Write-Info "Fetching registry template..."
+Write-Info "Preparing registry settings..."
 
-$RegContent = $null
-try {
-    $nexusBytes = (Invoke-WebRequest -Uri $RegTemplateUrl -UseBasicParsing -TimeoutSec 5 -ErrorAction Stop).RawContentBytes
-    $RegContent = [System.Text.Encoding]::UTF8.GetString($nexusBytes)
-    Write-Info "Using registry template from Nexus."
-} catch {
-    Write-Warn "Nexus unreachable — using built-in registry template."
-    $RegContent = $RegFallback
-}
-
-$RegContent = $RegContent.Replace("{{BEARER_TOKEN}}", $Pat)
+$RegContent = $RegTemplate.Replace("{{BEARER_TOKEN}}", $Pat)
 
 Write-Info "Applying registry settings (UAC prompt may appear)..."
 $RegTmp = Join-Path $env:TEMP "Claude-$(New-Guid).reg"

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+	<dict>
+		<key>PayloadContent</key>
+		<array>
+			<dict>
+				<key>PayloadType</key>
+				<string>com.anthropic.claudefordesktop</string>
+				<key>PayloadIdentifier</key>
+				<string>com.anthropic.claudefordesktop.settings</string>
+				<key>PayloadUUID</key>
+				<string>0CBCAB4D-4E52-4C0C-A13C-FB31188A443A</string>
+				<key>PayloadVersion</key>
+				<integer>1</integer>
+				<key>PayloadDisplayName</key>
+				<string>Claude Desktop</string>
+				<key>coworkEgressAllowedHosts</key>
+				<string>["*"]</string>
+				<key>inferenceProvider</key>
+				<string>bedrock</string>
+				<key>inferenceBedrockRegion</key>
+				<string>us-east-1</string>
+				<key>inferenceBedrockBearerToken</key>
+				<string>{{BEARER_TOKEN}}</string>
+				<key>inferenceBedrockBaseUrl</key>
+				<string>https://api.ai.public.rakuten-it.com/claude-code-aws-bedrock/v1</string>
+				<key>inferenceModels</key>
+				<string>[{"name":"us.anthropic.claude-sonnet-4-6","supports1m":true}]</string>
+				<key>managedMcpServers</key>
+				<string>[{"name":"playwright","url":"https://agentgateway-mcp.shared-np.rr-it.com/mcp/playwright","transport":"http","oauth":true},{"name":"atlassian","url":"https://agentgateway-mcp.shared-np.rr-it.com/mcp/atlassian","transport":"http","oauth":true},{"name":"monday.com","url":"https://mcp.monday.com/sse","transport":"sse","oauth":true}]</string>
+			</dict>
+		</array>
+		<key>PayloadDisplayName</key>
+		<string>Claude Desktop Third-Party Inference</string>
+		<key>PayloadIdentifier</key>
+		<string>com.anthropic.claudefordesktop.profile</string>
+		<key>PayloadType</key>
+		<string>Configuration</string>
+		<key>PayloadUUID</key>
+		<string>5294DE36-EBCB-4778-81DC-35849822638C</string>
+		<key>PayloadVersion</key>
+		<integer>1</integer>
+		<key>PayloadScope</key>
+		<string>User</string>
+	</dict>
+</plist>

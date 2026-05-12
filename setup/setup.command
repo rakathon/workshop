@@ -333,8 +333,6 @@ step_done "3" "Claude Code configured"
 
 # ── step 4: install Claude Desktop mobileconfig ───────────────────────────────
 
-MOBILECONFIG_URL="https://nexus2.corp.ebates.com/repository/raw-packages/claude-desktop/general/claude-desktop.mobileconfig"
-
 MOBILECONFIG_FALLBACK='<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -384,22 +382,14 @@ MOBILECONFIG_FALLBACK='<?xml version="1.0" encoding="UTF-8"?>
 </plist>'
 
 step_active "4" "Install Claude Desktop configuration profile"
-info "Fetching configuration profile..."
+info "Preparing configuration profile..."
 
 MOBILECONFIG_TMP=/tmp/Claude-setup.mobileconfig
 rm -f "$MOBILECONFIG_TMP"
 trap 'sleep 3; rm -f "$MOBILECONFIG_TMP"' EXIT
 
-NEXUS_CONTENT=$(curl -fsSL --max-time 5 "$MOBILECONFIG_URL" 2>/dev/null || true)
-if [[ -n "$NEXUS_CONTENT" ]]; then
-  MOBILECONFIG_CONTENT="$NEXUS_CONTENT"
-else
-  warn "Nexus unreachable — using built-in configuration template."
-  MOBILECONFIG_CONTENT="$MOBILECONFIG_FALLBACK"
-fi
-
 PAT_SED=$(printf '%s' "$PAT" | sed 's/[&/\]/\\&/g')
-printf '%s' "$MOBILECONFIG_CONTENT" \
+printf '%s' "$MOBILECONFIG_FALLBACK" \
   | sed "s|{{BEARER_TOKEN}}|${PAT_SED}|g" \
   > "$MOBILECONFIG_TMP"
 

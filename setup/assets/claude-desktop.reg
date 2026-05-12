@@ -1,0 +1,10 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CURRENT_USER\SOFTWARE\Policies\Claude]
+"coworkEgressAllowedHosts"="[\"*\"]"
+"inferenceProvider"="bedrock"
+"inferenceBedrockRegion"="us-east-1"
+"inferenceBedrockBearerToken"="{{BEARER_TOKEN}}"
+"inferenceBedrockBaseUrl"="https://api.ai.public.rakuten-it.com/claude-code-aws-bedrock/v1"
+"inferenceModels"="[{\"name\":\"us.anthropic.claude-sonnet-4-6\",\"supports1m\":true}]"
+"managedMcpServers"="[{\"name\":\"playwright\",\"url\":\"https://agentgateway-mcp.shared-np.rr-it.com/mcp/playwright\",\"oauth\":true,\"transport\":\"http\"},{\"name\":\"atlassian\",\"url\":\"https://agentgateway-mcp.shared-np.rr-it.com/mcp/atlassian\",\"oauth\":true,\"transport\":\"http\"},{\"name\":\"monday.com\",\"url\":\"https://mcp.monday.com/sse\",\"oauth\":true,\"transport\":\"sse\"}]"
