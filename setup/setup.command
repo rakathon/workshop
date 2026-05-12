@@ -260,16 +260,26 @@ fi
 
 # Claude Desktop
 if [[ ! -d "/Applications/Claude.app" ]]; then
-  info "Downloading Claude Desktop..."
+  info "Downloading Claude Desktop (317 MB)..."
   CLAUDE_DMG=/tmp/Claude-setup.dmg
-  curl -fsSL --progress-bar \
+  rm -f "$CLAUDE_DMG"
+  curl -fsSL \
     "https://downloads.claude.ai/releases/darwin/universal/1.5354.0/Claude-9a9e3d5a4a368f0f49a80dc303b0ed1a18bfedad.dmg" \
-    -o "$CLAUDE_DMG" \
-    || die "Failed to download Claude Desktop."
-  printf "\n"
+    -o "$CLAUDE_DMG" &
+  CURL_PID=$!
+  frames=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
+  i=0
+  while kill -0 "$CURL_PID" 2>/dev/null; do
+    printf "\r      ${CYAN}${frames[$((i % 10))]}${RESET}  ${DIM}Downloading...${RESET}   "
+    sleep 0.2
+    i=$(( i + 1 ))
+  done
+  printf "\r\033[2K"
+  wait "$CURL_PID" || die "Failed to download Claude Desktop."
 
   info "Installing Claude Desktop..."
-  CLAUDE_MOUNT=$(hdiutil attach "$CLAUDE_DMG" -nobrowse -quiet | awk 'END{print $NF}')
+  CLAUDE_MOUNT=$(hdiutil attach "$CLAUDE_DMG" -nobrowse -noverify | grep '/Volumes/' | awk '{print $NF}')
+  [[ -d "$CLAUDE_MOUNT/Claude.app" ]] || die "Could not find Claude.app in mounted DMG at $CLAUDE_MOUNT"
   cp -R "$CLAUDE_MOUNT/Claude.app" /Applications/
   hdiutil detach "$CLAUDE_MOUNT" -quiet
   rm -f "$CLAUDE_DMG"
