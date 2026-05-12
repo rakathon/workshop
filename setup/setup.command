@@ -275,16 +275,21 @@ if [[ ! -d "/Applications/Claude.app" ]]; then
     i=$(( i + 1 ))
   done
   printf "\r\033[2K"
-  wait "$CURL_PID" || die "Failed to download Claude Desktop."
-
-  info "Installing Claude Desktop..."
-  CLAUDE_MOUNT=$(hdiutil attach "$CLAUDE_DMG" -nobrowse -noverify -plist 2>/dev/null \
-    | python3 -c "import sys,plistlib; d=plistlib.load(sys.stdin.buffer); print([e['mount-point'] for e in d['system-entities'] if 'mount-point' in e][-1])")
-  [[ -d "$CLAUDE_MOUNT/Claude.app" ]] || die "Could not find Claude.app in mounted DMG at $CLAUDE_MOUNT"
-  cp -R "$CLAUDE_MOUNT/Claude.app" /Applications/
-  hdiutil detach "$CLAUDE_MOUNT" -quiet
-  rm -f "$CLAUDE_DMG"
-  info "Claude Desktop installed."
+  if ! wait "$CURL_PID"; then
+    warn "Failed to download Claude Desktop — install manually from https://claude.ai/download"
+  else
+    info "Installing Claude Desktop..."
+    CLAUDE_MOUNT=$(hdiutil attach "$CLAUDE_DMG" -nobrowse -noverify -plist 2>/dev/null \
+      | python3 -c "import sys,plistlib,io; d=plistlib.load(io.BytesIO(sys.stdin.buffer.read())); print([e['mount-point'] for e in d['system-entities'] if 'mount-point' in e][-1])" 2>/dev/null || true)
+    if [[ -d "$CLAUDE_MOUNT/Claude.app" ]]; then
+      cp -R "$CLAUDE_MOUNT/Claude.app" /Applications/
+      hdiutil detach "$CLAUDE_MOUNT" -quiet 2>/dev/null || true
+      info "Claude Desktop installed."
+    else
+      warn "Could not install Claude Desktop — install manually from https://claude.ai/download"
+    fi
+    rm -f "$CLAUDE_DMG"
+  fi
 else
   info "Claude Desktop already installed."
 fi
