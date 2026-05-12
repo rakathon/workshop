@@ -62,6 +62,7 @@ printf "  This script will:\n"
 step "1" "Sign you in with your Rakuten account"
 step "2" "Install Git, VS Code, Claude Code extension, and plugins"
 step "3" "Configure Claude Code automatically"
+step "4" "Install Claude Desktop configuration profile"
 printf "\n"
 
 # ── step 1: sign in ────────────────────────────────────────────────────────────
@@ -337,6 +338,82 @@ fi
 clear_lines 2
 step_done "3" "Claude Code configured"
 
+# ── step 4: install Claude Desktop mobileconfig ───────────────────────────────
+
+MOBILECONFIG_URL="https://nexus2.corp.ebates.com/repository/raw-packages/claude-desktop/general/claude-desktop.mobileconfig"
+
+MOBILECONFIG_FALLBACK='<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+	<dict>
+		<key>PayloadContent</key>
+		<array>
+			<dict>
+				<key>PayloadType</key>
+				<string>com.anthropic.claudefordesktop</string>
+				<key>PayloadIdentifier</key>
+				<string>com.anthropic.claudefordesktop.settings</string>
+				<key>PayloadUUID</key>
+				<string>0CBCAB4D-4E52-4C0C-A13C-FB31188A443A</string>
+				<key>PayloadVersion</key>
+				<integer>1</integer>
+				<key>PayloadDisplayName</key>
+				<string>Claude Desktop</string>
+				<key>coworkEgressAllowedHosts</key>
+				<string>["*"]</string>
+				<key>inferenceProvider</key>
+				<string>bedrock</string>
+				<key>inferenceBedrockRegion</key>
+				<string>us-east-1</string>
+				<key>inferenceBedrockBearerToken</key>
+				<string>{{BEARER_TOKEN}}</string>
+				<key>inferenceBedrockBaseUrl</key>
+				<string>https://api.ai.public.rakuten-it.com/claude-code-aws-bedrock/v1</string>
+				<key>inferenceModels</key>
+				<string>[{"name":"us.anthropic.claude-sonnet-4-6","supports1m":true}]</string>
+				<key>managedMcpServers</key>
+				<string>[{"name":"playwright","url":"https://agentgateway-mcp.shared-np.rr-it.com/mcp/playwright","transport":"http","oauth":true},{"name":"atlassian","url":"https://agentgateway-mcp.shared-np.rr-it.com/mcp/atlassian","transport":"http","oauth":true},{"name":"monday.com","url":"https://mcp.monday.com/sse","transport":"sse","oauth":true}]</string>
+			</dict>
+		</array>
+		<key>PayloadDisplayName</key>
+		<string>Claude Desktop Third-Party Inference</string>
+		<key>PayloadIdentifier</key>
+		<string>com.anthropic.claudefordesktop.profile</string>
+		<key>PayloadType</key>
+		<string>Configuration</string>
+		<key>PayloadUUID</key>
+		<string>5294DE36-EBCB-4778-81DC-35849822638C</string>
+		<key>PayloadVersion</key>
+		<integer>1</integer>
+		<key>PayloadScope</key>
+		<string>User</string>
+	</dict>
+</plist>'
+
+step_active "4" "Install Claude Desktop configuration profile"
+info "Fetching configuration profile..."
+
+MOBILECONFIG_TMP=/tmp/Claude-setup.mobileconfig
+rm -f "$MOBILECONFIG_TMP"
+trap 'sleep 3; rm -f "$MOBILECONFIG_TMP"' EXIT
+
+NEXUS_CONTENT=$(curl -fsSL --max-time 5 "$MOBILECONFIG_URL" 2>/dev/null || true)
+if [[ -n "$NEXUS_CONTENT" ]]; then
+  MOBILECONFIG_CONTENT="$NEXUS_CONTENT"
+else
+  warn "Nexus unreachable — using built-in configuration template."
+  MOBILECONFIG_CONTENT="$MOBILECONFIG_FALLBACK"
+fi
+
+PAT_SED=$(printf '%s' "$PAT" | sed 's/[&/\]/\\&/g')
+printf '%s' "$MOBILECONFIG_CONTENT" \
+  | sed "s|{{BEARER_TOKEN}}|${PAT_SED}|g" \
+  > "$MOBILECONFIG_TMP"
+
+open "$MOBILECONFIG_TMP"
+
+step_done "4" "Configuration profile opened — click Install in System Settings"
+
 # ── summary ────────────────────────────────────────────────────────────────────
 
 printf "\n"
@@ -345,6 +422,7 @@ printf "  ${BOLD}${GREEN}║                  Setup Complete! 🎉              
 printf "  ${BOLD}${GREEN}╚══════════════════════════════════════════════════════╝${RESET}\n"
 printf "\n"
 printf "  ${WHITE}Next steps:${RESET}\n"
-printf "  ${DIM}1. Open VS Code in your project folder${RESET}\n"
-printf "  ${DIM}2. Press ${RESET}${BOLD}Cmd+Shift+P${RESET}${DIM} → \"Claude: Open Chat\" to start coding${RESET}\n"
+printf "  ${DIM}1. Click ${RESET}${BOLD}Install${RESET}${DIM} in the System Settings window that just opened${RESET}\n"
+printf "  ${DIM}2. Open VS Code in your project folder${RESET}\n"
+printf "  ${DIM}3. Press ${RESET}${BOLD}Cmd+Shift+P${RESET}${DIM} → \"Claude: Open Chat\" to start coding${RESET}\n"
 printf "\n"

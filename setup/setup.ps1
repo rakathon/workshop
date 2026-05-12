@@ -80,6 +80,7 @@ Write-Host "  This script will:"
 Write-Step "1" "Sign you in with your Rakuten account"
 Write-Step "2" "Install Git, VS Code, Claude Code extension, and plugins"
 Write-Step "3" "Configure Claude Code automatically"
+Write-Step "4" "Apply Claude Desktop registry settings"
 Write-Host ""
 
 # ── step 1: sign in ────────────────────────────────────────────────────────────
@@ -347,6 +348,56 @@ if (Test-Path $SettingsFile) {
 
 Write-Host ""
 Write-StepDone "3" "Claude Code configured"
+
+# ── step 4: apply Claude Desktop registry settings ────────────────────────────
+
+$RegTemplateUrl = "https://nexus2.corp.ebates.com/repository/raw-packages/claude-desktop/general/claude-desktop.reg"
+
+$RegFallback = @"
+Windows Registry Editor Version 5.00
+
+[HKEY_CURRENT_USER\SOFTWARE\Policies\Claude]
+"coworkEgressAllowedHosts"="[`"*`"]"
+"inferenceProvider"="bedrock"
+"inferenceBedrockRegion"="us-east-1"
+"inferenceBedrockBearerToken"="{{BEARER_TOKEN}}"
+"inferenceBedrockBaseUrl"="https://api.ai.public.rakuten-it.com/claude-code-aws-bedrock/v1"
+"inferenceModels"="[{`"name`":`"us.anthropic.claude-sonnet-4-6`",`"supports1m`":true}]"
+"managedMcpServers"="[{`"name`":`"playwright`",`"url`":`"https://agentgateway-mcp.shared-np.rr-it.com/mcp/playwright`",`"oauth`":true,`"transport`":`"http`"},{`"name`":`"atlassian`",`"url`":`"https://agentgateway-mcp.shared-np.rr-it.com/mcp/atlassian`",`"oauth`":true,`"transport`":`"http`"},{`"name`":`"monday.com`",`"url`":`"https://mcp.monday.com/sse`",`"oauth`":true,`"transport`":`"sse`"}]"
+"@
+
+Write-StepActive "4" "Apply Claude Desktop registry settings"
+Write-Info "Fetching registry template..."
+
+$RegContent = $null
+try {
+    $nexusBytes = (Invoke-WebRequest -Uri $RegTemplateUrl -UseBasicParsing -TimeoutSec 5 -ErrorAction Stop).RawContentBytes
+    $RegContent = [System.Text.Encoding]::UTF8.GetString($nexusBytes)
+    Write-Info "Using registry template from Nexus."
+} catch {
+    Write-Warn "Nexus unreachable — using built-in registry template."
+    $RegContent = $RegFallback
+}
+
+$RegContent = $RegContent.Replace("{{BEARER_TOKEN}}", $Pat)
+
+Write-Info "Applying registry settings (UAC prompt may appear)..."
+$RegTmp = Join-Path $env:TEMP "Claude-$(New-Guid).reg"
+try {
+    [System.IO.File]::WriteAllText($RegTmp, $RegContent, [System.Text.Encoding]::Unicode)
+    $result = Start-Process reg.exe -Verb RunAs -Wait -PassThru `
+        -ArgumentList "import `"$RegTmp`""
+    if ($result.ExitCode -ne 0) {
+        Write-Warn "Registry import failed (exit $($result.ExitCode)) — you may need to run as Administrator."
+    }
+} catch {
+    Write-Warn "Failed to apply registry settings: $_"
+} finally {
+    Remove-Item $RegTmp -ErrorAction SilentlyContinue
+}
+
+Write-Host ""
+Write-StepDone "4" "Claude Desktop registry settings applied"
 
 # ── summary ────────────────────────────────────────────────────────────────────
 
