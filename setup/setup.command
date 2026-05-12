@@ -258,21 +258,8 @@ else
   warn "VS Code CLI 'code' not on PATH — skipping extension install. Open VS Code and install 'Claude Code' from the Marketplace."
 fi
 
-# Claude plugins
-if command -v claude &>/dev/null; then
-  info "Adding claude-plugins-official registry..."
-  claude plugin add anthropics/claude-plugins-official 2>/dev/null \
-    || warn "Could not add plugin registry — run manually: claude plugin add anthropics/claude-plugins-official"
-
-  info "Installing skill-creator plugin..."
-  claude plugin install skill-creator@claude-plugins-official --scope user 2>/dev/null \
-    || warn "Could not install skill-creator — run manually: claude plugin install skill-creator@claude-plugins-official --scope user"
-else
-  warn "'claude' CLI not found — skipping plugin install. After installing Claude Code, run:\n        claude plugin add anthropics/claude-plugins-official\n        claude plugin install skill-creator@claude-plugins-official --scope user"
-fi
-
 clear_lines 2
-step_done "2" "Git, VS Code, Claude Code extension, and plugins ready"
+step_done "2" "Git, VS Code, and Claude Code extension ready"
 
 # ── step 3: write ~/.claude/settings.json ─────────────────────────────────────
 
@@ -330,6 +317,26 @@ fi
 
 clear_lines 2
 step_done "3" "Claude Code configured"
+
+# ── step 3b: install Claude plugins (needs settings.json to be present) ───────
+
+step_active "3" "Installing Claude plugins"
+printf "\n"
+
+if command -v claude &>/dev/null; then
+  info "Adding claude-plugins-official registry..."
+  claude plugin add anthropics/claude-plugins-official 2>/dev/null \
+    || warn "Could not add plugin registry — run manually: claude plugin add anthropics/claude-plugins-official"
+
+  info "Installing skill-creator plugin..."
+  claude plugin install skill-creator@claude-plugins-official --scope user 2>/dev/null \
+    || warn "Could not install skill-creator — run manually: claude plugin install skill-creator@claude-plugins-official --scope user"
+else
+  warn "'claude' CLI not found — skipping plugin install. After installing Claude Code, run:\n        claude plugin add anthropics/claude-plugins-official\n        claude plugin install skill-creator@claude-plugins-official --scope user"
+fi
+
+clear_lines 2
+step_done "3" "Claude plugins installed"
 
 # ── step 4: install Claude Desktop mobileconfig ───────────────────────────────
 

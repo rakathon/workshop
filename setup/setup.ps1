@@ -304,27 +304,8 @@ if (Get-Command code -ErrorAction SilentlyContinue) {
     Write-Warn "VS Code CLI 'code' not on PATH - skipping extension install. Open VS Code and install 'Claude Code' from the Marketplace."
 }
 
-# Claude plugins
-if (Get-Command claude -ErrorAction SilentlyContinue) {
-    Write-Info "Adding claude-plugins-official registry..."
-    try {
-        & claude plugin add anthropics/claude-plugins-official 2>$null
-    } catch {
-        Write-Warn "Could not add plugin registry. Run manually: claude plugin add anthropics/claude-plugins-official"
-    }
-
-    Write-Info "Installing skill-creator plugin..."
-    try {
-        & claude plugin install skill-creator@claude-plugins-official --scope user 2>$null
-    } catch {
-        Write-Warn "Could not install skill-creator. Run manually: claude plugin install skill-creator@claude-plugins-official --scope user"
-    }
-} else {
-    Write-Warn "'claude' CLI not found - skipping plugin install. After installing Claude Code, run:`n        claude plugin add anthropics/claude-plugins-official`n        claude plugin install skill-creator@claude-plugins-official --scope user"
-}
-
 Write-Host ""
-Write-StepDone "2" "Git, VS Code, Claude Code extension, and plugins ready"
+Write-StepDone "2" "Git, VS Code, and Claude Code extension ready"
 
 # ── step 3: write settings.json ───────────────────────────────────────────────
 
@@ -377,6 +358,32 @@ if (Test-Path $SettingsFile) {
 
 Write-Host ""
 Write-StepDone "3" "Claude Code configured"
+
+# ── step 3b: install Claude plugins (needs settings.json to be present) ───────
+
+Write-StepActive "3" "Installing Claude plugins"
+Write-Host ""
+
+if (Get-Command claude -ErrorAction SilentlyContinue) {
+    Write-Info "Adding claude-plugins-official registry..."
+    try {
+        & claude plugin add anthropics/claude-plugins-official 2>$null
+    } catch {
+        Write-Warn "Could not add plugin registry. Run manually: claude plugin add anthropics/claude-plugins-official"
+    }
+
+    Write-Info "Installing skill-creator plugin..."
+    try {
+        & claude plugin install skill-creator@claude-plugins-official --scope user 2>$null
+    } catch {
+        Write-Warn "Could not install skill-creator. Run manually: claude plugin install skill-creator@claude-plugins-official --scope user"
+    }
+} else {
+    Write-Warn "'claude' CLI not found - skipping plugin install. After installing Claude Code, run:`n        claude plugin add anthropics/claude-plugins-official`n        claude plugin install skill-creator@claude-plugins-official --scope user"
+}
+
+Write-Host ""
+Write-StepDone "3" "Claude plugins installed"
 
 # ── step 4: apply Claude Desktop registry settings ────────────────────────────
 
