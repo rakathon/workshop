@@ -603,39 +603,32 @@
       <thead>
         <tr>
           <th>Component</th>
-          <th>Where it lives</th>
           <th>Why</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td>Claude Desktop</td>
-          <td><code>/Applications/Claude.app</code> (Mac)<br /><code>%LOCALAPPDATA%\Programs\Claude</code> (Win)</td>
           <td>The chat client — pre-packaged plugins included</td>
         </tr>
         <tr>
           <td>Claude Code CLI</td>
-          <td><code>/usr/local/bin/claude</code> (Mac)<br /><code>%LOCALAPPDATA%\claude\</code> (Win)</td>
           <td>Terminal coding agent — pre-packaged plugins included</td>
         </tr>
         <tr>
           <td>VS Code</td>
-          <td><code>/Applications/Visual Studio Code.app</code> (Mac)<br /><code>%LOCALAPPDATA%\Programs\Microsoft VS Code\</code> (Win)</td>
           <td>Recommended editor — the script also installs the Claude Code extension. Skipped if already installed.</td>
         </tr>
         <tr>
           <td>Git</td>
-          <td><code>/usr/bin/git</code> (Mac)<br /><code>C:\Program Files\Git\</code> (Win)</td>
           <td>Version control — skipped if already installed</td>
         </tr>
         <tr>
           <td>Configuration Profile</td>
-          <td>macOS Device Management (Mac only)</td>
           <td>Routes inference to Rakuten's Bedrock endpoint, not Anthropic's public API</td>
         </tr>
         <tr>
           <td>Connectors (MCP)</td>
-          <td><code>~/.claude/</code></td>
           <td>
             <div class="connector-pills">
               <span class="connector-pill">Slack</span>
