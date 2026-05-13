@@ -315,7 +315,7 @@ if (Get-Command code -ErrorAction SilentlyContinue) {
     if ($Extensions -notmatch "anthropic\.claude-code") {
         Write-Info "Installing Claude Code extension..."
         try {
-            & code --install-extension anthropic.claude-code --force
+            & code --install-extension anthropic.claude-code --force --ignore-certificate-errors
         } catch {
             Write-Warn "Could not install Claude Code extension automatically. Install 'Claude Code' from the VS Code Marketplace."
         }
@@ -361,7 +361,7 @@ if (Test-Path $SettingsFile) {
     } catch {
         $Existing = [PSCustomObject]@{}
     }
-    if ($null -eq $Existing.env) {
+    if (-not ($Existing.PSObject.Properties.Name -contains "env")) {
         $Existing | Add-Member -NotePropertyName "env" -NotePropertyValue ([PSCustomObject]@{})
     }
     foreach ($key in $EnvBlock.Keys) {
