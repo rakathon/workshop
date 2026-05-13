@@ -246,6 +246,20 @@ else
   info "Claude Code CLI already installed ($(claude --version 2>/dev/null || true))."
 fi
 
+# Node.js + npx via nvm
+if ! command -v npx &>/dev/null; then
+  info "Installing Node.js (includes npx)..."
+  curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash \
+    || warn "Could not install nvm. Visit https://nodejs.org for instructions."
+  export NVM_DIR="$HOME/.nvm"
+  [[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh"
+  nvm install --lts 2>/dev/null \
+    || warn "Could not install Node.js via nvm."
+  export PATH="$NVM_DIR/versions/node/$(nvm current 2>/dev/null)/bin:$PATH"
+else
+  info "Node.js already installed ($(node --version 2>/dev/null || true))."
+fi
+
 # Claude Code VS Code extension
 if command -v code &>/dev/null; then
   if ! code --list-extensions 2>/dev/null | grep -qi "anthropic.claude-code"; then
@@ -296,7 +310,7 @@ else
 fi
 
 clear_lines 2
-step_done "2" "Git, VS Code, Claude Code extension, and Claude Desktop ready"
+step_done "2" "Git, VS Code, Claude Code extension, Claude Desktop, and Node.js ready"
 
 # ── step 3: write ~/.claude/settings.json ─────────────────────────────────────
 

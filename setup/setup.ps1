@@ -308,6 +308,26 @@ if (-not (Get-Command claude -ErrorAction SilentlyContinue)) {
     Write-Info "Claude Code CLI already installed."
 }
 
+# Node.js + npx
+if (-not (Get-Command npx -ErrorAction SilentlyContinue)) {
+    Write-Info "Installing Node.js (includes npx)..."
+    try {
+        $NodePage = Invoke-WebRequest "https://nodejs.org/dist/latest-v22.x/" -UseBasicParsing
+        $NodeMsiName = ($NodePage.Links.href | Where-Object { $_ -match "node-v.*-x64\.msi$" } | Select-Object -First 1)
+        $NodeMsiUrl = "https://nodejs.org/dist/latest-v22.x/$NodeMsiName"
+        $NodeMsi = Join-Path $env:TEMP "node-lts.msi"
+        Invoke-WebRequest $NodeMsiUrl -OutFile $NodeMsi -UseBasicParsing
+        Start-Process msiexec.exe -ArgumentList "/i `"$NodeMsi`" /qn" -Wait
+        Remove-Item $NodeMsi -Force -ErrorAction SilentlyContinue
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" +
+                    [System.Environment]::GetEnvironmentVariable("Path","User")
+    } catch {
+        Write-Warn "Could not install Node.js automatically. Visit https://nodejs.org for instructions."
+    }
+} else {
+    Write-Info "Node.js already installed ($(node --version 2>$null))."
+}
+
 # Claude Code extension
 if (Get-Command code -ErrorAction SilentlyContinue) {
     $Extensions = & code --list-extensions 2>$null
@@ -326,7 +346,7 @@ if (Get-Command code -ErrorAction SilentlyContinue) {
 }
 
 Write-Host ""
-Write-StepDone "2" "Git, VS Code, and Claude Code extension ready"
+Write-StepDone "2" "Git, VS Code, Claude Code extension, and Node.js ready"
 
 # ── step 3: write settings.json ───────────────────────────────────────────────
 
