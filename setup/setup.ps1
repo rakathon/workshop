@@ -264,7 +264,17 @@ $ClaudeDesktopInstalled = (Test-Path "$env:LOCALAPPDATA\AnthropicClaude\claude.e
                           (Test-Path "$env:LOCALAPPDATA\Programs\Claude\Claude.exe")
 if (-not $ClaudeDesktopInstalled) {
     $ClaudeExe = Join-Path $PSScriptRoot "assets\claude-windows.exe"
-    if (Test-Path $ClaudeExe) {
+    if (-not (Test-Path $ClaudeExe)) {
+        Write-Info "Downloading Claude Desktop installer..."
+        $ClaudeExe = "$env:TEMP\claude-windows.exe"
+        try {
+            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/rakathon/workshop/main/setup/assets/claude-windows.exe" -OutFile $ClaudeExe -UseBasicParsing
+        } catch {
+            Write-Warn "Could not download Claude Desktop installer: $_"
+            $ClaudeExe = $null
+        }
+    }
+    if ($ClaudeExe -and (Test-Path $ClaudeExe)) {
         Write-Info "Installing Claude Desktop..."
         try {
             Start-Process -FilePath $ClaudeExe -Wait
@@ -272,8 +282,6 @@ if (-not $ClaudeDesktopInstalled) {
         } catch {
             Write-Warn "Could not install Claude Desktop automatically: $_"
         }
-    } else {
-        Write-Warn "Claude Desktop installer not found at $ClaudeExe"
     }
 } else {
     Write-Info "Claude Desktop already installed."
@@ -284,7 +292,13 @@ if (-not (Get-Command claude -ErrorAction SilentlyContinue)) {
     Write-Info "Installing Claude Code CLI..."
     try {
         irm https://claude.ai/install.ps1 | iex
-        # Refresh PATH
+        # Persist ~/.local/bin to user PATH if the installer didn't
+        $LocalBin = "$env:USERPROFILE\.local\bin"
+        $UserPath = [System.Environment]::GetEnvironmentVariable("Path", "User")
+        if ($UserPath -notlike "*$LocalBin*") {
+            [System.Environment]::SetEnvironmentVariable("Path", "$UserPath;$LocalBin", "User")
+        }
+        # Refresh current session PATH
         $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" +
                     [System.Environment]::GetEnvironmentVariable("Path", "User")
     } catch {
@@ -350,7 +364,7 @@ if (Test-Path $SettingsFile) {
         $Existing | Add-Member -NotePropertyName "env" -NotePropertyValue ([PSCustomObject]@{})
     }
     foreach ($key in $EnvBlock.Keys) {
-        if ($Existing.env.PSObject.Properties.Name -contains $key) {
+        if ($Existing.env.PSObject.Properties[$key]) {
             $Existing.env.$key = $EnvBlock[$key]
         } else {
             $Existing.env | Add-Member -NotePropertyName $key -NotePropertyValue $EnvBlock[$key]
