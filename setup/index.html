@@ -39,7 +39,7 @@
 
     header {
       text-align: center;
-      margin-bottom: 56px;
+      margin-bottom: 48px;
     }
 
     .badge {
@@ -72,6 +72,126 @@
       line-height: 1.6;
       max-width: 660px;
       margin: 0 auto;
+    }
+
+    /* ── Before you begin ── */
+    .before-begin {
+      max-width: 760px;
+      margin: 0 auto 24px;
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: 16px;
+      padding: 28px 32px;
+    }
+
+    .before-begin h3 {
+      font-size: 15px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--primary-light);
+      margin-bottom: 16px;
+    }
+
+    .before-begin ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .before-begin ul li {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.55;
+      padding-left: 20px;
+      position: relative;
+    }
+
+    .before-begin ul li::before {
+      content: "›";
+      position: absolute;
+      left: 0;
+      color: var(--primary-light);
+      font-weight: 700;
+    }
+
+    .before-begin ul li strong { color: var(--text); }
+
+    .before-begin .help-line {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--surface-border);
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .before-begin .help-line a { color: var(--primary-light); text-decoration: none; }
+    .before-begin .help-line a:hover { text-decoration: underline; }
+
+    /* ── What this installs table ── */
+    .installs-section {
+      max-width: 760px;
+      margin: 0 auto 40px;
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .installs-section h3 {
+      font-size: 15px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--primary-light);
+      padding: 20px 24px 14px;
+    }
+
+    .installs-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .installs-table th {
+      background: var(--surface-light);
+      color: var(--text-muted);
+      font-weight: 600;
+      text-align: left;
+      padding: 10px 16px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      border-top: 1px solid var(--surface-border);
+    }
+
+    .installs-table td {
+      padding: 11px 16px;
+      border-top: 1px solid var(--surface-border);
+      color: var(--text-muted);
+      vertical-align: top;
+      line-height: 1.5;
+    }
+
+    .installs-table td:first-child { color: var(--text); font-weight: 600; white-space: nowrap; }
+    .installs-table tr:last-child td { border-bottom: none; }
+
+    .connector-pills {
+      display: inline-flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .connector-pill {
+      display: inline-block;
+      background: rgba(124, 58, 237, 0.15);
+      border: 1px solid rgba(124, 58, 237, 0.4);
+      border-radius: 999px;
+      padding: 2px 10px;
+      font-size: 12px;
+      color: var(--primary-light);
+      font-weight: 500;
     }
 
     /* ── Step cards ── */
@@ -155,7 +275,7 @@
     .step-body {
       overflow: hidden;
       transition: max-height 0.5s ease, opacity 0.3s ease;
-      max-height: 3000px;
+      max-height: 4000px;
       opacity: 1;
     }
 
@@ -222,6 +342,84 @@
 
     .tip strong { color: #fde68a; }
     .tip-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── Warning callout (Bedrock step) ── */
+    .warning-callout {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin-bottom: 24px;
+      font-size: 14px;
+      color: #fca5a5;
+      line-height: 1.6;
+    }
+
+    .warning-callout strong { color: #fecaca; }
+    .warning-callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── Verification checks ── */
+    .verify-check {
+      background: var(--surface-light);
+      border: 1px solid var(--surface-border);
+      border-radius: 14px;
+      padding: 20px 22px;
+      margin-bottom: 16px;
+    }
+
+    .verify-check-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--primary-light);
+      margin-bottom: 10px;
+    }
+
+    .verify-check p { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+    .verify-check p strong { color: var(--text); }
+
+    .prompt-quote {
+      margin: 12px 0 0;
+      padding: 12px 16px;
+      background: var(--code-bg);
+      border-left: 3px solid var(--primary);
+      border-radius: 0 8px 8px 0;
+      font-size: 13px;
+      color: #c4b5fd;
+      font-style: italic;
+      line-height: 1.6;
+    }
+
+    /* ── Try this first ── */
+    .try-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .try-list li {
+      background: var(--surface-light);
+      border: 1px solid var(--surface-border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.55;
+      font-style: italic;
+    }
+
+    .try-list li::before {
+      content: attr(data-n) ". ";
+      color: var(--primary-light);
+      font-style: normal;
+      font-weight: 600;
+    }
 
     .connector {
       display: flex;
@@ -301,7 +499,6 @@
     .btn-next:hover  { opacity: 0.88; transform: translateY(-1px); }
     .btn-next:active { transform: translateY(0); }
 
-    /* Inside .step-actions the Next button is secondary — no top margin, dimmer style */
     .step-actions .btn-next {
       margin-top: 0;
       background: transparent;
@@ -368,6 +565,8 @@
       .step-header { gap: 14px; }
       .os-paths { flex-direction: column; }
       .os-path-divider { align-self: center; }
+      .before-begin { padding: 20px 18px; }
+      .installs-table td, .installs-table th { padding: 9px 12px; }
     }
   </style>
 </head>
@@ -382,6 +581,74 @@
       Just download, run, and you're ready to code.
     </p>
   </header>
+
+  <!-- ── Before you begin ── -->
+  <div class="before-begin">
+    <h3>Before you begin</h3>
+    <ul>
+      <li><strong>Time required:</strong> 15 minutes – 1 hour on either Mac or Windows. Please ensure completion prior to the day of the workshop.</li>
+      <li><strong>Supported OS:</strong> macOS 14 (Sonoma) or later &nbsp;·&nbsp; Windows 10 / 11</li>
+      <li><strong>You will need:</strong> your local Mac or Windows password, an active Rakuten OKTA account, and access to the Rakuten corporate network or VPN.</li>
+      <li><strong>Already have Claude Desktop, Claude Code, or VS Code?</strong> The script will skip existing installations.</li>
+    </ul>
+    <div class="help-line">
+      Need help? Post in <a href="https://rakuten-international.slack.com/archives/C0B1SE4UJ06">#wg-2026-05-ls-summit-claude</a> on Slack — fastest response. &nbsp;·&nbsp; DRI: <a href="https://rakuten-international.slack.com/team/UEVTM16DR">Paras Patel</a>
+    </div>
+  </div>
+
+  <!-- ── What this installs ── -->
+  <div class="installs-section">
+    <h3>What this installs</h3>
+    <table class="installs-table">
+      <thead>
+        <tr>
+          <th>Component</th>
+          <th>Where it lives</th>
+          <th>Why</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Claude Desktop</td>
+          <td><code>/Applications/Claude.app</code> (Mac)<br /><code>%LOCALAPPDATA%\Programs\Claude</code> (Win)</td>
+          <td>The chat client — pre-packaged plugins included</td>
+        </tr>
+        <tr>
+          <td>Claude Code CLI</td>
+          <td><code>/usr/local/bin/claude</code> (Mac)<br /><code>%LOCALAPPDATA%\claude\</code> (Win)</td>
+          <td>Terminal coding agent — pre-packaged plugins included</td>
+        </tr>
+        <tr>
+          <td>VS Code</td>
+          <td><code>/Applications/Visual Studio Code.app</code> (Mac)<br /><code>%LOCALAPPDATA%\Programs\Microsoft VS Code\</code> (Win)</td>
+          <td>Recommended editor — the script also installs the Claude Code extension. Skipped if already installed.</td>
+        </tr>
+        <tr>
+          <td>Git</td>
+          <td><code>/usr/bin/git</code> (Mac)<br /><code>C:\Program Files\Git\</code> (Win)</td>
+          <td>Version control — skipped if already installed</td>
+        </tr>
+        <tr>
+          <td>Configuration Profile</td>
+          <td>macOS Device Management (Mac only)</td>
+          <td>Routes inference to Rakuten's Bedrock endpoint, not Anthropic's public API</td>
+        </tr>
+        <tr>
+          <td>Connectors (MCP)</td>
+          <td><code>~/.claude/</code></td>
+          <td>
+            <div class="connector-pills">
+              <span class="connector-pill">Slack</span>
+              <span class="connector-pill">Atlassian</span>
+              <span class="connector-pill">Monday</span>
+              <span class="connector-pill">DataDog</span>
+              <span class="connector-pill">BrowserStack</span>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
   <!-- ── macOS full flow ── -->
   <div id="macos-flow" class="page">
@@ -487,7 +754,7 @@
         <div class="step-body">
           <p style="font-size:15px; color:var(--text-muted); line-height:1.65; margin-bottom:20px;">
             A Terminal window will open and the script will begin installing Claude Code, Claude Desktop,
-            and all required plugins. This may take a minute or two.
+            and all required connectors. This may take a minute or two.
           </p>
           <div class="screenshot-wrap" style="margin-bottom:24px;">
             <img src="macos/command-run.png" alt="Terminal window showing the setup script running" />
@@ -555,7 +822,7 @@
           <div class="step-number">6</div>
           <div class="step-text">
             <h2>Find the Downloaded Profile</h2>
-            <p>Locate <strong>Claude Desktop Third-Party Inference</strong> in the Downloaded section.</p>
+            <p>Locate <strong>Rakuten Claude AI Configuration</strong> in the Downloaded section.</p>
           </div>
           <div class="step-chevron">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -564,11 +831,11 @@
         <div class="step-body">
           <p style="font-size:15px; color:var(--text-muted); line-height:1.65; margin-bottom:20px;">
             In the <strong>Device Management</strong> pane, scroll to the <strong>Downloaded</strong> section.
-            You should see <strong>Claude Desktop Third-Party Inference</strong> listed with a yellow
+            You should see <strong>Rakuten Claude AI Configuration</strong> listed with a yellow
             warning badge indicating the profile is not yet installed.
           </p>
           <div class="screenshot-wrap">
-            <img src="macos/profile-preinstall.png" alt="Device Management pane showing the Claude Desktop Third-Party Inference profile under the Downloaded section" />
+            <img src="macos/profile-preinstall.png" alt="Device Management pane showing the Rakuten Claude AI Configuration profile under the Downloaded section" />
           </div>
           <button class="btn-next" onclick="nextStep(6)">Next &rarr;</button>
         </div>
@@ -595,18 +862,18 @@
             bottom-left corner to apply it. You may be prompted for your Mac password.
           </p>
           <div class="screenshot-wrap">
-            <img src="macos/profile-install.png" alt="Profile installation dialog showing Claude Desktop Third-Party Inference profile details with the Install button" />
+            <img src="macos/profile-install.png" alt="Profile installation dialog showing Rakuten Claude AI Configuration profile details with the Install button" />
           </div>
           <div class="tip">
             <span class="tip-icon">&#128274;</span>
-            <span>This profile is <strong>Not Signed</strong>. That is expected — it is distributed internally by your organization and does not require an Apple developer signature.</span>
+            <span><strong>This profile is distributed and verified by Rakuten IT, not by Apple.</strong> It does not pass through Apple's Developer ID program because it is for internal use only. You can inspect the profile's contents before installing by clicking "Show Details."</span>
           </div>
           <p style="font-size:15px; color:var(--text-muted); line-height:1.65; margin-top:24px; margin-bottom:20px;">
             A confirmation dialog will appear warning that the profile author is unknown.
             This is expected for internally distributed profiles — click <strong>Install</strong> to continue.
           </p>
           <div class="screenshot-wrap screenshot-wrap--narrow">
-            <img src="macos/profile-installation-warning.png" alt="Confirmation dialog asking if you want to install the Claude Desktop Third-Party Inference profile" />
+            <img src="macos/profile-installation-warning.png" alt="Confirmation dialog asking if you want to install the Rakuten Claude AI Configuration profile" />
           </div>
           <button class="btn-next" onclick="nextStep(7)">Next &rarr;</button>
         </div>
@@ -619,21 +886,25 @@
         <div class="step-header" onclick="toggleStep(8)">
           <div class="step-number">8</div>
           <div class="step-text">
-            <h2>Sign in with Bedrock</h2>
-            <p>Choose <strong>Continue with Bedrock</strong> on the login screen.</p>
+            <h2>Sign in with Rakuten AI (Bedrock)</h2>
+            <p>Choose <strong>Continue with Rakuten AI (Bedrock)</strong> on the login screen.</p>
           </div>
           <div class="step-chevron">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
         </div>
         <div class="step-body">
+          <div class="warning-callout">
+            <span class="warning-callout-icon">&#9888;&#65039;</span>
+            <span><strong>This is the most important step in the entire setup.</strong> Selecting <strong>Continue with Rakuten AI (Bedrock)</strong> routes your prompts to Rakuten's internal inference endpoint. If you pick the default Anthropic option instead, your prompts will go to Anthropic's public API — this violates Rakuten's data handling policy. If you are not sure which option you selected, complete the verification step next before sending any real prompts.</span>
+          </div>
           <p style="font-size:15px; color:var(--text-muted); line-height:1.65; margin-bottom:20px;">
             Open <strong>Claude Desktop</strong> from your Applications folder. On the login screen,
-            select <strong>Continue with Bedrock</strong> — this connects Claude to your
+            select <strong>Continue with Rakuten AI (Bedrock)</strong> — this connects Claude to your
             organization's inference endpoint instead of Anthropic's default servers.
           </p>
           <div class="screenshot-wrap">
-            <img src="macos/first-time-open.png" alt="Claude Desktop login screen with Continue with Bedrock option highlighted" />
+            <img src="macos/first-time-open.png" alt="Claude Desktop login screen with Continue with Rakuten AI (Bedrock) option highlighted" />
           </div>
           <button class="btn-next" onclick="nextStep(8)">Next &rarr;</button>
         </div>
@@ -641,10 +912,48 @@
 
       <div class="connector"></div>
 
-      <!-- Step 9: Done -->
+      <!-- Step 9: Verify -->
       <div class="step collapsed" id="step-9">
         <div class="step-header" onclick="toggleStep(9)">
           <div class="step-number">9</div>
+          <div class="step-text">
+            <h2>Verify Your Setup</h2>
+            <p>Confirm Claude is routed through Rakuten's endpoint before sending real prompts.</p>
+          </div>
+          <div class="step-chevron">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+        <div class="step-body">
+          <p style="font-size:15px; color:var(--text-muted); line-height:1.65; margin-bottom:20px;">
+            You're not done until both checks pass.
+          </p>
+
+          <div class="verify-check">
+            <div class="verify-check-label">Check 1 — Send a verification prompt</div>
+            <p>Open <strong>Claude Desktop</strong> and send this prompt:</p>
+            <div class="prompt-quote">What model are you, and what is today's date?</div>
+            <p style="margin-top:12px;">A correct response will name a Claude model (Sonnet, Opus, or Haiku) and give today's date. If the response mentions it's running on Anthropic's public API, go back to the previous step and select <strong>Continue with Rakuten AI (Bedrock)</strong> again.</p>
+          </div>
+
+          <div class="verify-check">
+            <div class="verify-check-label">Check 2 — Confirm the Cowork 3P · Bedrock indicator</div>
+            <p>Look at the <strong>bottom-left corner</strong> of Claude. You should see <strong>Cowork 3P · Bedrock</strong> — this confirms your session is routed through Rakuten's Bedrock endpoint, not Anthropic's default servers.</p>
+            <div class="screenshot-wrap" style="margin-top:14px;">
+              <img src="macos/claude-3p-confirm.png" alt="Claude Desktop bottom-left corner showing the claude-3p indicator" />
+            </div>
+          </div>
+
+          <button class="btn-next" onclick="nextStep(9)">Both checks pass &rarr;</button>
+        </div>
+      </div>
+
+      <div class="connector"></div>
+
+      <!-- Step 10: Done -->
+      <div class="step collapsed" id="step-10">
+        <div class="step-header" onclick="toggleStep(10)">
+          <div class="step-number">10</div>
           <div class="step-text">
             <h2>You're all set!</h2>
             <p>Claude Desktop is ready to use with your organization's endpoint.</p>
@@ -656,11 +965,17 @@
         <div class="step-body">
           <p style="font-size:15px; color:var(--text-muted); line-height:1.65; margin-bottom:20px;">
             Setup is complete. Claude Desktop is now configured to use your organization's
-            inference endpoint. Start a conversation and enjoy!
+            inference endpoint. Don't stare at an empty input box — try one of these:
           </p>
-          <div class="screenshot-wrap">
+          <div class="screenshot-wrap" style="margin-bottom:24px;">
             <img src="macos/final.png" alt="Claude Desktop ready to use" />
           </div>
+          <ul class="try-list">
+            <li data-n="1">Pull my open JIRA tickets assigned this sprint and rank them by blocker risk.</li>
+            <li data-n="2">Summarize the last week of messages in #incidents-prod into a postmortem outline.</li>
+            <li data-n="3">Review this PR for SOX-relevant changes and flag anything risky.</li>
+            <li data-n="4">Find Confluence pages in the Platform Quality space that mention alerting and summarize the runbooks.</li>
+          </ul>
           <button class="btn-next" onclick="finishSteps()">&#10003; Done</button>
         </div>
       </div>
@@ -668,10 +983,10 @@
     </div>
 
     <footer id="footer" style="display:none;">
-      <p>All done! Restart Claude Desktop for the new inference settings to take effect.</p>
+      <p>All done! Questions or broken installs → <a href="https://rakuten-international.slack.com/archives/C0B1SE4UJ06">#wg-2026-05-ls-summit-claude</a> on Slack.</p>
     </footer>
     <footer id="footer-default">
-      <p>Complete all steps above to finish setup.</p>
+      <p>Complete all steps above to finish setup. &nbsp;·&nbsp; Need help? <a href="https://rakuten-international.slack.com/archives/C0B1SE4UJ06">#wg-2026-05-ls-summit-claude</a> on Slack.</p>
     </footer>
   </div>
 
@@ -778,7 +1093,7 @@
         <div class="step-body">
           <p style="font-size:15px; color:var(--text-muted); line-height:1.65; margin-bottom:20px;">
             A PowerShell window will open and begin installing Claude Code, Claude, and all required
-            plugins. This may take a minute or two.
+            connectors. This may take a minute or two.
           </p>
           <div class="screenshot-wrap" style="margin-bottom:24px;">
             <img src="windows/ps1-running.png" alt="PowerShell window showing the Rakuten Claude Code Setup script running" />
@@ -828,20 +1143,24 @@
         <div class="step-header" onclick="winToggle(6)">
           <div class="step-number">6</div>
           <div class="step-text">
-            <h2>Sign in with Bedrock</h2>
-            <p>Choose <strong>Continue with Bedrock</strong> on the login screen.</p>
+            <h2>Sign in with Rakuten AI (Bedrock)</h2>
+            <p>Choose <strong>Continue with Rakuten AI (Bedrock)</strong> on the login screen.</p>
           </div>
           <div class="step-chevron">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
         </div>
         <div class="step-body">
+          <div class="warning-callout">
+            <span class="warning-callout-icon">&#9888;&#65039;</span>
+            <span><strong>This is the most important step in the entire setup.</strong> Selecting <strong>Continue with Rakuten AI (Bedrock)</strong> routes your prompts to Rakuten's internal inference endpoint. If you pick the default Anthropic option instead, your prompts will go to Anthropic's public API — this violates Rakuten's data handling policy. If you are not sure which option you selected, complete the verification step next before sending any real prompts.</span>
+          </div>
           <p style="font-size:15px; color:var(--text-muted); line-height:1.65; margin-bottom:20px;">
-            On the login screen, select <strong>Continue with Bedrock</strong> — this connects
+            On the login screen, select <strong>Continue with Rakuten AI (Bedrock)</strong> — this connects
             Claude to your organization's inference endpoint instead of Anthropic's default servers.
           </p>
           <div class="screenshot-wrap">
-            <img src="windows/first-time-open.png" alt="Claude login screen with Continue with Bedrock option highlighted" />
+            <img src="windows/first-time-open.png" alt="Claude login screen with Continue with Rakuten AI (Bedrock) option highlighted" />
           </div>
           <button class="btn-next" onclick="winNext(6)">Next &rarr;</button>
         </div>
@@ -849,10 +1168,48 @@
 
       <div class="connector"></div>
 
-      <!-- Win Step 7: Done -->
+      <!-- Win Step 7: Verify -->
       <div class="step collapsed" id="win-7">
         <div class="step-header" onclick="winToggle(7)">
           <div class="step-number">7</div>
+          <div class="step-text">
+            <h2>Verify Your Setup</h2>
+            <p>Confirm Claude is routed through Rakuten's endpoint before sending real prompts.</p>
+          </div>
+          <div class="step-chevron">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+        <div class="step-body">
+          <p style="font-size:15px; color:var(--text-muted); line-height:1.65; margin-bottom:20px;">
+            You're not done until both checks pass.
+          </p>
+
+          <div class="verify-check">
+            <div class="verify-check-label">Check 1 — Send a verification prompt</div>
+            <p>Open <strong>Claude</strong> and send this prompt:</p>
+            <div class="prompt-quote">What model are you, and what is today's date?</div>
+            <p style="margin-top:12px;">A correct response will name a Claude model (Sonnet, Opus, or Haiku) and will <strong>not</strong> include a disclaimer about running on Anthropic's public API. If it says it's on Anthropic's API directly, go back to step 6 and select <strong>Continue with Rakuten AI (Bedrock)</strong> again.</p>
+          </div>
+
+          <div class="verify-check">
+            <div class="verify-check-label">Check 2 — Confirm the claude-3p indicator</div>
+            <p>Look at the <strong>bottom-left corner</strong> of Claude. You should see a <strong><code>claude-3p</code></strong> label — this confirms your session is routed through Rakuten's third-party (Bedrock) endpoint, not Anthropic's default servers.</p>
+            <div class="screenshot-wrap" style="margin-top:14px;">
+              <img src="macos/claude-3p-confirm.png" alt="Claude bottom-left corner showing the claude-3p indicator" />
+            </div>
+          </div>
+
+          <button class="btn-next" onclick="winNext(7)">Both checks pass &rarr;</button>
+        </div>
+      </div>
+
+      <div class="connector"></div>
+
+      <!-- Win Step 8: Done -->
+      <div class="step collapsed" id="win-8">
+        <div class="step-header" onclick="winToggle(8)">
+          <div class="step-number">8</div>
           <div class="step-text">
             <h2>You're all set!</h2>
             <p>Claude is ready to use with your organization's endpoint.</p>
@@ -864,11 +1221,17 @@
         <div class="step-body">
           <p style="font-size:15px; color:var(--text-muted); line-height:1.65; margin-bottom:20px;">
             Setup is complete. Claude is now configured to use your organization's
-            inference endpoint. Start a conversation and enjoy!
+            inference endpoint. Don't stare at an empty input box — try one of these:
           </p>
-          <div class="screenshot-wrap">
+          <div class="screenshot-wrap" style="margin-bottom:24px;">
             <img src="windows/final.png" alt="Claude ready to use" />
           </div>
+          <ul class="try-list">
+            <li data-n="1">Pull my open JIRA tickets assigned this sprint and rank them by blocker risk.</li>
+            <li data-n="2">Summarize the last week of messages in #incidents-prod into a postmortem outline.</li>
+            <li data-n="3">Review this PR for SOX-relevant changes and flag anything risky.</li>
+            <li data-n="4">Find Confluence pages in the Platform Quality space that mention alerting and summarize the runbooks.</li>
+          </ul>
           <button class="btn-next" onclick="winFinish()">&#10003; Done</button>
         </div>
       </div>
@@ -876,10 +1239,10 @@
     </div>
 
     <footer id="win-footer" style="display:none;">
-      <p>All done! Claude is connected to your organization's inference endpoint.</p>
+      <p>All done! Questions or broken installs → <a href="https://rakuten-international.slack.com/archives/C0B1SE4UJ06">#wg-2026-05-ls-summit-claude</a> on Slack.</p>
     </footer>
     <footer id="win-footer-default">
-      <p>Complete all steps above to finish setup.</p>
+      <p>Complete all steps above to finish setup. &nbsp;·&nbsp; Need help? <a href="https://rakuten-international.slack.com/archives/C0B1SE4UJ06">#wg-2026-05-ls-summit-claude</a> on Slack.</p>
     </footer>
   </div>
 
@@ -895,7 +1258,7 @@
     }
 
     // macOS flow
-    const MAC_TOTAL = 9;
+    const MAC_TOTAL = 10;
 
     function toggleStep(n) {
       document.getElementById('step-' + n).classList.toggle('collapsed');
@@ -918,7 +1281,7 @@
     }
 
     // Windows flow
-    const WIN_TOTAL = 7;
+    const WIN_TOTAL = 8;
 
     function winToggle(n) {
       document.getElementById('win-' + n).classList.toggle('collapsed');
