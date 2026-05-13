@@ -381,37 +381,31 @@ Write-StepDone "3" "Claude plugins installed"
 
 # ── step 4: apply Claude Desktop registry settings ────────────────────────────
 
-$RegTemplate = @"
-Windows Registry Editor Version 5.00
-
-[HKEY_CURRENT_USER\SOFTWARE\Policies\Claude]
-"coworkEgressAllowedHosts"="[`"*`"]"
-"inferenceProvider"="bedrock"
-"inferenceBedrockRegion"="us-east-1"
-"inferenceBedrockBearerToken"="{{BEARER_TOKEN}}"
-"inferenceBedrockBaseUrl"="https://api.ai.public.rakuten-it.com/claude-code-aws-bedrock/v1"
-"inferenceModels"="[{`"name`":`"us.anthropic.claude-sonnet-4-6`",`"supports1m`":true}]"
-"managedMcpServers"="[{`"name`":`"slack`",`"source`":`"user`",`"transport`":`"http`",`"url`":`"https://mcp.slack.com/mcp`",`"oauth`":{`"clientId`":`"1601185624273.8899143856786`",`"callbackPort`":3118,`"callbackHost`":`"localhost`"}},{`"name`":`"datadog-prod`",`"source`":`"user`",`"transport`":`"http`",`"url`":`"https://mcp.datadoghq.com/api/unstable/mcp-server/mcp`",`"oauth`":true},{`"name`":`"atlassian`",`"source`":`"user`",`"transport`":`"http`",`"url`":`"https://mcp.atlassian.com/v1/mcp`",`"oauth`":true},{`"name`":`"monday-com`",`"source`":`"user`",`"transport`":`"sse`",`"url`":`"https://mcp.monday.com/sse`",`"oauth`":true},{`"name`":`"uber-context`",`"source`":`"user`",`"transport`":`"http`",`"url`":`"https://uber-context-system.shared-np.rr-it.com/mcp`"},{`"name`":`"browserStack`",`"source`":`"user`",`"transport`":`"http`",`"url`":`"https://mcp.browserstack.com/mcp`",`"oauth`":true},{`"name`":`"datadog-nonprod`",`"source`":`"user`",`"transport`":`"http`",`"url`":`"https://mcp.datadoghq.com/api/unstable/mcp-server/mcp`",`"oauth`":true}]"
-"@
+$ManagedMcpServers = '[{"name":"slack","source":"user","transport":"http","url":"https://mcp.slack.com/mcp","oauth":{"clientId":"1601185624273.8899143856786","callbackPort":3118,"callbackHost":"localhost"}},{"name":"datadog-prod","source":"user","transport":"http","url":"https://mcp.datadoghq.com/api/unstable/mcp-server/mcp","oauth":true},{"name":"atlassian","source":"user","transport":"http","url":"https://mcp.atlassian.com/v1/mcp","oauth":true},{"name":"monday-com","source":"user","transport":"sse","url":"https://mcp.monday.com/sse","oauth":true},{"name":"uber-context","source":"user","transport":"http","url":"https://uber-context-system.shared-np.rr-it.com/mcp"},{"name":"browserStack","source":"user","transport":"http","url":"https://mcp.browserstack.com/mcp","oauth":true},{"name":"datadog-nonprod","source":"user","transport":"http","url":"https://mcp.datadoghq.com/api/unstable/mcp-server/mcp","oauth":true}]'
 
 Write-StepActive "4" "Apply Claude Desktop registry settings"
-Write-Info "Preparing registry settings..."
-
-$RegContent = $RegTemplate.Replace("{{BEARER_TOKEN}}", $Pat)
-
 Write-Info "Applying registry settings (UAC prompt may appear)..."
-$RegTmp = Join-Path $env:TEMP "Claude-$(New-Guid).reg"
+$CurrentUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+$AclTmp = Join-Path $env:TEMP "claude-acl-$([System.Guid]::NewGuid().ToString('N')).cmd"
 try {
-    [System.IO.File]::WriteAllText($RegTmp, $RegContent, [System.Text.Encoding]::Unicode)
-    $result = Start-Process reg.exe -Verb RunAs -Wait -PassThru `
-        -ArgumentList "import `"$RegTmp`""
-    if ($result.ExitCode -ne 0) {
-        Write-Warn "Registry import failed (exit $($result.ExitCode)) - you may need to run as Administrator."
-    }
+    # Elevated: delete and recreate the key so the current user owns it with full control
+    $InlineScript = "reg delete `"HKCU\SOFTWARE\Policies\Claude`" /f 2>NUL`r`nreg add `"HKCU\SOFTWARE\Policies\Claude`" /f`r`npowershell -Command `"& { `$acl = Get-Acl 'HKCU:\SOFTWARE\Policies\Claude'; `$rule = New-Object System.Security.AccessControl.RegistryAccessRule('$CurrentUser','FullControl','Allow'); `$acl.SetAccessRule(`$rule); Set-Acl 'HKCU:\SOFTWARE\Policies\Claude' `$acl }`""
+    [System.IO.File]::WriteAllText($AclTmp, $InlineScript, [System.Text.Encoding]::ASCII)
+    $null = Start-Process cmd.exe -Verb RunAs -Wait -PassThru -ArgumentList "/c `"$AclTmp`""
+
+    # Write values directly as current user (no elevation needed - we now have full control)
+    $RegPath = "HKCU:\SOFTWARE\Policies\Claude"
+    Set-ItemProperty -Path $RegPath -Name coworkEgressAllowedHosts    -Value '["*"]'
+    Set-ItemProperty -Path $RegPath -Name inferenceProvider           -Value "bedrock"
+    Set-ItemProperty -Path $RegPath -Name inferenceBedrockRegion      -Value "us-east-1"
+    Set-ItemProperty -Path $RegPath -Name inferenceBedrockBearerToken -Value $Pat
+    Set-ItemProperty -Path $RegPath -Name inferenceBedrockBaseUrl     -Value "https://api.ai.public.rakuten-it.com/claude-code-aws-bedrock/v1"
+    Set-ItemProperty -Path $RegPath -Name inferenceModels             -Value '[{"name":"us.anthropic.claude-sonnet-4-6","supports1m":true}]'
+    Set-ItemProperty -Path $RegPath -Name managedMcpServers           -Value $ManagedMcpServers
 } catch {
     Write-Warn "Failed to apply registry settings: $_"
 } finally {
-    Remove-Item $RegTmp -ErrorAction SilentlyContinue
+    Remove-Item $AclTmp -ErrorAction SilentlyContinue
 }
 
 Write-Host ""
