@@ -251,26 +251,11 @@ if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
     Write-Info "Git already installed ($(git --version))."
 }
 
-# VS Code
-if (-not (Get-Command code -ErrorAction SilentlyContinue)) {
-    Write-Info "Downloading VS Code..."
-    $VsCodeInstaller = "$env:TEMP\vscode-setup.exe"
-    $VsCodeUrl = "https://update.code.visualstudio.com/latest/win32-x64-user/stable"
-    try {
-        Invoke-WebRequest -Uri $VsCodeUrl -OutFile $VsCodeInstaller -UseBasicParsing
-        Write-Info "Installing VS Code (silent)..."
-        Start-Process -FilePath $VsCodeInstaller `
-            -ArgumentList "/VERYSILENT", "/NORESTART", "/MERGETASKS=!runcode,addcontextmenufiles,addcontextmenufolders,addtopath" `
-            -Wait
-        Remove-Item $VsCodeInstaller -Force -ErrorAction SilentlyContinue
-        $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" +
-                    [System.Environment]::GetEnvironmentVariable("Path", "User")
-        Write-Info "VS Code installed."
-    } catch {
-        Write-Warn "Could not install VS Code automatically: $_. Install manually from https://code.visualstudio.com"
-    }
-} else {
+# VS Code - skipped (install manually from https://code.visualstudio.com if needed)
+if (Get-Command code -ErrorAction SilentlyContinue) {
     Write-Info "VS Code already installed."
+} else {
+    Write-Warn "VS Code not found. Install it manually from https://code.visualstudio.com"
 }
 
 # Claude Desktop
