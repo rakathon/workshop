@@ -273,6 +273,27 @@ if (-not (Get-Command code -ErrorAction SilentlyContinue)) {
     Write-Info "VS Code already installed."
 }
 
+# Claude Desktop
+$ClaudeDesktopInstalled = (Test-Path "$env:LOCALAPPDATA\AnthropicClaude\claude.exe") -or
+                          (Test-Path "$env:LOCALAPPDATA\Claude-3p\claude-code") -or
+                          (Test-Path "$env:LOCALAPPDATA\Programs\Claude\Claude.exe")
+if (-not $ClaudeDesktopInstalled) {
+    $ClaudeExe = Join-Path $PSScriptRoot "assets\claude-windows.exe"
+    if (Test-Path $ClaudeExe) {
+        Write-Info "Installing Claude Desktop..."
+        try {
+            Start-Process -FilePath $ClaudeExe -Wait
+            Write-Info "Claude Desktop installed."
+        } catch {
+            Write-Warn "Could not install Claude Desktop automatically: $_"
+        }
+    } else {
+        Write-Warn "Claude Desktop installer not found at $ClaudeExe"
+    }
+} else {
+    Write-Info "Claude Desktop already installed."
+}
+
 # Claude Code CLI
 if (-not (Get-Command claude -ErrorAction SilentlyContinue)) {
     Write-Info "Installing Claude Code CLI..."
