@@ -439,7 +439,7 @@ Write-Host ""
 Write-StepActive "5" "Install AI Summit plugin for Claude Desktop"
 Write-Info "Extracting and installing AI Summit plugin..."
 
-$PluginDest = "C:\ProgramData\Claude\org-plugins"
+$PluginDest = "$env:ProgramFiles\Claude\org-plugins"
 $PluginZipTmp = Join-Path $env:TEMP "ai-summit.zip"
 $PluginExtractTmp = Join-Path $env:TEMP "ai-summit-extract"
 
