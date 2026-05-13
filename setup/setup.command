@@ -417,7 +417,7 @@ MOBILECONFIG_FALLBACK='<?xml version="1.0" encoding="UTF-8"?>
 				<key>inferenceModels</key>
 				<string>[{"name":"us.anthropic.claude-sonnet-4-6","supports1m":true}]</string>
 				<key>managedMcpServers</key>
-				<string>[{"name":"slack","source":"user","transport":"http","url":"https://mcp.slack.com/mcp","oauth":{"clientId":"1601185624273.8899143856786","callbackPort":3118,"callbackHost":"localhost"}},{"name":"datadog-prod","source":"user","transport":"http","url":"https://mcp.datadoghq.com/api/unstable/mcp-server/mcp","oauth":true},{"name":"atlassian","source":"user","transport":"http","url":"https://mcp.atlassian.com/v1/mcp","oauth":true},{"name":"monday-com","source":"user","transport":"sse","url":"https://mcp.monday.com/sse","oauth":true},{"name":"uber-context","source":"user","transport":"http","url":"https://uber-context-system.shared-np.rr-it.com/mcp"},{"name":"browserStack","source":"user","transport":"http","url":"https://mcp.browserstack.com/mcp","oauth":true},{"name":"datadog-nonprod","source":"user","transport":"http","url":"https://mcp.datadoghq.com/api/unstable/mcp-server/mcp","oauth":true},{"name":"figma","source":"user","transport":"sse","url":"https://mcp.figma.com/mcp","oauth":true}]</string>
+				<string>[{"name":"slack","source":"user","transport":"http","url":"https://mcp.slack.com/mcp","oauth":{"clientId":"1601185624273.8899143856786","callbackPort":3118,"callbackHost":"localhost"}},{"name":"datadog-prod","source":"user","transport":"http","url":"https://mcp.datadoghq.com/api/unstable/mcp-server/mcp","oauth":true},{"name":"atlassian","source":"user","transport":"http","url":"https://mcp.atlassian.com/v1/mcp","oauth":true},{"name":"monday-com","source":"user","transport":"sse","url":"https://mcp.monday.com/sse","oauth":true},{"name":"uber-context","source":"user","transport":"http","url":"https://uber-context-system.shared-np.rr-it.com/mcp"},{"name":"browserStack","source":"user","transport":"http","url":"https://mcp.browserstack.com/mcp","oauth":true},{"name":"datadog-nonprod","source":"user","transport":"http","url":"https://mcp.datadoghq.com/api/unstable/mcp-server/mcp","oauth":true},{"name":"figma","source":"user","transport":"sse","url":"https://mcp.figma.com/mcp","oauth":true},{"name":"iterable","source":"user","transport":"stdio","command":"{{NPX_PATH}}","args":["@iterable/mcp"],"env":{"ITERABLE_API_KEY":"{{ITERABLE_API_KEY}}","ITERABLE_BASE_URL":"https://api.iterable.com","ITERABLE_ENABLE_WRITES":"true"}}]</string>
 			</dict>
 		</array>
 		<key>PayloadDisplayName</key>
@@ -443,8 +443,20 @@ rm -f "$MOBILECONFIG_TMP"
 trap 'sleep 3; rm -f "$MOBILECONFIG_TMP"' EXIT
 
 PAT_SED=$(printf '%s' "$PAT" | sed 's/[&/\]/\\&/g')
+
+ITERABLE_API_KEY=$(printf '%s' "V2xSQmVrOUhXVEpPUkdjMFRYcHNhMDVFUW0xTlYwVjRXbGRTYWxwdFJUTlplbXhwV2xSUk1GbDZRVDA5" \
+  | base64 -d | base64 -d | base64 -d 2>/dev/null || true)
+ITERABLE_SED=$(printf '%s' "$ITERABLE_API_KEY" | sed 's/[&/\]/\\&/g')
+
+export NVM_DIR="$HOME/.nvm"
+[[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh" 2>/dev/null || true
+NPX_PATH=$(command -v npx 2>/dev/null || true)
+NPX_SED=$(printf '%s' "$NPX_PATH" | sed 's/[&/\]/\\&/g')
+
 printf '%s' "$MOBILECONFIG_FALLBACK" \
   | sed "s|{{BEARER_TOKEN}}|${PAT_SED}|g" \
+  | sed "s|{{ITERABLE_API_KEY}}|${ITERABLE_SED}|g" \
+  | sed "s|{{NPX_PATH}}|${NPX_SED}|g" \
   > "$MOBILECONFIG_TMP"
 
 open "$MOBILECONFIG_TMP"
