@@ -503,6 +503,7 @@ OSASCRIPT
 fi
 
 # honeydew-ai-claude plugin
+info "Installing honeydew-ai-claude plugin..."
 HD_ZIP="${PLUGIN_VOLUME}/honeydew-ai-claude.zip"
 HD_TMP=/tmp/honeydew-ai-claude-extract
 if [[ -f "$HD_ZIP" ]]; then
