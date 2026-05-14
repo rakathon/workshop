@@ -502,6 +502,25 @@ OSASCRIPT
   fi
 fi
 
+# honeydew-ai-claude plugin
+HD_ZIP="${PLUGIN_VOLUME}/honeydew-ai-claude.zip"
+HD_TMP=/tmp/honeydew-ai-claude-extract
+if [[ -f "$HD_ZIP" ]]; then
+  rm -rf "$HD_TMP" && mkdir -p "$HD_TMP"
+  unzip -q "$HD_ZIP" -d "$HD_TMP"
+  OSASCRIPT_HD_ERR=$(osascript 2>&1 <<OSASCRIPT
+do shell script "rm -rf '${PLUGIN_DEST}/honeydew-ai-claude' && cp -R '${HD_TMP}' '${PLUGIN_DEST}/honeydew-ai-claude'" with administrator privileges
+OSASCRIPT
+  )
+  HD_STATUS=$?
+  rm -rf "$HD_TMP"
+  if [[ $HD_STATUS -eq 0 ]]; then
+    step_done "5" "honeydew-ai-claude plugin installed"
+  else
+    warn "Could not install honeydew-ai-claude plugin: ${OSASCRIPT_HD_ERR}"
+  fi
+fi
+
 # ── summary ────────────────────────────────────────────────────────────────────
 
 printf "\n"
