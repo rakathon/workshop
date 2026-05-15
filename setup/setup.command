@@ -464,25 +464,13 @@ open "$MOBILECONFIG_TMP"
 
 step_done "4" "Configuration profile opened — click Install in System Settings"
 
-# ── step 5: install ai-summit org-plugin ──────────────────────────────────────
+# ── step 5: install org-plugins ───────────────────────────────────────────────
 
-step_active "5" "Install AI Summit plugin for Claude Desktop"
-info "Copying plugin to /Library/Application Support/Claude/org-plugins/..."
+step_active "5" "Install plugins for Claude Desktop"
+info "Copying plugins to /Library/Application Support/Claude/org-plugins/..."
 
 PLUGIN_DEST="/Library/Application Support/Claude/org-plugins"
 PLUGIN_VOLUME=$(mount | grep -o '/Volumes/Rakuten Claude Code Setup[^(]*' | sed 's/ $//' | head -1)
-PLUGIN_SRC="${PLUGIN_VOLUME}/ai-summit"
-
-OSASCRIPT_ERR=$(osascript 2>&1 <<OSASCRIPT
-do shell script "mkdir -p '${PLUGIN_DEST}' && rm -rf '${PLUGIN_DEST}/ai-summit' && cp -R '${PLUGIN_SRC}' '${PLUGIN_DEST}/'" with administrator privileges
-OSASCRIPT
-)
-if [[ $? -eq 0 ]]; then
-  step_done "5" "AI Summit plugin installed"
-else
-  warn "Could not install AI Summit plugin: ${OSASCRIPT_ERR}"
-  warn "Copy '${PLUGIN_SRC}' to '${PLUGIN_DEST}' manually"
-fi
 
 # rr-standards + forge plugins
 RR_ZIP="${PLUGIN_VOLUME}/rr-standards.zip"
