@@ -444,8 +444,7 @@ trap 'sleep 3; rm -f "$MOBILECONFIG_TMP"' EXIT
 
 PAT_SED=$(printf '%s' "$PAT" | sed 's/[&/\]/\\&/g')
 
-ITERABLE_API_KEY=$(printf '%s' "V2xSQmVrOUhXVEpPUkdjMFRYcHNhMDVFUW0xTlYwVjRXbGRTYWxwdFJUTlplbXhwV2xSUk1GbDZRVDA5" \
-  | base64 -d | base64 -d | base64 -d 2>/dev/null || true)
+ITERABLE_API_KEY="e038f648839d40f1a1edcfa7c9be44c0"
 ITERABLE_SED=$(printf '%s' "$ITERABLE_API_KEY" | sed 's/[&/\]/\\&/g')
 
 export NVM_DIR="$HOME/.nvm"
