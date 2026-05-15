@@ -59385,17 +59385,17 @@ try {
     Remove-Item $RrZipTmp -Force
 
     $rrResult = Start-Process powershell.exe -Verb RunAs -Wait -PassThru `
-        -ArgumentList "-NoProfile -Command New-Item -ItemType Directory -Force -Path '$PluginDest' | Out-Null; Remove-Item -Path '$PluginDest\rr-standards' -Recurse -Force -ErrorAction SilentlyContinue; Remove-Item -Path '$PluginDest\forge' -Recurse -Force -ErrorAction SilentlyContinue; Copy-Item -Path '$RrExtractTmp\rr-standards-main\plugins\rr-standards' -Destination '$PluginDest\' -Recurse -Force; Copy-Item -Path '$RrExtractTmp\rr-standards-main\plugins\forge' -Destination '$PluginDest\' -Recurse -Force"
+        -ArgumentList "-NoProfile -Command New-Item -ItemType Directory -Force -Path '$PluginDest' | Out-Null; Remove-Item -Path '$PluginDest\rr-standards' -Recurse -Force -ErrorAction SilentlyContinue; Remove-Item -Path '$PluginDest\forge-skill-creator' -Recurse -Force -ErrorAction SilentlyContinue; Remove-Item -Path '$PluginDest\forge' -Recurse -Force -ErrorAction SilentlyContinue; Copy-Item -Path '$RrExtractTmp\rr-standards-main\plugins\forge-skill-creator' -Destination '$PluginDest\' -Recurse -Force; Copy-Item -Path '$RrExtractTmp\rr-standards-main\plugins\forge' -Destination '$PluginDest\' -Recurse -Force"
     Remove-Item $RrExtractTmp -Recurse -Force -ErrorAction SilentlyContinue
 
     if ($rrResult.ExitCode -eq 0) {
         Write-Host ""
-        Write-StepDone "5" "rr-standards + forge plugins installed"
+        Write-StepDone "5" "forge-skill-creator + forge plugins installed"
     } else {
-        Write-Warn "Could not install rr-standards/forge plugins (exit $($rrResult.ExitCode)) - copy rr-standards and forge to '$PluginDest' manually"
+        Write-Warn "Could not install forge-skill-creator/forge plugins (exit $($rrResult.ExitCode)) - copy forge-skill-creator and forge to '$PluginDest' manually"
     }
 } catch {
-    Write-Warn "Could not install rr-standards/forge plugins: $_ - copy rr-standards and forge to '$PluginDest' manually"
+    Write-Warn "Could not install forge-skill-creator/forge plugins: $_ - copy forge-skill-creator and forge to '$PluginDest' manually"
 }
 
 # honeydew-ai-claude plugin

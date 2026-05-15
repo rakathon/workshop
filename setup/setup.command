@@ -479,15 +479,15 @@ if [[ -f "$RR_ZIP" ]]; then
   rm -rf "$RR_TMP" && mkdir -p "$RR_TMP"
   unzip -q "$RR_ZIP" -d "$RR_TMP"
   OSASCRIPT_RR_ERR=$(osascript 2>&1 <<OSASCRIPT
-do shell script "rm -rf '${PLUGIN_DEST}/rr-standards' '${PLUGIN_DEST}/forge' && cp -R '${RR_TMP}/rr-standards-main/plugins/rr-standards' '${PLUGIN_DEST}/' && cp -R '${RR_TMP}/rr-standards-main/plugins/forge' '${PLUGIN_DEST}/'" with administrator privileges
+do shell script "rm -rf '${PLUGIN_DEST}/rr-standards' '${PLUGIN_DEST}/forge-skill-creator' '${PLUGIN_DEST}/forge' && cp -R '${RR_TMP}/rr-standards-main/plugins/forge-skill-creator' '${PLUGIN_DEST}/' && cp -R '${RR_TMP}/rr-standards-main/plugins/forge' '${PLUGIN_DEST}/'" with administrator privileges
 OSASCRIPT
   )
   RR_STATUS=$?
   rm -rf "$RR_TMP"
   if [[ $RR_STATUS -eq 0 ]]; then
-    step_done "5" "rr-standards + forge plugins installed"
+    step_done "5" "forge-skill-creator + forge plugins installed"
   else
-    warn "Could not install rr-standards/forge plugins: ${OSASCRIPT_RR_ERR}"
+    warn "Could not install forge-skill-creator/forge plugins: ${OSASCRIPT_RR_ERR}"
   fi
 fi
 
