@@ -442,6 +442,7 @@ try {
     Set-ItemProperty -Path $RegPath -Name inferenceBedrockBaseUrl     -Value "https://api.ai.public.rakuten-it.com/claude-code-aws-bedrock/v1"
     Set-ItemProperty -Path $RegPath -Name inferenceModels             -Value '[{"name":"us.anthropic.claude-sonnet-4-6","supports1m":true}]'
     Set-ItemProperty -Path $RegPath -Name managedMcpServers           -Value $ManagedMcpServers
+    Set-ItemProperty -Path $RegPath -Name banner                      -Value '{"enabled":true,"text":"Rakuten Rewards - CoWork - v1.1.0","backgroundColor":"#7B30C6","textColor":"#FFFFFF","linkUrl":"https://www.rakuten.com"}'
 } catch {
     Write-Warn "Failed to apply registry settings: $_"
 } finally {

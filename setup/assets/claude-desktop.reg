@@ -8,3 +8,4 @@ Windows Registry Editor Version 5.00
 "inferenceBedrockBaseUrl"="https://api.ai.public.rakuten-it.com/claude-code-aws-bedrock/v1"
 "inferenceModels"="[{\"name\":\"us.anthropic.claude-sonnet-4-6\",\"supports1m\":true}]"
 "managedMcpServers"="[{\"name\":\"playwright\",\"url\":\"https://agentgateway-mcp.shared-np.rr-it.com/mcp/playwright\",\"oauth\":true,\"transport\":\"http\"},{\"name\":\"atlassian\",\"url\":\"https://agentgateway-mcp.shared-np.rr-it.com/mcp/atlassian\",\"oauth\":true,\"transport\":\"http\"},{\"name\":\"monday.com\",\"url\":\"https://mcp.monday.com/sse\",\"oauth\":true,\"transport\":\"sse\"}]"
+"banner"="{\"enabled\":true,\"text\":\"Rakuten Rewards - CoWork - v1.1.0\",\"backgroundColor\":\"#7B30C6\",\"textColor\":\"#FFFFFF\",\"linkUrl\":\"https://www.rakuten.com\"}"
