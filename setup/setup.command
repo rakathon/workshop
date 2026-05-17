@@ -471,19 +471,21 @@ info "Copying plugins to /Library/Application Support/Claude/org-plugins/..."
 
 PLUGIN_DEST="/Library/Application Support/Claude/org-plugins"
 
-# Eject ALL stale Rakuten Claude Code Setup volumes before finding the current one
-info "Ejecting any previously mounted Rakuten Claude Code Setup volumes..."
-while IFS= read -r vol; do
-  info "  Ejecting: ${vol}"
-  hdiutil detach "$vol" -quiet 2>/dev/null || true
-done < <(mount | grep -o '/Volumes/Rakuten Claude Code Setup[^(]*' | sed 's/ *$//')
-
-# Wait briefly for the current DMG to auto-mount, then find it
-sleep 2
-PLUGIN_VOLUME=$(mount | grep -o '/Volumes/Rakuten Claude Code Setup[^(]*' | sed 's/ *$//' | head -1)
-if [[ -n "$PLUGIN_VOLUME" ]]; then
+# Eject old stale mounts, keep only the newest (the one just opened)
+ALL_VOLS=($(mount | grep -oi '/Volumes/Rakuten Claude Code Setup[^(]*' | sed 's/ *$//'))
+if [[ ${#ALL_VOLS[@]} -gt 0 ]]; then
+  # Sort: newest mount has highest suffix, keep last after version sort
+  SORTED_VOLS=($(printf '%s\n' "${ALL_VOLS[@]}" | sort -V))
+  PLUGIN_VOLUME="${SORTED_VOLS[-1]}"
   info "Using volume: ${PLUGIN_VOLUME}"
+  for vol in "${SORTED_VOLS[@]}"; do
+    if [[ "$vol" != "$PLUGIN_VOLUME" ]]; then
+      info "Ejecting old volume: ${vol}"
+      hdiutil detach "$vol" -quiet 2>/dev/null || true
+    fi
+  done
 else
+  PLUGIN_VOLUME=""
   warn "Could not find Rakuten Claude Code Setup volume — skipping plugin install"
 fi
 
