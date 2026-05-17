@@ -524,7 +524,7 @@ if [[ -f "$HD_ZIP" ]]; then
   rm -rf "$HD_TMP" && mkdir -p "$HD_TMP/honeydew-ai-claude"
   unzip -q "$HD_ZIP" -d "$HD_TMP/honeydew-ai-claude"
   OSASCRIPT_HD_ERR=$(osascript 2>&1 <<OSASCRIPT
-do shell script "rm -rf '${PLUGIN_DEST}/honeydew-ai-claude' && cp -R '${HD_TMP}/honeydew-ai-claude' '${PLUGIN_DEST}/'" with administrator privileges
+do shell script "rm -rf '${PLUGIN_DEST}/honeydew-ai-claude' && rsync -a '${HD_TMP}/honeydew-ai-claude' '${PLUGIN_DEST}/'" with administrator privileges
 OSASCRIPT
   )
   HD_STATUS=$?
@@ -546,7 +546,7 @@ if [[ -f "$ADVISOR_ZIP" ]]; then
   rm -rf "$ADVISOR_TMP" && mkdir -p "$ADVISOR_TMP"
   unzip -q "$ADVISOR_ZIP" -d "$ADVISOR_TMP"
   OSASCRIPT_ADVISOR_ERR=$(osascript 2>&1 <<OSASCRIPT
-do shell script "rm -rf '${PLUGIN_DEST}/advisor' && cp -R '${ADVISOR_TMP}/advisor' '${PLUGIN_DEST}/'" with administrator privileges
+do shell script "rm -rf '${PLUGIN_DEST}/advisor' && rsync -a '${ADVISOR_TMP}/advisor' '${PLUGIN_DEST}/'" with administrator privileges
 OSASCRIPT
   )
   ADVISOR_STATUS=$?
