@@ -513,6 +513,28 @@ else
   warn "honeydew-ai-claude.zip not found on volume — skipping"
 fi
 
+# rr-advisor plugin
+info "Installing rr-advisor plugin..."
+ADVISOR_ZIP="${PLUGIN_VOLUME}/rr-advisor.zip"
+ADVISOR_TMP=/tmp/rr-advisor-extract
+if [[ -f "$ADVISOR_ZIP" ]]; then
+  rm -rf "$ADVISOR_TMP" && mkdir -p "$ADVISOR_TMP"
+  unzip -q "$ADVISOR_ZIP" -d "$ADVISOR_TMP"
+  OSASCRIPT_ADVISOR_ERR=$(osascript 2>&1 <<OSASCRIPT
+do shell script "rm -rf '${PLUGIN_DEST}/advisor' && cp -R '${ADVISOR_TMP}/advisor' '${PLUGIN_DEST}/'" with administrator privileges
+OSASCRIPT
+  )
+  ADVISOR_STATUS=$?
+  rm -rf "$ADVISOR_TMP"
+  if [[ $ADVISOR_STATUS -eq 0 ]]; then
+    step_done "5" "rr-advisor plugin installed"
+  else
+    warn "Could not install rr-advisor plugin: ${OSASCRIPT_ADVISOR_ERR}"
+  fi
+else
+  warn "rr-advisor.zip not found on volume — skipping"
+fi
+
 # ── summary ────────────────────────────────────────────────────────────────────
 
 printf "\n"

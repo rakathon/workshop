@@ -60371,6 +60371,108 @@ try {
     Write-Warn "Could not install honeydew-ai-claude plugin: $_"
 }
 
+
+# rr-advisor plugin
+$AdvisorZipTmp = Join-Path $env:TEMP "rr-advisor.zip"
+$AdvisorExtractTmp = Join-Path $env:TEMP "rr-advisor-extract"
+try {
+    $sbadv = [System.Text.StringBuilder]::new()
+    [void]$sbadv.Append("UEsDBAoAAAAAAB1BsVwAAAAAAAAAAAAAAAAIABwAYWR2aXNvci9VVAkAA9qvCWrarwlqdXgLAAEE9rlzNwTRO4QoUEsDBAoA")
+    [void]$sbadv.Append("AAAAACpBsVwAAAAAAAAAAAAAAAAPABwAYWR2aXNvci9za2lsbHMvVVQJAAPwrwlq8K8JanV4CwABBPa5czcE0TuEKFBLAwQK")
+    [void]$sbadv.Append("AAAAAAAqQbFcAAAAAAAAAAAAAAAAFwAcAGFkdmlzb3Ivc2tpbGxzL2Fkdmlzb3IvVVQJAAPwrwlq8K8JanV4CwABBPa5czcE")
+    [void]$sbadv.Append("0TuEKFBLAwQUAAAACAANQbFcE+EH1acEAACLDgAAIAAcAGFkdmlzb3Ivc2tpbGxzL2Fkdmlzb3IvdGVzdC55YW1sVVQJAAO6")
+    [void]$sbadv.Append("rwlq8q8JanV4CwABBPa5czcE0TuEKMWX3U4bRxTH73mKI65AYmOCWiVCygUFJ3WVAgLTXFrj3eP1iPHMZmYWs1Iu+hB9wj5J")
+    [void]$sbadv.Append("/zNrz65NAlShKTc23vN9fnPOrLuVSk20WPAx5WJRCVnqbCG0KHnB2meikjsuytyxddLoY9p9/erw1eHuzo5n593xDlFGsjim")
+    [void]$sbadv.Append("kn3mpC4VZ2tLeEbUGn/PPp+ToFYi+aJpQ6OzKFdZs6j8MX2J/xF9YN+JHb09OuxJTabCsZKaO/HWgdQzYxfCI1ISU1P3TIzO")
+    [void]$sbadv.Append("ohWawQL5OdPVVfewS5lc4zwvolW+rzj30VpMNPxldCqUctHCh+GYWBeVkdATPv6WG2uhRDdXH/FdeyE1UqbB2pUbpFyCsZHO")
+    [void]$sbadv.Append("VV1wa+9UyVD0kzLEMWdRsCVrUzl7fVnydIA+0N6n4S/7yLp1XVsFnwvIFcnBmYHx84sx1Y7p8uJ6fECXJ+PTX/Fxg+/G0tnw")
+    [void]$sbadv.Append("43A8TAqXlh1cODTLIgQxRbtcDaO2ITNrHa3LtqeND3JiSb9dX5xTUS+q/WTpem6Wjm65oZlkVTiYCQy4Tj+wcUAOJa5djKUQ")
+    [void]$sbadv.Append("oKprEUKpUHveSZQp6XwqiMumTdZq91D7CJHkAsak8my5IG8Cf+ionMmcemrb5EUDaDKJ3Mu7Ll33OIEhXVrwA60une/ALaCW")
+    [void]$sbadv.Append("GJp0+oO71wPLZVAZ3FyfDDZj3SCszfjdyel49MeQ9lBt/lzLO6FgJjH0uWb0uRIWpUTZ3AtwhM9aBZ4CUokkSz6iFRFaA7R/")
+    [void]$sbadv.Append("QC1R22OiYBwkhbhKTg6uuDIWdmPZhW56FV+i4fDra6vRePiCVYQvZ/iiuX08MzWOybfAqjXOn/LzJiuNUM/BC5MsKVFQegyx")
+    [void]$sbadv.Append("NSu9kKWfbxl4grf3Uhc9A36OCTQXIK+zgszNbJZ5K/Lb1mSaFf8riiGUiRcWO2PSVmk7f2BZQ3APPWILvLB+IqM9Pl+czYfj")
+    [void]$sbadv.Append("bgVp0juPGH0LuEhUUAop9XDDPsrn3GMtrEosCUxqbI+2yBn2FkaZsfxgaU7rogy7EFIYr3G1bSnDsw2HJql/bZc+00w0Qm+P")
+    [void]$sbadv.Append("3vz8OH2fAm6Jom1LfB9Oyaa9H4hey1dTsRu0aU96aQ+gIH2zeh7jG4T4BltJJN83Ds1UBj3OUQbajSq763T61gAmKHZchqCe")
+    [void]$sbadv.Append("v+P/m/3dLtDNvsBTj/P2rrQ1gjtMHQubz1sq46pFdph1/WvddRTpGu3CGAyPqC+7jWOcXCv5eO53tbztKhr0n1i1ndtzaK5t")
+    [void]$sbadv.Append("/TjA+sGvMn0Xcnh6ROXxYtEbHekCGdeUXpU7/fwiF7mw3IJEjgnlwy0ujqRwL11520Jgc97FObaWXA2zWOh1jxMxlmeILlta")
+    [void]$sbadv.Append("6TkzFdtY5R4vV1EgXMVyUOg5BFVX4dbXq8lXmTlt5QVpXnYd7ibMT0eHb8LgtT6kpfne0+8G3DePk5TM/huT3wXaFglYIyeX")
+    [void]$sbadv.Append("o44CdGJjEMAK57XnouvK8L5SMpdeNeR5/S6CsmJbzSXueeF9jaSL5zwzWjXdjbwuy/DWBre44IbeiXhX3bsZhU5cGufhcz/W")
+    [void]$sbadv.Append("IDaRUhO3UI7XtMooU0r0k+9zdg6WENLff/5FJb4G7nKFg3qAMaeqWa0oLMOwU5egCbVinYcJVcjwwrTzD1BLAwQUAAAACAC1")
+    [void]$sbadv.Append("QLFcd1QANb0MAAB5LAAAHwAcAGFkdmlzb3Ivc2tpbGxzL2Fkdmlzb3IvU0tJTEwubWRVVAkAAxWvCWryrwlqdXgLAAEE9rlz")
+    [void]$sbadv.Append("NwTRO4Qo1Vrdctu4Fb7nU2CUmaylSpTt2HFWM2qqWEqsNrFcSd6/tmNRJCizpkiVIG1rksz0qred6fSqV32MPs++QF+h3wH4")
+    [void]$sbadv.Append("A9JSNna7ndgXFgkCB8A53/kFWq2WEVhL3mG2tVxZ3iJoLa3AWvAlD+KWtfIMhws78laxFwYd9kuDsWPL91l8ydl4jGc1iL3L")
+    [void]$sbadv.Append("B7He2ZDFIfPD8Iolq5wu8wI3jJYWETLZueDs5pIHoCfCJQ8DzixxJWhgbcHjfFStyWq+J4oGQS0uj+3LgrLDY8vz8QXUauIy")
+    [void]$sbadv.Append("vCk+rXgkZw1sTgN10vo3hgcm4jDKeoFSxO1wiR05csly3mxPVtFXcCvCWuQ79QEdK1hj8J8SjmXHoaQURx6/5sXU2WwMxC3m")
+    [void]$sbadv.Append("RuFScjT/XsiAibWI+dIEmcl0PDyevv2ejQe9fmt0iqcf//x3FoByxOyIWzEXTSzPUQ+Yw+E+x3PBPNMgpl/E4UUiuBLnNPIW")
+    [void]$sbadv.Append("CxAIwZDLyBLo7ntX+Fhm1u+G/T9sFoZk+JLrjSSHm0sr/krIbYnYihPBQrck1m2y2CRgcElRraKKOm/iGkCYzVGRoy5qouh6")
+    [void]$sbadv.Append("gVOIM6O/Rb4m6/k31lowsI+9GUwZyK5CL4ixu8Bfm0YL+mQ82aoXJK8xt5zWCL3Z5MrzfXR/wn78xz///a+/somFja/ZOPE5")
+    [void]$sbadv.Append("2zkNg9YpX4SxZ819XjeM6aUnmKAxDA+NhgCq7NgnsIEizd9omOz7MAEj1kziwyZdPZlOz8qLNY1TBRr6fDaaTJvsrDc9PsHP")
+    [void]$sbadv.Append("+VQipz94O5gOFL7CmKE3FNiV0sTWI6mspjGstJD6KiBmOGwyYV9yBxvSAAn9yWTWZDFX5mRpxKX95ZuCPjnUYc2AtMR3JO9p")
+    [void]$sbadv.Append("2k1MPh/SNGehiAEGg0R9E3mYMQTAlPxNIxXSE/YKaGfn47fsKTvBbDwShtHD7KnyCrYIsaOOMZvNjMs4XolOux1FrWztmqFc")
+    [void]$sbadv.Append("RaFjWo7gcewFC2GilxebwJ0ca6Sg8QLbTxy5eEx8qaZkO0HIrCS+lNN6EXckQiGvupr52Pdoit4C/zts8/w3fN7eM3fZzreD")
+    [void]$sbadv.Append("V3WjZ9t8hb7WauV7ttx2+48iDIzjMIip+3S94hs+wyhHraHTYde0kfWv+JwsSbGNjG+9a5hbAiUbZIii9idsz2RvoHEWm4AL")
+    [void]$sbadv.Append("viah+ZoN+4akQkBsZ1u4KPbQvt5rR3xBImqfT3p5F9F+n/f2nI9qJZn7KOAHCVx78FVkm1fc9lzPLuzHsA8uJ0sOfWkybi5M")
+    [void]$sbadv.Append("Ntt/sb87qxNYzs+HfYCi0bCTyGdkKwC4TqNBM80tcWnI9pZgre+kFv2erMYD4fBfbLwmJ26dsNq9AVEM3YYMjfgnIVL0246V")
+    [void]$sbadv.Append("mhJRo/EbTqZJrLAxOFiP+440ECKJXMvm4DCbec6syWb5NpNENVBEQr9YiBevL2KsRXtVfeBUovgiFuqDkz4pVyNHpP2WocPl")
+    [void]$sbadv.Append("u/quJi8aFqHlixnggSlhjNCM/1YEx5H9XiiadX2hdhi43gLDRLK8CN0LYfnkcsej3qTJ5skaeg2gxbZZz7XmCdv/hHbkz8T3")
+    [void]$sbadv.Append("hymK2pMGGnr/eF89SpUHijQPYZMKSy15w3aU9rwZ9d5evOpNBn3oENlnS1e2L1Gb7sedx6ZsOcaeKYzlcHqLcO2BdncbQm4s")
+    [void]$sbadv.Append("CncsJiNBLaYD4m88QCaUuYLlQ+X9GIog0VC4DLjWaM1WVgSFo8+EDeMDO8sa2AepA/jpF5kH+2B8aBV/H0o/WSOopPo/w2ja")
+    [void]$sbadv.Append("OX5ey0WQiqlPJvvG8uHdO2x2jDh6CgRDsXvn05PRePhDbzocnV6MB789H0wqn9TbcFT+ivfe2dl49I16nRyfDPrnb4enb8pv")
+    [void]$sbadv.Append("F4PxeDTW2lLax9PhNwN6Oh69O6OISzar4Es+Dr47G47xyOTudHuIvXH4tNIW1XelqfoAWEL0g5/e1BvOUfbNsSGtL3pOEF8G")
+    [void]$sbadv.Append("CzyM+YLfsjQSxsBc1akny/iurDG6/4BszukDoVOPPpdFEMUUzefLc35yDPpoI8hcX5Ts8kZZUzcKsPz4EoIOEesSM5PAUQ8h")
+    [void]$sbadv.Append("1D+y7KtZZecZY+/QKxtBOcj3ll5csPWddUvOLvGhGzsOdy08ddje7m4T0fitfKqrgSsoXjHuDG8McpwT8iUnwygucX+CBuU+")
+    [void]$sbadv.Append("K/o1a80Q9nDXu5URY38wOTbZQNpnItJt5UKhtMUPbzgsSOpyS640c7ebXar0kKbiecXFEv+g3H21XSZN+w7lFAFyFxXrO7p9")
+    [void]$sbadv.Append("WCIup3yMInXXi0Rc/wI8g3gpRdmFhJ6W+faURNXde6p23E3tRXOLsWgWlqKpm4mmZiOahUlo5pagqcxAM7cBj837vAb61B5k")
+    [void]$sbadv.Append("FtzJMNJN7ZvJqEcSKIUstAlG2HKcTUrdlaralIprau7tYIN7+znDJ/Hxc/1h3i11ewA+Yl0tGdkWPpnGJFmtgDv41LSwJsis")
+    [void]$sbadv.Append("Vv0kEuw83YKbfywhls7Bn1K0x4b7HJaHFVieVSqLCPmpfnQ/YGrOXrQn09F40H6fm209ctVqZ9swKosztJKNxU9VhJTrzOEq")
+    [void]$sbadv.Append("C16mMUqdjb9OcU3aVjhMCix2KIGuf0mAfAjnHhv2emQ4X2qC6JYSmBlZn1RiZTuUIyCte+Qgfq5APN5QLn0QfpVVVyYhf/5Y")
+    [void]$sbadv.Append("Fs577U3GnR9LkqqUbj8f3ZtqvmnRnko+agrTOEYnJBezfHkzdp1lB/PEIX+ETB85vtQCeKJZdb0ztkzIBXFG8VVkU0UxNfJy")
+    [void]$sbadv.Append("tln9/5r+aJ6UYshX3qIPsS8RLIKsbGbWMkzgQaiyG/E4iQJxh1u2Hwp1eMFkTVbypBL1DoHjhVzu/SPfYuzG6Pdivi4FwK9l")
+    [void]$sbadv.Append("7EuVI4qEYX+KWSiarWsjw4gifH3wzBL2LB8hC34zOtJKQ9cvxGL973Xlsdmz3AwdKTMkDc4DyhfqoObTsRpBSSWz+VmQIFzJ")
+    [void]$sbadv.Append("dBYtKyuGJgb/V81N5yxhF6RjD7qr7Fa2umE/q2EH3pXM2wLAnn739549n/3selqMlf2/HCVSgnyZcrL7Pn34+DQPOx+tUrzQ")
+    [void]$sbadv.Append("leIBhymKNe338nd4v1MUhb4vq6pb3c8jFSwEylet+bpFv1A3EUeJrUIdY89kjcbQIQvvriEmD+YqO8AlCwZ5NRoMzEemCTtD")
+    [void]$sbadv.Append("x+2FHD1KF6/A1w5WxFrsxBLlEj378S9/K9LJPbYj1JlE1qVejCvXvn6xncq+GvOtXh9uIz7yY2+lkRblUc/YjixrpdViSnMD")
+    [void]$sbadv.Append("zh3u1HVyxeDQvZNVl+gdqGHviHEUzNRKQb46q8ggXR55qEb2smiydsel6mFkaehzNXQivQoZ77uOpZ2ao/LAI10+d1Su3PeF")
+    [void]$sbadv.Append("YewTKCbJXMDtJ7E6BrfDCAuN08gVmEDfUH6ho215t6QMjlTJHSj0M6I3TpQF0HUbZBKChPxAGg7IhX7p+sOsRedmwvPB6Tpz")
+    [void]$sbadv.Append("fWsBggdEEH4rPaL/9WR0mp8Bgiaxf4V3KgACjz63AobwemlFa5P1Q3nXwEG4zSLrRg4m9iSBz4XYEO7DXhjGoWKJPNaTfWSR")
+    [void]$sbadv.Append("ER3dxE9PHTGxw1eQI20oVJvNVClVkEkZ/h2mzgNVNaqpCtftrBSNBllgVqeFaRmdrjc19cKzIpzXBEgdOmAvBd/AcOqJ6ZCR")
+    [void]$sbadv.Append("ggu0SP/eJqm3sxszbTWdoqQVFTrlEnyTXfE1W9ItIxu+XdBWm5jhmgcJz04l1WmkpFRJ8TpKVaUWqtxBSEHle0wXoLwP9W2r")
+    [void]$sbadv.Append("G1cdLTJpyrhEqlewlusB3CNvntD6jeckpBN8xVZ5FIXQ80UEgUFG/pr8iNICuqhycItYJLsUkkZtBN8bwsxNFEKEMsFqajwA")
+    [void]$sbadv.Append("alwwFpueWw4WUtfoHRI9n2v4vwrCG1Vn4xHdglFpEKeVq8XJbYhkseCyXB1Ha6BDkRwgFVxnwiNxBq4Xqctb2ZUvkcCPkAFj")
+    [void]$sbadv.Append("2HxBPAhlncUwjogXI9fFzAG/RX/YfoIoZWRqY7Vv5T2XdZjIq1haKu94NA6c8NcAJed6GYcWSDPIizbbLj6pOzYktZe1wg0N")
+    [void]$sbadv.Append("bsFKiIYCPogl9UCNBvkxOqevvdHvatHViZpRcSASPXphqCtvWJglMrJcS1VOmuNavzJmVHyCIlcpI5doTarXztSYososzy22")
+    [void]$sbadv.Append("EP7JinN10TSgpZzttkUfVHkgVaer1Xo3bODTlxHZwf7uUWWaw3SaPPXrUqcKbZJXlWI+levMv7ZcZ79l7X191Dpwj9zW3HHn")
+    [void]$sbadv.Append("rV3bdl/Yc/vQtnZhzu67hKe68D9njg1rVkUXphVdtl/fYy/2jw4rK3teki/4391QxilfLJGpdFcVa/SDsS6RryzxdX5XMEXb")
+    [void]$sbadv.Append("V5SCfUXMIgtAlCoLOkoXlCUlMmWr4Eu/csgoh6vQeJFrgwx2uzLNK9M4lpfu4FIDXmBKkelz2/cCbrKJte6w2vQTl+xsGED5")
+    [void]$sbadv.Append("cvfCKhkWuoM6zS74le7wwXZQ4euzL+aZNeM/UEsBAh4DCgAAAAAAHUGxXAAAAAAAAAAAAAAAAAgAGAAAAAAAAAAQAO1BAAAA")
+    [void]$sbadv.Append("AGFkdmlzb3IvVVQFAAParwlqdXgLAAEE9rlzNwTRO4QoUEsBAh4DCgAAAAAAKkGxXAAAAAAAAAAAAAAAAA8AGAAAAAAAAAAQ")
+    [void]$sbadv.Append("AO1BQgAAAGFkdmlzb3Ivc2tpbGxzL1VUBQAD8K8JanV4CwABBPa5czcE0TuEKFBLAQIeAwoAAAAAACpBsVwAAAAAAAAAAAAA")
+    [void]$sbadv.Append("AAAXABgAAAAAAAAAEADtQYsAAABhZHZpc29yL3NraWxscy9hZHZpc29yL1VUBQAD8K8JanV4CwABBPa5czcE0TuEKFBLAQIe")
+    [void]$sbadv.Append("AxQAAAAIAA1BsVwT4QfVpwQAAIsOAAAgABgAAAAAAAEAAACkgdwAAABhZHZpc29yL3NraWxscy9hZHZpc29yL3Rlc3QueWFt")
+    [void]$sbadv.Append("bFVUBQADuq8JanV4CwABBPa5czcE0TuEKFBLAQIeAxQAAAAIALVAsVx3VAA1vQwAAHksAAAfABgAAAAAAAEAAACkgd0FAABh")
+    [void]$sbadv.Append("ZHZpc29yL3NraWxscy9hZHZpc29yL1NLSUxMLm1kVVQFAAMVrwlqdXgLAAEE9rlzNwTRO4QoUEsFBgAAAAAFAAUAywEAAPMS")
+    [void]$sbadv.Append("AAAAAA==")
+    $b64adv = $sbadv.ToString()
+    $advBytes = [Convert]::FromBase64String($b64adv)
+    [System.IO.File]::WriteAllBytes($AdvisorZipTmp, $advBytes)
+
+    if (Test-Path $AdvisorExtractTmp) { Remove-Item $AdvisorExtractTmp -Recurse -Force }
+    Expand-Archive -Path $AdvisorZipTmp -DestinationPath $AdvisorExtractTmp -Force
+    Remove-Item $AdvisorZipTmp -Force
+
+    $advResult = Start-Process powershell.exe -Verb RunAs -Wait -PassThru `
+        -ArgumentList "-NoProfile -Command New-Item -ItemType Directory -Force -Path '$PluginDest' | Out-Null; Remove-Item -Path '$PluginDest\advisor' -Recurse -Force -ErrorAction SilentlyContinue; Copy-Item -Path '$AdvisorExtractTmp\advisor' -Destination '$PluginDest\' -Recurse -Force"
+    Remove-Item $AdvisorExtractTmp -Recurse -Force -ErrorAction SilentlyContinue
+
+    if ($advResult.ExitCode -eq 0) {
+        Write-Host ""
+        Write-StepDone "5" "rr-advisor plugin installed"
+    } else {
+        Write-Warn "Could not install rr-advisor plugin (exit $($advResult.ExitCode))"
+    }
+} catch {
+    Write-Warn "Could not install rr-advisor plugin: $_"
+}
 # ── summary ────────────────────────────────────────────────────────────────────
 
 Write-Host ""
