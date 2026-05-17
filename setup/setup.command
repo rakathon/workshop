@@ -471,18 +471,20 @@ info "Copying plugins to /Library/Application Support/Claude/org-plugins/..."
 
 PLUGIN_DEST="/Library/Application Support/Claude/org-plugins"
 
-# Eject stale old Rakuten Claude Code Setup volumes, keep only the one with our files
-PLUGIN_VOLUME=""
+# Eject ALL stale Rakuten Claude Code Setup volumes before finding the current one
+info "Ejecting any previously mounted Rakuten Claude Code Setup volumes..."
 while IFS= read -r vol; do
-  if [[ -f "${vol}/rr-standards.zip" ]]; then
-    PLUGIN_VOLUME="$vol"
-  else
-    info "Ejecting stale volume: ${vol}"
-    hdiutil detach "$vol" -quiet 2>/dev/null || true
-  fi
-done < <(mount | grep -o '/Volumes/Rakuten Claude Code Setup[^(]*' | sed 's/ *$//' | sort -rV)
-if [[ -z "$PLUGIN_VOLUME" ]]; then
-  warn "Could not find Rakuten Claude Code Setup volume with plugin files — skipping plugin install"
+  info "  Ejecting: ${vol}"
+  hdiutil detach "$vol" -quiet 2>/dev/null || true
+done < <(mount | grep -o '/Volumes/Rakuten Claude Code Setup[^(]*' | sed 's/ *$//')
+
+# Wait briefly for the current DMG to auto-mount, then find it
+sleep 2
+PLUGIN_VOLUME=$(mount | grep -o '/Volumes/Rakuten Claude Code Setup[^(]*' | sed 's/ *$//' | head -1)
+if [[ -n "$PLUGIN_VOLUME" ]]; then
+  info "Using volume: ${PLUGIN_VOLUME}"
+else
+  warn "Could not find Rakuten Claude Code Setup volume — skipping plugin install"
 fi
 
 if [[ -n "$PLUGIN_VOLUME" ]]; then
