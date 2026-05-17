@@ -476,7 +476,7 @@ ALL_VOLS=($(mount | grep -oi '/Volumes/Rakuten Claude Code Setup[^(]*' | sed 's/
 if [[ ${#ALL_VOLS[@]} -gt 0 ]]; then
   # Sort: newest mount has highest suffix, keep last after version sort
   SORTED_VOLS=($(printf '%s\n' "${ALL_VOLS[@]}" | sort -V))
-  PLUGIN_VOLUME="${SORTED_VOLS[-1]}"
+  PLUGIN_VOLUME="${SORTED_VOLS[${#SORTED_VOLS[@]}-1]}"
   info "Using volume: ${PLUGIN_VOLUME}"
   for vol in "${SORTED_VOLS[@]}"; do
     if [[ "$vol" != "$PLUGIN_VOLUME" ]]; then
