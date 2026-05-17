@@ -470,7 +470,22 @@ step_active "5" "Install plugins for Claude Desktop"
 info "Copying plugins to /Library/Application Support/Claude/org-plugins/..."
 
 PLUGIN_DEST="/Library/Application Support/Claude/org-plugins"
-PLUGIN_VOLUME=$(mount | grep -o '/Volumes/Rakuten Claude Code Setup[^(]*' | sed 's/ $//' | head -1)
+
+# Eject stale old Rakuten Claude Code Setup volumes, keep only the one with our files
+PLUGIN_VOLUME=""
+while IFS= read -r vol; do
+  if [[ -f "${vol}/rr-standards.zip" ]]; then
+    PLUGIN_VOLUME="$vol"
+  else
+    info "Ejecting stale volume: ${vol}"
+    hdiutil detach "$vol" -quiet 2>/dev/null || true
+  fi
+done < <(mount | grep -o '/Volumes/Rakuten Claude Code Setup[^(]*' | sed 's/ *$//' | sort -rV)
+if [[ -z "$PLUGIN_VOLUME" ]]; then
+  warn "Could not find Rakuten Claude Code Setup volume with plugin files — skipping plugin install"
+fi
+
+if [[ -n "$PLUGIN_VOLUME" ]]; then
 
 # rr-standards + forge plugins
 RR_ZIP="${PLUGIN_VOLUME}/rr-standards.zip"
@@ -534,6 +549,8 @@ OSASCRIPT
 else
   warn "rr-advisor.zip not found on volume — skipping"
 fi
+
+fi # end PLUGIN_VOLUME check
 
 # ── summary ────────────────────────────────────────────────────────────────────
 
