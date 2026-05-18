@@ -66,6 +66,7 @@ step "2" "Install Git, VS Code, Claude Code extension, Claude Desktop, and plugi
 step "3" "Configure Claude Code automatically"
 step "4" "Install Claude Desktop configuration profile"
 step "5" "Install AI Summit plugin for Claude Desktop"
+step "6" "Set up Snowflake MCP for Cowork"
 printf "\n"
 
 # ── step 1: sign in ────────────────────────────────────────────────────────────
@@ -534,6 +535,79 @@ OSASCRIPT
   fi
 else
   warn "honeydew-ai-claude.zip not found on volume — skipping"
+fi
+
+# ── step 6: snowflake mcp setup ───────────────────────────────────────────────
+
+step_active "6" "Set up Snowflake MCP for Cowork"
+printf "\n"
+
+info "Enter your Rakuten Ebates email (e.g. Tomas Jerry → tjerry@ebates.com):"
+read -r -p "      Email: " EBATES_EMAIL
+printf "\n"
+
+# Check / install uvx
+info "Checking for uvx..."
+UVX_PATH=""
+if command -v uvx &>/dev/null; then
+  UVX_PATH=$(command -v uvx)
+elif [[ -f "$HOME/.local/bin/uvx" ]]; then
+  UVX_PATH="$HOME/.local/bin/uvx"
+fi
+
+if [[ -z "$UVX_PATH" ]]; then
+  info "uvx not found — installing uv..."
+  curl -LsSf https://astral.sh/uv/install.sh | sh
+  export PATH="$HOME/.local/bin:$PATH"
+  if [[ -f "$HOME/.local/bin/uvx" ]]; then
+    UVX_PATH="$HOME/.local/bin/uvx"
+  else
+    warn "uvx still not found after install — Snowflake MCP skipped. Restart Terminal and re-run."
+  fi
+fi
+
+if [[ -n "$UVX_PATH" ]]; then
+  info "uvx: $UVX_PATH"
+
+  # Write ~/.snowflake/connections.toml
+  info "Writing ~/.snowflake/connections.toml..."
+  mkdir -p "$HOME/.snowflake"
+  cat > "$HOME/.snowflake/connections.toml" << EOF
+[default]
+account = "rakutenusa-ebates"
+user = "$EBATES_EMAIL"
+authenticator = "externalbrowser"
+EOF
+
+  # Write ~/snowflake-mcp/tools_config.yaml
+  info "Writing ~/snowflake-mcp/tools_config.yaml..."
+  mkdir -p "$HOME/snowflake-mcp"
+  cat > "$HOME/snowflake-mcp/tools_config.yaml" << 'EOF'
+agent_services: []
+search_services: []
+analyst_services: []
+
+other_services:
+  object_manager: true
+  query_manager: true
+  semantic_manager: false
+
+sql_statement_permissions:
+  - Select: true
+  - Describe: true
+  - Use: true
+  - Create: false
+  - Drop: false
+  - Insert: false
+  - Update: false
+  - Delete: false
+  - Unknown: false
+EOF
+
+  clear_lines 2
+  step_done "6" "Snowflake MCP configured (restart Cowork to activate)"
+else
+  step_done "6" "Snowflake MCP skipped — uvx not found"
 fi
 
 # ── summary ────────────────────────────────────────────────────────────────────
