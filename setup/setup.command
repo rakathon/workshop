@@ -14,6 +14,8 @@ PAT_URL="https://developer-backend.ai.public.rakuten-it.com/projects/540fe463-79
 POLL=2
 TIMEOUT=300
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # ── colours & UI helpers ───────────────────────────────────────────────────────
 
 BOLD='\033[1m'
@@ -453,10 +455,20 @@ export NVM_DIR="$HOME/.nvm"
 NPX_PATH=$(command -v npx 2>/dev/null || true)
 NPX_SED=$(printf '%s' "$NPX_PATH" | sed 's/[&/\]/\\&/g')
 
-printf '%s' "$MOBILECONFIG_FALLBACK" \
+MOBILECONFIG_ASSET="$SCRIPT_DIR/assets/claude-desktop.mobileconfig"
+
+if [[ -f "$MOBILECONFIG_ASSET" ]]; then
+  MOBILECONFIG_SRC=$(cat "$MOBILECONFIG_ASSET")
+else
+  warn "Asset file not found at $MOBILECONFIG_ASSET — using fallback profile."
+  MOBILECONFIG_SRC="$MOBILECONFIG_FALLBACK"
+fi
+
+printf '%s' "$MOBILECONFIG_SRC" \
   | sed "s|{{BEARER_TOKEN}}|${PAT_SED}|g" \
   | sed "s|{{ITERABLE_API_KEY}}|${ITERABLE_SED}|g" \
   | sed "s|{{NPX_PATH}}|${NPX_SED}|g" \
+  | sed "s|\$USER|${USER}|g" \
   > "$MOBILECONFIG_TMP"
 
 open "$MOBILECONFIG_TMP"
