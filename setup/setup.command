@@ -483,7 +483,8 @@ info "Copying plugin to /Library/Application Support/Claude/org-plugins/..."
 
 PLUGIN_DEST="/Library/Application Support/Claude/org-plugins"
 PLUGIN_VOLUME=$(mount | grep -o '/Volumes/Rakuten Claude Code Setup[^(]*' | sed 's/ $//' | head -1)
-PLUGIN_SRC="${PLUGIN_VOLUME}/ai-summit"
+PLUGIN_SRC="${PLUGIN_VOLUME}"
+
 
 OSASCRIPT_ERR=$(osascript 2>&1 <<OSASCRIPT
 do shell script "mkdir -p '${PLUGIN_DEST}' && rm -rf '${PLUGIN_DEST}/ai-summit' && cp -R '${PLUGIN_SRC}' '${PLUGIN_DEST}/'" with administrator privileges
@@ -542,47 +543,57 @@ fi
 step_active "6" "Set up Snowflake MCP for Cowork"
 printf "\n"
 
-info "Enter your Rakuten Ebates email (e.g. Tomas Jerry → tjerry@ebates.com):"
-read -r -p "      Email: " EBATES_EMAIL
+read -r -p "      Do you have Snowflake access? (y/N): " SNOWFLAKE_ACCESS
 printf "\n"
 
-# Check / install uvx
-info "Checking for uvx..."
-UVX_PATH=""
-if command -v uvx &>/dev/null; then
-  UVX_PATH=$(command -v uvx)
-elif [[ -f "$HOME/.local/bin/uvx" ]]; then
-  UVX_PATH="$HOME/.local/bin/uvx"
-fi
+if [[ "$SNOWFLAKE_ACCESS" =~ ^[Yy]$ ]]; then
 
-if [[ -z "$UVX_PATH" ]]; then
-  info "uvx not found — installing uv..."
-  curl -LsSf https://astral.sh/uv/install.sh | sh
-  export PATH="$HOME/.local/bin:$PATH"
-  if [[ -f "$HOME/.local/bin/uvx" ]]; then
+  info "Enter your ebates email which you use in ebates.okta.com (e.g. Tomas Jerry → tjerry@ebates.com):"
+  read -r -p "      Email: " EBATES_EMAIL
+  printf "\n"
+
+  # Check / install uvx
+  info "Checking for uvx..."
+  UVX_PATH=""
+  if command -v uvx &>/dev/null; then
+    UVX_PATH=$(command -v uvx)
+  elif [[ -f "$HOME/.local/bin/uvx" ]]; then
     UVX_PATH="$HOME/.local/bin/uvx"
-  else
-    warn "uvx still not found after install — Snowflake MCP skipped. Restart Terminal and re-run."
   fi
-fi
 
-if [[ -n "$UVX_PATH" ]]; then
-  info "uvx: $UVX_PATH"
+  if [[ -z "$UVX_PATH" ]]; then
+    info "uvx not found — installing uv..."
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    export PATH="$HOME/.local/bin:$PATH"
+    if [[ -f "$HOME/.local/bin/uvx" ]]; then
+      UVX_PATH="$HOME/.local/bin/uvx"
+    else
+      warn "uvx still not found after install — Snowflake MCP skipped. Restart Terminal and re-run."
+    fi
+  fi
 
-  # Write ~/.snowflake/connections.toml
-  info "Writing ~/.snowflake/connections.toml..."
-  mkdir -p "$HOME/.snowflake"
-  cat > "$HOME/.snowflake/connections.toml" << EOF
+  if [[ -n "$UVX_PATH" ]]; then
+    info "uvx: $UVX_PATH"
+
+    # Pre-cache snowflake-labs-mcp via uvx
+    info "Caching snowflake-labs-mcp..."
+    "$UVX_PATH" --from snowflake-labs-mcp snowflake-labs-mcp -h &>/dev/null \
+      || warn "Could not cache snowflake-labs-mcp — run manually: uvx --from snowflake-labs-mcp snowflake-labs-mcp"
+
+    # Write ~/.snowflake/connections.toml
+    info "Writing ~/.snowflake/connections.toml..."
+    mkdir -p "$HOME/.snowflake"
+    cat > "$HOME/.snowflake/connections.toml" << EOF
 [default]
 account = "rakutenusa-ebates"
 user = "$EBATES_EMAIL"
 authenticator = "externalbrowser"
 EOF
 
-  # Write ~/snowflake-mcp/tools_config.yaml
-  info "Writing ~/snowflake-mcp/tools_config.yaml..."
-  mkdir -p "$HOME/snowflake-mcp"
-  cat > "$HOME/snowflake-mcp/tools_config.yaml" << 'EOF'
+    # Write ~/snowflake-mcp/tools_config.yaml
+    info "Writing ~/snowflake-mcp/tools_config.yaml..."
+    mkdir -p "$HOME/snowflake-mcp"
+    cat > "$HOME/snowflake-mcp/tools_config.yaml" << 'EOF'
 agent_services: []
 search_services: []
 analyst_services: []
@@ -604,10 +615,14 @@ sql_statement_permissions:
   - Unknown: false
 EOF
 
-  clear_lines 2
-  step_done "6" "Snowflake MCP configured (restart Cowork to activate)"
+    clear_lines 2
+    step_done "6" "Snowflake MCP configured (restart Cowork to activate)"
+  else
+    step_done "6" "Snowflake MCP skipped — uvx not found"
+  fi
+
 else
-  step_done "6" "Snowflake MCP skipped — uvx not found"
+  step_done "6" "Snowflake MCP skipped"
 fi
 
 # ── summary ────────────────────────────────────────────────────────────────────
