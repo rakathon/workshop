@@ -448,7 +448,7 @@ try {
         -replace '{{NPX_PATH}}', ($NpxPath -replace '\\', '\\\\') `
         -replace '{{HOME}}', $HomePath
     Set-ItemProperty -Path $RegPath -Name managedMcpServers           -Value $ManagedMcpServersFinal
-    Set-ItemProperty -Path $RegPath -Name banner                      -Value '{"enabled":true,"text":"Rakuten Rewards - CoWork - v1.1.0","backgroundColor":"#7B30C6","textColor":"#FFFFFF","linkUrl":"https://www.rakuten.com"}'
+    Set-ItemProperty -Path $RegPath -Name banner                      -Value '{"enabled":true,"text":"Rakuten Rewards - CoWork - v1.2.0","backgroundColor":"#7B30C6","textColor":"#FFFFFF","linkUrl":"https://www.rakuten.com"}'
 } catch {
     Write-Warn "Failed to apply registry settings: $_"
 } finally {
