@@ -60649,11 +60649,11 @@ sql_statement_permissions:
             try {
                 $RegPath = "HKCU:\SOFTWARE\Policies\Claude"
                 $servers = (Get-ItemProperty $RegPath -Name managedMcpServers).managedMcpServers | ConvertFrom-Json
-                $ToolsConfigFwd = $ToolsConfig -replace '\\', '/'
+                $HomeFwd = $env:USERPROFILE.Replace('\', '/')
                 foreach ($s in $servers) {
                     if ($s.name -eq 'Snowflake') {
                         $s.command = $UvxPath
-                        $s.args = $s.args | ForEach-Object { $_ -replace '^~/', "$($env:USERPROFILE -replace '\\','/')/" }
+                        $s.args = $s.args | ForEach-Object { $_ -replace '^~/', "$HomeFwd/" }
                     }
                 }
                 Set-ItemProperty -Path $RegPath -Name managedMcpServers -Value ($servers | ConvertTo-Json -Depth 10 -Compress)
