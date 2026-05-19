@@ -501,8 +501,15 @@ if [[ ${#ALL_VOLS[@]} -gt 0 ]]; then
     fi
   done
 else
-  PLUGIN_VOLUME=""
-  warn "Could not find Rakuten Claude Code Setup volume — skipping plugin install"
+  # Fallback: look for assets/ alongside this script (running from repo)
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  if [[ -d "${SCRIPT_DIR}/assets" ]] && [[ -f "${SCRIPT_DIR}/assets/rr-standards.zip" ]]; then
+    PLUGIN_VOLUME="${SCRIPT_DIR}/assets"
+    info "No DMG volume found — using local assets: ${PLUGIN_VOLUME}"
+  else
+    PLUGIN_VOLUME=""
+    warn "Could not find Rakuten Claude Code Setup volume — skipping plugin install"
+  fi
 fi
 
 if [[ -n "$PLUGIN_VOLUME" ]]; then
