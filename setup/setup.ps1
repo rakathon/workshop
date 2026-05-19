@@ -60522,11 +60522,25 @@ if ($SnowflakeAnswer -eq [System.Windows.Forms.DialogResult]::Yes) {
         if (-not $UvxPath) {
             Write-Info "Installing uv (includes uvx)..."
             try {
-                $UvInstall = Join-Path $env:TEMP "install-uv.ps1"
-                Invoke-WebRequest "https://astral.sh/uv/install.ps1" -OutFile $UvInstall
-                & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $UvInstall
-                $UvxLocal = Join-Path $env:USERPROFILE ".local\bin\uvx.exe"
-                if (Test-Path $UvxLocal) { $UvxPath = $UvxLocal }
+                # Use winget (avoids corporate proxy/firewall issues with astral.sh)
+                $wgResult = & winget install astral-sh.uv --source winget --silent --accept-package-agreements --accept-source-agreements 2>&1
+                # Refresh PATH from registry so winget's additions are visible
+                $MachinePath = [System.Environment]::GetEnvironmentVariable("PATH", "Machine")
+                $UserPath    = [System.Environment]::GetEnvironmentVariable("PATH", "User")
+                $env:PATH = "$UserPath;$MachinePath"
+                # Check all known uv install locations on Windows
+                $UvxCandidates = @(
+                    (Join-Path $env:USERPROFILE "AppData\Local\uv\bin\uvx.exe"),
+                    (Join-Path $env:USERPROFILE ".local\bin\uvx.exe"),
+                    (Join-Path $env:USERPROFILE ".cargo\bin\uvx.exe")
+                )
+                foreach ($c in $UvxCandidates) {
+                    if (Test-Path $c) { $UvxPath = $c; break }
+                }
+                if (-not $UvxPath) {
+                    $found = Get-Command uvx -ErrorAction SilentlyContinue
+                    if ($found) { $UvxPath = $found.Source }
+                }
             } catch {
                 Write-Warn "Could not install uv automatically. Visit https://astral.sh/uv for instructions."
             }
