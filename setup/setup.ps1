@@ -22,7 +22,7 @@ function Write-Header {
     Clear-Host
     Write-Host ""
     Write-Host "  ╔══════════════════════════════════════════════════════╗" -ForegroundColor White
-    Write-Host "  ║       Rakuten Claude Code Setup (Windows)            ║" -ForegroundColor White
+    Write-Host "  ║    Rakuten Claude Code Setup (Windows) — v1.2.0      ║" -ForegroundColor White
     Write-Host "  ╚══════════════════════════════════════════════════════╝" -ForegroundColor White
     Write-Host ""
 }
