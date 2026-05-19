@@ -510,17 +510,14 @@ if [[ -n "$PLUGIN_VOLUME" ]]; then
 RR_ZIP="${PLUGIN_VOLUME}/rr-standards.zip"
 HD_ZIP="${PLUGIN_VOLUME}/honeydew-ai-claude.zip"
 ADVISOR_ZIP="${PLUGIN_VOLUME}/rr-advisor.zip"
-SLACK_ZIP="${PLUGIN_VOLUME}/slack.zip"
-
 RR_TMP=/tmp/rr-standards-extract
 HD_TMP=/tmp/honeydew-ai-claude-extract
 ADVISOR_TMP=/tmp/rr-advisor-extract
-SLACK_TMP=/tmp/slack-extract
 
 INSTALL_CMD="mkdir -p '${PLUGIN_DEST}'"
-INSTALL_CMD+=" && rm -rf '${PLUGIN_DEST}/ai-summit' '${PLUGIN_DEST}/rr-standards' '${PLUGIN_DEST}/forge-skill-creator' '${PLUGIN_DEST}/forge' '${PLUGIN_DEST}/honeydew-ai-claude' '${PLUGIN_DEST}/advisor' '${PLUGIN_DEST}/slack'"
+INSTALL_CMD+=" && rm -rf '${PLUGIN_DEST}/ai-summit' '${PLUGIN_DEST}/rr-standards' '${PLUGIN_DEST}/forge-skill-creator' '${PLUGIN_DEST}/forge' '${PLUGIN_DEST}/honeydew-ai-claude' '${PLUGIN_DEST}/advisor'"
 
-HAS_RR=false; HAS_HD=false; HAS_ADVISOR=false; HAS_SLACK=false
+HAS_RR=false; HAS_HD=false; HAS_ADVISOR=false
 
 if [[ -f "$RR_ZIP" ]]; then
   rm -rf "$RR_TMP" && mkdir -p "$RR_TMP"
@@ -548,15 +545,6 @@ else
   warn "rr-advisor.zip not found on volume — skipping"
 fi
 
-if [[ -f "$SLACK_ZIP" ]]; then
-  rm -rf "$SLACK_TMP" && mkdir -p "$SLACK_TMP"
-  unzip -q "$SLACK_ZIP" -d "$SLACK_TMP"
-  INSTALL_CMD+=" && rsync -a '${SLACK_TMP}/slack' '${PLUGIN_DEST}/'"
-  HAS_SLACK=true
-else
-  warn "slack.zip not found on volume — skipping"
-fi
-
 # Single admin prompt for all plugins
 OSASCRIPT_ERR=$(osascript 2>&1 <<OSASCRIPT
 do shell script "${INSTALL_CMD}" with administrator privileges
@@ -564,13 +552,12 @@ OSASCRIPT
 )
 INSTALL_STATUS=$?
 
-rm -rf "$RR_TMP" "$HD_TMP" "$ADVISOR_TMP" "$SLACK_TMP"
+rm -rf "$RR_TMP" "$HD_TMP" "$ADVISOR_TMP"
 
 if [[ $INSTALL_STATUS -eq 0 ]]; then
   $HAS_RR      && step_done "5" "forge-skill-creator + forge plugins installed"
   $HAS_HD      && step_done "5" "honeydew-ai-claude plugin installed"
   $HAS_ADVISOR && step_done "5" "rr-advisor plugin installed"
-  $HAS_SLACK   && step_done "5" "slack plugin installed"
 else
   warn "Could not install plugins: ${OSASCRIPT_ERR}"
 fi
