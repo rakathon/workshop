@@ -510,67 +510,61 @@ fi
 
 if [[ -n "$PLUGIN_VOLUME" ]]; then
 
-# rr-standards + forge plugins
+# Extract all zips first (no admin needed), then do one single privileged copy
 RR_ZIP="${PLUGIN_VOLUME}/rr-standards.zip"
+HD_ZIP="${PLUGIN_VOLUME}/honeydew-ai-claude.zip"
+ADVISOR_ZIP="${PLUGIN_VOLUME}/rr-advisor.zip"
+
 RR_TMP=/tmp/rr-standards-extract
+HD_TMP=/tmp/honeydew-ai-claude-extract
+ADVISOR_TMP=/tmp/rr-advisor-extract
+
+INSTALL_CMD="mkdir -p '${PLUGIN_DEST}'"
+INSTALL_CMD+=" && rm -rf '${PLUGIN_DEST}/ai-summit' '${PLUGIN_DEST}/rr-standards' '${PLUGIN_DEST}/forge-skill-creator' '${PLUGIN_DEST}/forge' '${PLUGIN_DEST}/honeydew-ai-claude' '${PLUGIN_DEST}/advisor'"
+
+HAS_RR=false; HAS_HD=false; HAS_ADVISOR=false
+
 if [[ -f "$RR_ZIP" ]]; then
   rm -rf "$RR_TMP" && mkdir -p "$RR_TMP"
   unzip -q "$RR_ZIP" -d "$RR_TMP"
-  OSASCRIPT_RR_ERR=$(osascript 2>&1 <<OSASCRIPT
-do shell script "rm -rf '${PLUGIN_DEST}/ai-summit' '${PLUGIN_DEST}/rr-standards' '${PLUGIN_DEST}/forge-skill-creator' '${PLUGIN_DEST}/forge' && cp -R '${RR_TMP}/rr-standards-main/plugins/forge-skill-creator' '${PLUGIN_DEST}/' && cp -R '${RR_TMP}/rr-standards-main/plugins/forge' '${PLUGIN_DEST}/'" with administrator privileges
-OSASCRIPT
-  )
-  RR_STATUS=$?
-  rm -rf "$RR_TMP"
-  if [[ $RR_STATUS -eq 0 ]]; then
-    step_done "5" "forge-skill-creator + forge plugins installed"
-  else
-    warn "Could not install forge-skill-creator/forge plugins: ${OSASCRIPT_RR_ERR}"
-  fi
+  INSTALL_CMD+=" && cp -R '${RR_TMP}/rr-standards-main/plugins/forge-skill-creator' '${PLUGIN_DEST}/'"
+  INSTALL_CMD+=" && cp -R '${RR_TMP}/rr-standards-main/plugins/forge' '${PLUGIN_DEST}/'"
+  HAS_RR=true
 fi
 
-# honeydew-ai-claude plugin
-info "Installing honeydew-ai-claude plugin..."
-HD_ZIP="${PLUGIN_VOLUME}/honeydew-ai-claude.zip"
-HD_TMP=/tmp/honeydew-ai-claude-extract
 if [[ -f "$HD_ZIP" ]]; then
   rm -rf "$HD_TMP" && mkdir -p "$HD_TMP/honeydew-ai-claude"
   unzip -q "$HD_ZIP" -d "$HD_TMP/honeydew-ai-claude"
-  OSASCRIPT_HD_ERR=$(osascript 2>&1 <<OSASCRIPT
-do shell script "rm -rf '${PLUGIN_DEST}/honeydew-ai-claude' && rsync -a '${HD_TMP}/honeydew-ai-claude' '${PLUGIN_DEST}/'" with administrator privileges
-OSASCRIPT
-  )
-  HD_STATUS=$?
-  rm -rf "$HD_TMP"
-  if [[ $HD_STATUS -eq 0 ]]; then
-    step_done "5" "honeydew-ai-claude plugin installed"
-  else
-    warn "Could not install honeydew-ai-claude plugin: ${OSASCRIPT_HD_ERR}"
-  fi
+  INSTALL_CMD+=" && rsync -a '${HD_TMP}/honeydew-ai-claude' '${PLUGIN_DEST}/'"
+  HAS_HD=true
 else
   warn "honeydew-ai-claude.zip not found on volume — skipping"
 fi
 
-# rr-advisor plugin
-info "Installing rr-advisor plugin..."
-ADVISOR_ZIP="${PLUGIN_VOLUME}/rr-advisor.zip"
-ADVISOR_TMP=/tmp/rr-advisor-extract
 if [[ -f "$ADVISOR_ZIP" ]]; then
   rm -rf "$ADVISOR_TMP" && mkdir -p "$ADVISOR_TMP"
   unzip -q "$ADVISOR_ZIP" -d "$ADVISOR_TMP"
-  OSASCRIPT_ADVISOR_ERR=$(osascript 2>&1 <<OSASCRIPT
-do shell script "rm -rf '${PLUGIN_DEST}/advisor' && rsync -a '${ADVISOR_TMP}/advisor' '${PLUGIN_DEST}/'" with administrator privileges
-OSASCRIPT
-  )
-  ADVISOR_STATUS=$?
-  rm -rf "$ADVISOR_TMP"
-  if [[ $ADVISOR_STATUS -eq 0 ]]; then
-    step_done "5" "rr-advisor plugin installed"
-  else
-    warn "Could not install rr-advisor plugin: ${OSASCRIPT_ADVISOR_ERR}"
-  fi
+  INSTALL_CMD+=" && rsync -a '${ADVISOR_TMP}/advisor' '${PLUGIN_DEST}/'"
+  HAS_ADVISOR=true
 else
   warn "rr-advisor.zip not found on volume — skipping"
+fi
+
+# Single admin prompt for all plugins
+OSASCRIPT_ERR=$(osascript 2>&1 <<OSASCRIPT
+do shell script "${INSTALL_CMD}" with administrator privileges
+OSASCRIPT
+)
+INSTALL_STATUS=$?
+
+rm -rf "$RR_TMP" "$HD_TMP" "$ADVISOR_TMP"
+
+if [[ $INSTALL_STATUS -eq 0 ]]; then
+  $HAS_RR      && step_done "5" "forge-skill-creator + forge plugins installed"
+  $HAS_HD      && step_done "5" "honeydew-ai-claude plugin installed"
+  $HAS_ADVISOR && step_done "5" "rr-advisor plugin installed"
+else
+  warn "Could not install plugins: ${OSASCRIPT_ERR}"
 fi
 
 fi # end PLUGIN_VOLUME check
