@@ -99,7 +99,8 @@ Write-Step "1" "Sign you in with your Rakuten account"
 Write-Step "2" "Install Git, VS Code, Claude Code extension, and plugins"
 Write-Step "3" "Configure Claude Code automatically"
 Write-Step "4" "Apply Claude Desktop registry settings"
-Write-Step "5" "Install AI Summit plugin for Claude Desktop"
+Write-Step "5" "Install plugins for Claude Desktop"
+Write-Step "6" "Set up Snowflake MCP (optional)"
 Write-Host ""
 
 # ── step 1: sign in ────────────────────────────────────────────────────────────
@@ -60903,6 +60904,114 @@ try {
 } catch {
     Write-Warn "Could not install slack plugin: $_"
 }
+# ── step 6: snowflake mcp setup ───────────────────────────────────────────────
+
+Write-StepActive "6" "Set up Snowflake MCP for CoWork"
+
+Add-Type -AssemblyName System.Windows.Forms
+$SnowflakeAnswer = [System.Windows.Forms.MessageBox]::Show(
+    "Do you have Snowflake access?`n`nClick Yes to install Snowflake MCP so CoWork can query Snowflake on your behalf.",
+    "Snowflake Setup",
+    [System.Windows.Forms.MessageBoxButtons]::YesNo,
+    [System.Windows.Forms.MessageBoxIcon]::Question
+)
+
+if ($SnowflakeAnswer -eq [System.Windows.Forms.DialogResult]::Yes) {
+
+    # Prompt for email
+    Add-Type -AssemblyName Microsoft.VisualBasic
+    $SnowflakeEmail = [Microsoft.VisualBasic.Interaction]::InputBox(
+        "Enter your Ebates email address:",
+        "Snowflake Setup",
+        ""
+    )
+
+    if ([string]::IsNullOrWhiteSpace($SnowflakeEmail)) {
+        Write-StepDone "6" "Snowflake MCP skipped — no email entered"
+    } else {
+
+        # Check / install uv+uvx
+        $UvxPath = Get-Command uvx -ErrorAction SilentlyContinue
+        if (-not $UvxPath) {
+            $UvxLocal = Join-Path $env:USERPROFILE ".local\bin\uvx.exe"
+            if (Test-Path $UvxLocal) {
+                $UvxPath = $UvxLocal
+            }
+        } else {
+            $UvxPath = $UvxPath.Source
+        }
+
+        if (-not $UvxPath) {
+            Write-Info "Installing uv (includes uvx)..."
+            try {
+                $UvInstall = Join-Path $env:TEMP "install-uv.ps1"
+                Invoke-WebRequest "https://astral.sh/uv/install.ps1" -OutFile $UvInstall
+                & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $UvInstall
+                $UvxLocal = Join-Path $env:USERPROFILE ".local\bin\uvx.exe"
+                if (Test-Path $UvxLocal) { $UvxPath = $UvxLocal }
+            } catch {
+                Write-Warn "Could not install uv automatically. Visit https://astral.sh/uv for instructions."
+            }
+        }
+
+        if ($UvxPath) {
+            Write-Info "uvx found: $UvxPath"
+
+            # Pre-cache snowflake-labs-mcp
+            Write-Info "Caching snowflake-labs-mcp..."
+            try {
+                & $UvxPath --from snowflake-labs-mcp snowflake-labs-mcp -h 2>&1 | Out-Null
+            } catch {
+                Write-Warn "Could not cache snowflake-labs-mcp — run manually: uvx --from snowflake-labs-mcp snowflake-labs-mcp"
+            }
+
+            # Write ~/.snowflake/connections.toml
+            $SnowflakeDir = Join-Path $env:USERPROFILE ".snowflake"
+            New-Item -ItemType Directory -Force -Path $SnowflakeDir | Out-Null
+            $ConnectionsToml = Join-Path $SnowflakeDir "connections.toml"
+            @"
+[default]
+account = "rakutenusa-ebates"
+user = "$SnowflakeEmail"
+authenticator = "externalbrowser"
+"@ | Set-Content -Path $ConnectionsToml -Encoding UTF8
+            Write-Info "Snowflake user set to: $SnowflakeEmail"
+
+            # Write ~/snowflake-mcp/tools_config.yaml
+            $SnowflakeMcpDir = Join-Path $env:USERPROFILE "snowflake-mcp"
+            New-Item -ItemType Directory -Force -Path $SnowflakeMcpDir | Out-Null
+            $ToolsConfig = Join-Path $SnowflakeMcpDir "tools_config.yaml"
+            @"
+agent_services: []
+search_services: []
+analyst_services: []
+
+other_services:
+  object_manager: true
+  query_manager: true
+  semantic_manager: false
+
+sql_statement_permissions:
+  - Select: true
+  - Describe: true
+  - Use: true
+  - Create: false
+  - Drop: false
+  - Insert: false
+  - Update: false
+  - Delete: false
+  - Unknown: false
+"@ | Set-Content -Path $ToolsConfig -Encoding UTF8
+
+            Write-StepDone "6" "Snowflake MCP configured (restart CoWork to activate)"
+        } else {
+            Write-StepDone "6" "Snowflake MCP skipped — uvx not found"
+        }
+    }
+} else {
+    Write-StepDone "6" "Snowflake MCP skipped"
+}
+
 # ── summary ────────────────────────────────────────────────────────────────────
 
 Write-Host ""
