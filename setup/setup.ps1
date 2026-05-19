@@ -60630,6 +60630,21 @@ sql_statement_permissions:
   - Unknown: false
 "@ | Set-Content -Path $ToolsConfig -Encoding UTF8
 
+            # Patch the registry: replace bare "uvx" with absolute path and expand ~ in args
+            try {
+                $RegPath = "HKCU:\SOFTWARE\Policies\Claude"
+                $servers = (Get-ItemProperty $RegPath -Name managedMcpServers).managedMcpServers | ConvertFrom-Json
+                $ToolsConfigFwd = $ToolsConfig -replace '\\', '/'
+                foreach ($s in $servers) {
+                    if ($s.name -eq 'Snowflake') {
+                        $s.command = $UvxPath
+                        $s.args = $s.args | ForEach-Object { $_ -replace '^~/', "$($env:USERPROFILE -replace '\\','/')/" }
+                    }
+                }
+                Set-ItemProperty -Path $RegPath -Name managedMcpServers -Value ($servers | ConvertTo-Json -Depth 10 -Compress)
+            } catch {
+                Write-Warn "Could not patch Snowflake MCP registry entry: $_"
+            }
             Write-StepDone "6" "Snowflake MCP configured (restart CoWork to activate)"
         } else {
             Write-StepDone "6" "Snowflake MCP skipped — uvx not found"
