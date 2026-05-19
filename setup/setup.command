@@ -578,6 +578,15 @@ APPLES
 
 if [[ "$SNOWFLAKE_ANSWER" == "Yes" ]]; then
 
+  # Ask for Snowflake email
+  SNOWFLAKE_EMAIL=$(osascript 2>/dev/null <<'APPLES'
+text returned of (display dialog "Enter your Ebates email address:" with title "Snowflake Setup" default answer "" buttons {"Cancel", "Continue"} default button "Continue")
+APPLES
+  )
+  if [[ -z "$SNOWFLAKE_EMAIL" ]]; then
+    step_done "6" "Snowflake MCP skipped — no email entered"
+  else
+
   # Check / install uvx
   info "Checking for uvx..."
   UVX_PATH=""
@@ -612,10 +621,10 @@ if [[ "$SNOWFLAKE_ANSWER" == "Yes" ]]; then
     cat > "$HOME/.snowflake/connections.toml" << EOF
 [default]
 account = "rakutenusa-ebates"
-user = "${COWORK_USER_EMAIL}"
+user = "${SNOWFLAKE_EMAIL}"
 authenticator = "externalbrowser"
 EOF
-    info "Snowflake user set to: ${COWORK_USER_EMAIL}"
+    info "Snowflake user set to: ${SNOWFLAKE_EMAIL}"
 
     # Write ~/snowflake-mcp/tools_config.yaml
     info "Writing ~/snowflake-mcp/tools_config.yaml..."
@@ -646,6 +655,8 @@ YAMLEOF
   else
     step_done "6" "Snowflake MCP skipped — uvx not found"
   fi
+
+  fi # end SNOWFLAKE_EMAIL check
 
 else
   step_done "6" "Snowflake MCP skipped"
