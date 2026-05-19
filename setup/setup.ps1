@@ -60552,13 +60552,11 @@ if ($SnowflakeAnswer -eq [System.Windows.Forms.DialogResult]::Yes) {
         if ($UvxPath) {
             Write-Info "uvx found: $UvxPath"
 
-            # Pre-cache snowflake-labs-mcp
+            # Pre-cache snowflake-labs-mcp (best-effort — silently skipped if network blocks PyPI)
             Write-Info "Caching snowflake-labs-mcp..."
             try {
                 & $UvxPath --from snowflake-labs-mcp snowflake-labs-mcp -h 2>&1 | Out-Null
-            } catch {
-                Write-Warn "Could not cache snowflake-labs-mcp — run manually: uvx --from snowflake-labs-mcp snowflake-labs-mcp"
-            }
+            } catch { }
 
             # Write ~/.snowflake/connections.toml
             $SnowflakeDir = Join-Path $env:USERPROFILE ".snowflake"
