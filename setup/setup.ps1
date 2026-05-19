@@ -507,6 +507,13 @@ $PluginDest = "$env:ProgramFiles\Claude\org-plugins"
 $RrZipTmp = Join-Path $env:TEMP "rr-standards.zip"
 $RrExtractTmp = Join-Path $env:TEMP "rr-standards-extract"
 try {
+    $RrZipAsset = Join-Path $PSScriptRoot "assets\rr-standards.zip"
+    if (Test-Path $RrZipAsset) {
+        Copy-Item $RrZipAsset $RrZipTmp -Force
+    } else {
+        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/rakathon/workshop/main/setup/assets/rr-standards.zip" -OutFile $RrZipTmp -UseBasicParsing
+    }
+    if ($false) {
     $sb2 = [System.Text.StringBuilder]::new()
     [void]$sb2.Append("UEsDBAoAAAAAAKe4rlwAAAAAAAAAAAAAAAASAAkAcnItc3RhbmRhcmRzLW1haW4vVVQFAAGbtwZqUEsDBAoAAAAAAKe4rlwAAAAA")
     [void]$sb2.Append("AAAAAAAAAAAhAAkAcnItc3RhbmRhcmRzLW1haW4vLmNsYXVkZS1wbHVnaW4vVVQFAAGbtwZqUEsDBAoAAAAIAKe4rlzTtrmPegIA")
@@ -59418,9 +59425,7 @@ try {
     [void]$sb2.Append("SwECFwMKAAAACACnuK5czWalqfADAAAkDQAAQQAJAAAAAAABAAAA7YHB7j0AcnItc3RhbmRhcmRzLW1haW4vdGVzdHMvcGx1Z2lu")
     [void]$sb2.Append("cy9mb3JnZS9za2lsbHMvdXBkYXRlL3Ntb2tlLXRlc3Quc2hVVAUAAZu3BmpQSwUGAAAAAHsKewpHdwUAGfM9ACgAN2EwNjAwMzhl")
     [void]$sb2.Append("ZWQ4ODUyYjExMmMzZmI0YjZhNzhkZjBjOWJjNDZiOA==")
-    $b64rr = $sb2.ToString()
-    $rrBytes = [Convert]::FromBase64String($b64rr)
-    [System.IO.File]::WriteAllBytes($RrZipTmp, $rrBytes)
+    } # end if ($false) — blob skipped, zip loaded from assets\ above
 
     if (Test-Path $RrExtractTmp) { Remove-Item $RrExtractTmp -Recurse -Force }
     Expand-Archive -Path $RrZipTmp -DestinationPath $RrExtractTmp -Force
