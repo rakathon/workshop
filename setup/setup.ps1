@@ -60645,16 +60645,24 @@ sql_statement_permissions:
   - Unknown: false
 "@ | Set-Content -Path $ToolsConfig -Encoding UTF8
 
-            # Patch the registry: replace bare "uvx" with absolute path and expand ~ in args
+            # Patch the registry: set absolute uvx path, expand ~, add UV_SYSTEM_CERTS
             try {
                 $RegPath = "HKCU:\SOFTWARE\Policies\Claude"
                 $servers = (Get-ItemProperty $RegPath -Name managedMcpServers).managedMcpServers | ConvertFrom-Json
                 $HomeFwd = $env:USERPROFILE.Replace('\', '/')
-                foreach ($s in $servers) {
-                    if ($s.name -eq 'Snowflake') {
-                        $s.command = $UvxPath
-                        $s.args = $s.args | ForEach-Object { $_ -replace '^~/', "$HomeFwd/" }
-                    }
+                $ToolsConfigFwd = $ToolsConfig.Replace('\', '/')
+                $servers = $servers | ForEach-Object {
+                    if ($_.name -eq 'Snowflake') {
+                        [PSCustomObject]@{
+                            name        = 'Snowflake'
+                            source      = 'user'
+                            transport   = 'stdio'
+                            command     = $UvxPath
+                            args        = @('snowflake-labs-mcp', '--service-config-file', $ToolsConfigFwd, '--connection-name', 'default')
+                            env         = [PSCustomObject]@{ UV_SYSTEM_CERTS = '1' }
+                            toolPolicy  = $_.toolPolicy
+                        }
+                    } else { $_ }
                 }
                 Set-ItemProperty -Path $RegPath -Name managedMcpServers -Value ($servers | ConvertTo-Json -Depth 10 -Compress)
             } catch {
