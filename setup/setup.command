@@ -63,7 +63,8 @@ step "1" "Sign you in with your Rakuten account"
 step "2" "Install Git, VS Code, Claude Code extension, Claude Desktop, and plugins"
 step "3" "Configure Claude Code automatically"
 step "4" "Install Claude Desktop configuration profile"
-step "5" "Install AI Summit plugin for Claude Desktop"
+step "5" "Install plugins for Claude Desktop"
+step "6" "Set up Snowflake MCP (optional)"
 printf "\n"
 
 # ── step 1: sign in ────────────────────────────────────────────────────────────
@@ -186,8 +187,16 @@ PAT=$(printf '%s' "$PAT_BODY" \
   | sed 's/"secret_key":"//;s/"$//')
 [[ -n "$PAT" ]] || die "No secret_key in response."
 
+# Fetch user email from Okta userinfo
+USER_EMAIL=$(curl -sS "${OKTA_ISSUER}/v1/userinfo" \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  | grep -o '"email":"[^"]*"' \
+  | sed 's/"email":"//;s/"$//')
+[[ -n "$USER_EMAIL" ]] && export COWORK_USER_EMAIL="$USER_EMAIL"
+
 clear_lines 4
 step_done "1" "Signed in successfully"
+[[ -n "$USER_EMAIL" ]] && info "Signed in as: ${USER_EMAIL}"
 
 # ── step 2: install Git, VS Code, Claude Code extension ───────────────────────
 
@@ -417,7 +426,7 @@ MOBILECONFIG_FALLBACK='<?xml version="1.0" encoding="UTF-8"?>
 				<key>inferenceModels</key>
 				<string>[{"name":"us.anthropic.claude-sonnet-4-6","supports1m":true}]</string>
 				<key>managedMcpServers</key>
-				<string>[{"name":"slack-v1","toolPolicy":{"slack_search_public":"allow","slack_search_public_and_private":"allow","slack_search_channels":"allow","slack_search_users":"allow","slack_read_channel":"allow","slack_read_thread":"allow","slack_read_canvas":"allow","slack_read_user_profile":"allow","slack_list_channel_members":"allow","slack_read_file":"allow","slack_search_emojis":"allow","slack_get_reactions":"allow"},"source":"user","transport":"http","url":"https://mcp.slack.com/mcp","oauth":{"clientId":"1601185624273.8899143856786","callbackPort":3118,"callbackHost":"localhost"}},{"name":"datadog-prod","toolPolicy":{"analyze_datadog_logs":"allow","get_datadog_dashboard":"allow","get_datadog_incident":"allow","get_datadog_metric":"allow","get_datadog_metric_context":"allow","get_datadog_notebook":"allow","get_datadog_trace":"allow","get_widget_reference":"allow","list_datadog_skills":"allow","load_datadog_skill":"allow","search_datadog_dashboards":"allow","search_datadog_events":"allow","search_datadog_hosts":"allow","search_datadog_incidents":"allow","search_datadog_logs":"allow","search_datadog_metrics":"allow","search_datadog_monitors":"allow","search_datadog_notebooks":"allow","search_datadog_rum_events":"allow","search_datadog_service_dependencies":"allow","search_datadog_services":"allow","search_datadog_spans":"allow"},"source":"user","transport":"http","url":"https://mcp.datadoghq.com/api/unstable/mcp-server/mcp","oauth":true},{"name":"atlassian","toolPolicy":{"atlassianUserInfo":"allow","getConfluencePage":"allow","searchConfluenceUsingCql":"allow","getConfluenceSpaces":"allow","getPagesInConfluenceSpace":"allow","getConfluencePageFooterComments":"allow","getConfluencePageInlineComments":"allow","getConfluenceCommentChildren":"allow","getConfluencePageDescendants":"allow","getJiraIssue":"allow","getTransitionsForJiraIssue":"allow","getJiraIssueRemoteIssueLinks":"allow","getVisibleJiraProjects":"allow","getJiraProjectIssueTypesMetadata":"allow","getJiraIssueTypeMetaWithFields":"allow","searchJiraIssuesUsingJql":"allow","lookupJiraAccountId":"allow","getIssueLinkTypes":"allow","search":"allow","fetch":"allow"},"source":"user","transport":"http","url":"https://mcp.atlassian.com/v1/mcp","oauth":true},{"name":"monday-com","toolPolicy":{"get_board_items_page":"allow","get_updates":"allow","get_board_activity":"allow","get_board_info":"allow","get_full_board_data":"allow","list_users_and_teams":"allow","get_form":"allow","get_graphql_schema":"allow","get_column_type_info":"allow","get_type_details":"allow","read_docs":"allow","workspace_info":"allow","list_workspaces":"allow","all_widgets_schema":"allow","board_insights":"allow","search":"allow","get_user_context":"allow","get_assets":"allow","get_notetaker_meetings":"allow","get_agent":"allow","get_monday_dev_sprints_boards":"allow","get_sprints_metadata":"allow","get_sprint_summary":"allow"},"source":"user","transport":"sse","url":"https://mcp.monday.com/sse","oauth":true},{"name":"uber-context","source":"user","transport":"http","url":"https://uber-context-system.shared-np.rr-it.com/mcp"},{"name":"browserStack","source":"user","transport":"http","url":"https://mcp.browserstack.com/mcp","oauth":true},{"name":"datadog-nonprod","toolPolicy":{"analyze_datadog_logs":"allow","get_datadog_dashboard":"allow","get_datadog_incident":"allow","get_datadog_metric":"allow","get_datadog_metric_context":"allow","get_datadog_notebook":"allow","get_datadog_trace":"allow","get_widget_reference":"allow","list_datadog_skills":"allow","load_datadog_skill":"allow","search_datadog_dashboards":"allow","search_datadog_events":"allow","search_datadog_hosts":"allow","search_datadog_incidents":"allow","search_datadog_logs":"allow","search_datadog_metrics":"allow","search_datadog_monitors":"allow","search_datadog_notebooks":"allow","search_datadog_rum_events":"allow","search_datadog_service_dependencies":"allow","search_datadog_services":"allow","search_datadog_spans":"allow"},"source":"user","transport":"http","url":"https://mcp.datadoghq.com/api/unstable/mcp-server/mcp","oauth":true},{"name":"figma","toolPolicy":{"get_design_context":"allow","get_variable_defs":"allow","get_screenshot":"allow","get_code_connect_map":"allow","add_code_connect_map":"allow","get_code_connect_suggestions":"allow","send_code_connect_mappings":"allow","get_metadata":"allow","create_design_system_rules":"allow","get_figjam":"allow"},"source":"user","transport":"sse","url":"http://127.0.0.1:3845/sse"},{"name":"iterable","source":"user","transport":"stdio","command":"{{NPX_PATH}}","args":["@iterable/mcp"],"env":{"ITERABLE_API_KEY":"{{ITERABLE_API_KEY}}","ITERABLE_BASE_URL":"https://api.iterable.com","ITERABLE_ENABLE_WRITES":"true"}},{"name":"annalise-rewards","toolPolicy":{"get_domain":"allow","list_entities":"allow","list_domains":"allow","monitor_analysis":"allow","get_analysis_step_details":"allow","get_entity":"allow","initiate_analysis":"allow","get_field":"allow","search_model":"allow","list_databases":"allow","list_shemas":"allow","list_tables":"allow","get_table_info":"allow","list_workspaces":"allow","list_workspace_branches":"allow","get_session_workspace_and_branch":"allow","get_branch_history":"allow","list_agents":"allow","get_agents":"allow","list_context_items":"allow","get_context_items":"allow"},"source":"user","transport":"http","url":"https://mcp.rakuten.honeydew.cloud/mcp","oauth":true}]</string>
+				<string>[{"name":"slack-v1","toolPolicy":{"slack_search_public":"allow","slack_search_public_and_private":"allow","slack_search_channels":"allow","slack_search_users":"allow","slack_read_channel":"allow","slack_read_thread":"allow","slack_read_canvas":"allow","slack_read_user_profile":"allow","slack_list_channel_members":"allow","slack_read_file":"allow","slack_search_emojis":"allow","slack_get_reactions":"allow"},"source":"user","transport":"http","url":"https://mcp.slack.com/mcp","oauth":{"clientId":"1601185624273.8899143856786","callbackPort":3118,"callbackHost":"localhost"}},{"name":"datadog-prod","toolPolicy":{"analyze_datadog_logs":"allow","get_datadog_dashboard":"allow","get_datadog_incident":"allow","get_datadog_metric":"allow","get_datadog_metric_context":"allow","get_datadog_notebook":"allow","get_datadog_trace":"allow","get_widget_reference":"allow","list_datadog_skills":"allow","load_datadog_skill":"allow","search_datadog_dashboards":"allow","search_datadog_events":"allow","search_datadog_hosts":"allow","search_datadog_incidents":"allow","search_datadog_logs":"allow","search_datadog_metrics":"allow","search_datadog_monitors":"allow","search_datadog_notebooks":"allow","search_datadog_rum_events":"allow","search_datadog_service_dependencies":"allow","search_datadog_services":"allow","search_datadog_spans":"allow"},"source":"user","transport":"http","url":"https://mcp.datadoghq.com/api/unstable/mcp-server/mcp","oauth":true},{"name":"atlassian","toolPolicy":{"atlassianUserInfo":"allow","getConfluencePage":"allow","searchConfluenceUsingCql":"allow","getConfluenceSpaces":"allow","getPagesInConfluenceSpace":"allow","getConfluencePageFooterComments":"allow","getConfluencePageInlineComments":"allow","getConfluenceCommentChildren":"allow","getConfluencePageDescendants":"allow","getJiraIssue":"allow","getTransitionsForJiraIssue":"allow","getJiraIssueRemoteIssueLinks":"allow","getVisibleJiraProjects":"allow","getJiraProjectIssueTypesMetadata":"allow","getJiraIssueTypeMetaWithFields":"allow","searchJiraIssuesUsingJql":"allow","lookupJiraAccountId":"allow","getIssueLinkTypes":"allow","search":"allow","fetch":"allow"},"source":"user","transport":"http","url":"https://mcp.atlassian.com/v1/mcp","oauth":true},{"name":"monday-com","toolPolicy":{"get_board_items_page":"allow","get_updates":"allow","get_board_activity":"allow","get_board_info":"allow","get_full_board_data":"allow","list_users_and_teams":"allow","get_form":"allow","get_graphql_schema":"allow","get_column_type_info":"allow","get_type_details":"allow","read_docs":"allow","workspace_info":"allow","list_workspaces":"allow","all_widgets_schema":"allow","board_insights":"allow","search":"allow","get_user_context":"allow","get_assets":"allow","get_notetaker_meetings":"allow","get_agent":"allow","get_monday_dev_sprints_boards":"allow","get_sprints_metadata":"allow","get_sprint_summary":"allow"},"source":"user","transport":"sse","url":"https://mcp.monday.com/sse","oauth":true},{"name":"uber-context","source":"user","transport":"http","url":"https://uber-context-system.shared-np.rr-it.com/mcp"},{"name":"browserStack","source":"user","transport":"http","url":"https://mcp.browserstack.com/mcp","oauth":true},{"name":"datadog-nonprod","toolPolicy":{"analyze_datadog_logs":"allow","get_datadog_dashboard":"allow","get_datadog_incident":"allow","get_datadog_metric":"allow","get_datadog_metric_context":"allow","get_datadog_notebook":"allow","get_datadog_trace":"allow","get_widget_reference":"allow","list_datadog_skills":"allow","load_datadog_skill":"allow","search_datadog_dashboards":"allow","search_datadog_events":"allow","search_datadog_hosts":"allow","search_datadog_incidents":"allow","search_datadog_logs":"allow","search_datadog_metrics":"allow","search_datadog_monitors":"allow","search_datadog_notebooks":"allow","search_datadog_rum_events":"allow","search_datadog_service_dependencies":"allow","search_datadog_services":"allow","search_datadog_spans":"allow"},"source":"user","transport":"http","url":"https://mcp.datadoghq.com/api/unstable/mcp-server/mcp","oauth":true},{"name":"figma","toolPolicy":{"get_design_context":"allow","get_variable_defs":"allow","get_screenshot":"allow","get_code_connect_map":"allow","add_code_connect_map":"allow","get_code_connect_suggestions":"allow","send_code_connect_mappings":"allow","get_metadata":"allow","create_design_system_rules":"allow","get_figjam":"allow"},"source":"user","transport":"sse","url":"http://127.0.0.1:3845/sse"},{"name":"iterable","source":"user","transport":"stdio","command":"{{NPX_PATH}}","args":["@iterable/mcp"],"env":{"ITERABLE_API_KEY":"{{ITERABLE_API_KEY}}","ITERABLE_BASE_URL":"https://api.iterable.com","ITERABLE_ENABLE_WRITES":"true"}},{"name":"annalise-rewards","toolPolicy":{"get_domain":"allow","list_entities":"allow","list_domains":"allow","monitor_analysis":"allow","get_analysis_step_details":"allow","get_entity":"allow","initiate_analysis":"allow","get_field":"allow","search_model":"allow","list_databases":"allow","list_shemas":"allow","list_tables":"allow","get_table_info":"allow","list_workspaces":"allow","list_workspace_branches":"allow","get_session_workspace_and_branch":"allow","get_branch_history":"allow","list_agents":"allow","get_agents":"allow","list_context_items":"allow","get_context_items":"allow"},"source":"user","transport":"http","url":"https://mcp.rakuten.honeydew.cloud/mcp","oauth":true},{"name":"Snowflake","source":"user","transport":"stdio","command":"{{UVX_PATH}}","args":["snowflake-labs-mcp","--service-config-file","~/snowflake-mcp/tools_config.yaml","--connection-name","default"]}]</string>
 				<key>banner</key>
 				<string>{"enabled":true,"text":"Rakuten Rewards - CoWork - v1.1.0","backgroundColor":"#7B30C6","textColor":"#FFFFFF","linkUrl":"https://www.rakuten.com"}</string>
 			</dict>
@@ -454,10 +463,14 @@ export NVM_DIR="$HOME/.nvm"
 NPX_PATH=$(command -v npx 2>/dev/null || true)
 NPX_SED=$(printf '%s' "$NPX_PATH" | sed 's/[&/\]/\\&/g')
 
+UVX_PATH=$(command -v uvx 2>/dev/null || echo "$HOME/.local/bin/uvx")
+UVX_SED=$(printf '%s' "$UVX_PATH" | sed 's/[&/\]/\\&/g')
+
 printf '%s' "$MOBILECONFIG_FALLBACK" \
   | sed "s|{{BEARER_TOKEN}}|${PAT_SED}|g" \
   | sed "s|{{ITERABLE_API_KEY}}|${ITERABLE_SED}|g" \
   | sed "s|{{NPX_PATH}}|${NPX_SED}|g" \
+  | sed "s|{{UVX_PATH}}|${UVX_SED}|g" \
   > "$MOBILECONFIG_TMP"
 
 open "$MOBILECONFIG_TMP"
@@ -563,6 +576,90 @@ fi
 fi # end PLUGIN_VOLUME check
 
 # ── summary ────────────────────────────────────────────────────────────────────
+
+# ── step 6: snowflake mcp setup ───────────────────────────────────────────────
+
+step_active "6" "Set up Snowflake MCP for CoWork"
+
+SNOWFLAKE_ANSWER=$(osascript 2>/dev/null <<'APPLES'
+button returned of (display dialog "Do you have Snowflake access?\n\nClick Yes to install Snowflake MCP so CoWork can query Snowflake on your behalf." with title "Snowflake Setup" buttons {"No", "Yes"} default button "Yes" with icon note)
+APPLES
+)
+
+if [[ "$SNOWFLAKE_ANSWER" == "Yes" ]]; then
+
+  # Check / install uvx
+  info "Checking for uvx..."
+  UVX_PATH=""
+  if command -v uvx &>/dev/null; then
+    UVX_PATH=$(command -v uvx)
+  elif [[ -f "$HOME/.local/bin/uvx" ]]; then
+    UVX_PATH="$HOME/.local/bin/uvx"
+  fi
+
+  if [[ -z "$UVX_PATH" ]]; then
+    info "uvx not found — installing uv..."
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    export PATH="$HOME/.local/bin:$PATH"
+    if [[ -f "$HOME/.local/bin/uvx" ]]; then
+      UVX_PATH="$HOME/.local/bin/uvx"
+    else
+      warn "uvx still not found after install — Snowflake MCP skipped. Restart Terminal and re-run."
+    fi
+  fi
+
+  if [[ -n "$UVX_PATH" ]]; then
+    info "uvx found: ${UVX_PATH}"
+
+    # Pre-cache snowflake-labs-mcp
+    info "Caching snowflake-labs-mcp..."
+    "$UVX_PATH" --from snowflake-labs-mcp snowflake-labs-mcp -h &>/dev/null \
+      || warn "Could not cache snowflake-labs-mcp — run manually: uvx --from snowflake-labs-mcp snowflake-labs-mcp"
+
+    # Write ~/.snowflake/connections.toml
+    info "Writing ~/.snowflake/connections.toml..."
+    mkdir -p "$HOME/.snowflake"
+    cat > "$HOME/.snowflake/connections.toml" << EOF
+[default]
+account = "rakutenusa-ebates"
+user = "${COWORK_USER_EMAIL}"
+authenticator = "externalbrowser"
+EOF
+    info "Snowflake user set to: ${COWORK_USER_EMAIL}"
+
+    # Write ~/snowflake-mcp/tools_config.yaml
+    info "Writing ~/snowflake-mcp/tools_config.yaml..."
+    mkdir -p "$HOME/snowflake-mcp"
+    cat > "$HOME/snowflake-mcp/tools_config.yaml" << 'YAMLEOF'
+agent_services: []
+search_services: []
+analyst_services: []
+
+other_services:
+  object_manager: true
+  query_manager: true
+  semantic_manager: false
+
+sql_statement_permissions:
+  - Select: true
+  - Describe: true
+  - Use: true
+  - Create: false
+  - Drop: false
+  - Insert: false
+  - Update: false
+  - Delete: false
+  - Unknown: false
+YAMLEOF
+
+    step_done "6" "Snowflake MCP configured (restart CoWork to activate)"
+  else
+    step_done "6" "Snowflake MCP skipped — uvx not found"
+  fi
+
+else
+  step_done "6" "Snowflake MCP skipped"
+fi
 
 printf "\n"
 printf "  ${BOLD}${GREEN}╔══════════════════════════════════════════════════════╗${RESET}\n"
