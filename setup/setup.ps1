@@ -60545,15 +60545,26 @@ if ($SnowflakeAnswer -eq [System.Windows.Forms.DialogResult]::Yes) {
         Write-StepDone "6" "Snowflake MCP skipped — no email entered"
     } else {
 
-        # Check / install uv+uvx
-        $UvxPath = Get-Command uvx -ErrorAction SilentlyContinue
+        # Check / install uv+uvx — prefer known absolute paths over PATH lookup
+        $UvxPath = $null
+        $UvxCandidates = @(
+            (Join-Path $env:USERPROFILE "AppData\Local\uv\bin\uvx.exe"),
+            (Join-Path $env:USERPROFILE ".local\bin\uvx.exe"),
+            (Join-Path $env:USERPROFILE ".cargo\bin\uvx.exe")
+        )
+        # Also scan WinGet packages folder for astral-sh.uv
+        $WinGetPkgs = Join-Path $env:LOCALAPPDATA "Microsoft\WinGet\Packages"
+        if (Test-Path $WinGetPkgs) {
+            $wgUvx = Get-ChildItem $WinGetPkgs -Filter "uvx.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($wgUvx) { $UvxCandidates = @($wgUvx.FullName) + $UvxCandidates }
+        }
+        foreach ($c in $UvxCandidates) {
+            if (Test-Path $c) { $UvxPath = $c; break }
+        }
+        # Fall back to PATH but resolve to absolute path
         if (-not $UvxPath) {
-            $UvxLocal = Join-Path $env:USERPROFILE ".local\bin\uvx.exe"
-            if (Test-Path $UvxLocal) {
-                $UvxPath = $UvxLocal
-            }
-        } else {
-            $UvxPath = $UvxPath.Source
+            $found = Get-Command uvx -ErrorAction SilentlyContinue
+            if ($found) { $UvxPath = $found.Source }
         }
 
         if (-not $UvxPath) {
@@ -60565,14 +60576,18 @@ if ($SnowflakeAnswer -eq [System.Windows.Forms.DialogResult]::Yes) {
                 $MachinePath = [System.Environment]::GetEnvironmentVariable("PATH", "Machine")
                 $UserPath    = [System.Environment]::GetEnvironmentVariable("PATH", "User")
                 $env:PATH = "$UserPath;$MachinePath"
-                # Check all known uv install locations on Windows
-                $UvxCandidates = @(
-                    (Join-Path $env:USERPROFILE "AppData\Local\uv\bin\uvx.exe"),
-                    (Join-Path $env:USERPROFILE ".local\bin\uvx.exe"),
-                    (Join-Path $env:USERPROFILE ".cargo\bin\uvx.exe")
-                )
-                foreach ($c in $UvxCandidates) {
-                    if (Test-Path $c) { $UvxPath = $c; break }
+                # Re-run the same candidate scan after install
+                $WinGetPkgs2 = Join-Path $env:LOCALAPPDATA "Microsoft\WinGet\Packages"
+                if (Test-Path $WinGetPkgs2) {
+                    $wgUvx2 = Get-ChildItem $WinGetPkgs2 -Filter "uvx.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+                    if ($wgUvx2) { $UvxPath = $wgUvx2.FullName }
+                }
+                if (-not $UvxPath) {
+                    foreach ($c in @(
+                        (Join-Path $env:USERPROFILE "AppData\Local\uv\bin\uvx.exe"),
+                        (Join-Path $env:USERPROFILE ".local\bin\uvx.exe"),
+                        (Join-Path $env:USERPROFILE ".cargo\bin\uvx.exe")
+                    )) { if (Test-Path $c) { $UvxPath = $c; break } }
                 }
                 if (-not $UvxPath) {
                     $found = Get-Command uvx -ErrorAction SilentlyContinue
