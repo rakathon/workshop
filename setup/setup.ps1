@@ -328,7 +328,15 @@ if (-not (Get-Command npx -ErrorAction SilentlyContinue)) {
 } else {
     Write-Info "Node.js already installed ($(node --version 2>$null))."
 }
-$NpxPath = (Get-Command npx -ErrorAction SilentlyContinue).Source
+# Prefer npx.cmd — .ps1 cannot be spawned directly as a stdio process by CoWork
+$NpxPath = (Get-Command npx.cmd -ErrorAction SilentlyContinue).Source
+if (-not $NpxPath) {
+    $NpxPs1 = (Get-Command npx -ErrorAction SilentlyContinue).Source
+    if ($NpxPs1) {
+        $NpxPath = $NpxPs1 -replace '\.ps1$', '.cmd'
+        if (-not (Test-Path $NpxPath)) { $NpxPath = $NpxPs1 }
+    }
+}
 if (-not $NpxPath) { $NpxPath = "npx" }
 
 # Claude Code extension
