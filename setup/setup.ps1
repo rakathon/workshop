@@ -60611,12 +60611,9 @@ if ($SnowflakeAnswer -eq [System.Windows.Forms.DialogResult]::Yes) {
             $SnowflakeDir = Join-Path $env:USERPROFILE ".snowflake"
             New-Item -ItemType Directory -Force -Path $SnowflakeDir | Out-Null
             $ConnectionsToml = Join-Path $SnowflakeDir "connections.toml"
-            @"
-[default]
-account = "rakutenusa-ebates"
-user = "$SnowflakeEmail"
-authenticator = "externalbrowser"
-"@ | Set-Content -Path $ConnectionsToml -Encoding UTF8
+            # Use WriteAllText with UTF8 (no BOM) — tomlkit fails on BOM
+            $tomlContent = "[default]`r`naccount = `"rakutenusa-ebates`"`r`nuser = `"$SnowflakeEmail`"`r`nauthenticator = `"externalbrowser`"`r`n"
+            [System.IO.File]::WriteAllText($ConnectionsToml, $tomlContent, [System.Text.UTF8Encoding]::new($false))
             Write-Info "Snowflake user set to: $SnowflakeEmail"
 
             # Write ~/snowflake-mcp/tools_config.yaml
