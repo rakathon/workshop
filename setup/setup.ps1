@@ -328,8 +328,7 @@ if (-not (Get-Command npx -ErrorAction SilentlyContinue)) {
 } else {
     Write-Info "Node.js already installed ($(node --version 2>$null))."
 }
-$NpxCmd = Get-Command npx -ErrorAction SilentlyContinue
-$NpxPath = if ($NpxCmd) { $NpxCmd.Source } else { "" }
+$NpxPath = "npx"
 
 # Claude Code extension
 if (Get-Command code -ErrorAction SilentlyContinue) {

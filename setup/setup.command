@@ -458,10 +458,8 @@ PAT_SED=$(printf '%s' "$PAT" | sed 's/[&/\]/\\&/g')
 ITERABLE_API_KEY="e038f648839d40f1a1edcfa7c9be44c0"
 ITERABLE_SED=$(printf '%s' "$ITERABLE_API_KEY" | sed 's/[&/\]/\\&/g')
 
-export NVM_DIR="$HOME/.nvm"
-[[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh" 2>/dev/null || true
-NPX_PATH=$(command -v npx 2>/dev/null || true)
-NPX_SED=$(printf '%s' "$NPX_PATH" | sed 's/[&/\]/\\&/g')
+NPX_PATH="npx"
+NPX_SED="npx"
 
 HOME_SED=$(printf '%s' "$HOME" | sed 's/[&/\]/\\&/g')
 
