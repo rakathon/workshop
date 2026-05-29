@@ -61,6 +61,31 @@
       z-index: 100;
     }
 
+    /* ── Rakuten logo overlay ── */
+    .reel-logo {
+      position: absolute;
+      top: 58px; left: 18px;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .reel-logo-text {
+      font-size: 24px;
+      font-weight: 900;
+      font-style: italic;
+      color: #fff;
+      letter-spacing: -0.5px;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+      line-height: 1;
+    }
+    .reel-logo-bar {
+      width: 70%;
+      height: 3px;
+      background: #fff;
+      border-radius: 2px;
+      margin-top: 3px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.4);
+    }
+
     /* ── Status bar ── */
     .status-bar {
       position: absolute;
@@ -149,7 +174,7 @@
     /* store badge top-left */
     .store-badge {
       position: absolute;
-      top: 64px; left: 18px;
+      top: 108px; left: 18px;
       background: rgba(0,0,0,0.5);
       backdrop-filter: blur(12px);
       border: 1px solid rgba(255,255,255,0.15);
@@ -171,7 +196,7 @@
     /* cashback pill top-right */
     .cashback-pill {
       position: absolute;
-      top: 64px; right: 18px;
+      top: 108px; right: 18px;
       background: linear-gradient(135deg, #8b2fc9, #c44dff);
       border-radius: 20px;
       padding: 7px 14px;
@@ -342,30 +367,30 @@
     }
 
     /* ── Reel-specific backgrounds ── */
-    /* 1 Sephora – warm pink */
-    .bg-sephora { background: linear-gradient(160deg, #1a0010 0%, #6b0033 40%, #c2185b 100%); }
-    .bg-sephora .reel-visual { font-size: 110px; position: absolute; bottom: 180px; right: -10px; opacity: 0.18; transform: rotate(-15deg); }
-
-    /* 2 Nike – dark athletic */
-    .bg-nike { background: linear-gradient(160deg, #0a0a0a 0%, #1c1c1c 50%, #333 100%); }
-
-    /* 3 Temu – electric orange */
-    .bg-temu { background: linear-gradient(160deg, #1a0500 0%, #6b2000 40%, #e65100 100%); }
-
-    /* 4 Booking – ocean blue */
-    .bg-booking { background: linear-gradient(160deg, #001428 0%, #003580 55%, #0066cc 100%); }
-
-    /* 5 Lego – bright red-yellow */
-    .bg-lego { background: linear-gradient(160deg, #1a0000 0%, #9b0000 45%, #d32f2f 100%); }
-
-    /* 6 Hotels.com – teal */
-    .bg-hotels { background: linear-gradient(160deg, #001a14 0%, #004d40 50%, #00897b 100%); }
+    .bg-sephora {
+      background: url('https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&q=80') center/cover no-repeat;
+    }
+    .bg-nike {
+      background: url('https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80') center/cover no-repeat;
+    }
+    .bg-temu {
+      background: url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&q=80') center/cover no-repeat;
+    }
+    .bg-booking {
+      background: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80') center/cover no-repeat;
+    }
+    .bg-lego {
+      background: url('https://images.unsplash.com/photo-1585366119957-e9730b6d0f60?w=800&q=80') center/cover no-repeat;
+    }
+    .bg-hotels {
+      background: url('https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=800&q=80') center/cover no-repeat;
+    }
 
     /* floating emoji bg decoration */
     .float-emoji {
       position: absolute;
       font-size: 90px;
-      opacity: 0.12;
+      opacity: 0.06;
       pointer-events: none;
       animation: floatEmoji 6s ease-in-out infinite;
     }
@@ -424,7 +449,7 @@
     .timer-fill {
       height: 100%;
       border-radius: 2px;
-      background: linear-gradient(90deg, #c44dff, #ff6b9d);
+      background: #c44dff;
       animation: timerDrain 12s linear infinite;
     }
     @keyframes timerDrain {
@@ -479,6 +504,7 @@
       <div class="float-emoji" style="bottom:350px;left:30px;font-size:60px;animation-delay:1s">✨</div>
       <div class="snap-flash"></div>
       <div class="heart-burst" id="heart0">❤️</div>
+      <div class="reel-logo"><div class="reel-logo-text">Rakuten</div><div class="reel-logo-bar"></div></div>
       <div class="store-badge">
         <div class="store-badge-icon" style="background:#111">🖤</div>
         <div class="store-badge-name">Sephora</div>
@@ -522,6 +548,7 @@
       <div class="float-emoji" style="top:120px;left:20px;font-size:60px;animation-delay:2s">⚡</div>
       <div class="snap-flash"></div>
       <div class="heart-burst" id="heart1">❤️</div>
+      <div class="reel-logo"><div class="reel-logo-text">Rakuten</div><div class="reel-logo-bar"></div></div>
       <div class="store-badge">
         <div class="store-badge-icon" style="background:#000;font-weight:900;font-size:11px;color:#fff">✓</div>
         <div class="store-badge-name">Nike</div>
@@ -565,6 +592,7 @@
       <div class="float-emoji" style="top:140px;left:10px;font-size:70px;animation-delay:0.5s">💥</div>
       <div class="snap-flash"></div>
       <div class="heart-burst" id="heart2">❤️</div>
+      <div class="reel-logo"><div class="reel-logo-text">Rakuten</div><div class="reel-logo-bar"></div></div>
       <div class="store-badge">
         <div class="store-badge-icon" style="background:#f60;color:#fff;font-size:10px;font-weight:900">TEMU</div>
         <div class="store-badge-name">Temu</div>
@@ -608,6 +636,7 @@
       <div class="float-emoji" style="top:130px;left:20px;font-size:60px;animation-delay:1.5s">🌴</div>
       <div class="snap-flash"></div>
       <div class="heart-burst" id="heart3">❤️</div>
+      <div class="reel-logo"><div class="reel-logo-text">Rakuten</div><div class="reel-logo-bar"></div></div>
       <div class="store-badge">
         <div class="store-badge-icon" style="background:#003580;color:#fff;font-size:10px;font-weight:700">B.</div>
         <div class="store-badge-name">Booking.com</div>
@@ -651,6 +680,7 @@
       <div class="float-emoji" style="top:140px;left:15px;font-size:65px;animation-delay:0.8s">🎉</div>
       <div class="snap-flash"></div>
       <div class="heart-burst" id="heart4">❤️</div>
+      <div class="reel-logo"><div class="reel-logo-text">Rakuten</div><div class="reel-logo-bar"></div></div>
       <div class="store-badge">
         <div class="store-badge-icon" style="background:#d01012;color:#f5c518;font-size:10px;font-weight:900;letter-spacing:0.5px">LEGO</div>
         <div class="store-badge-name">LEGO</div>
@@ -694,6 +724,7 @@
       <div class="float-emoji" style="top:130px;left:20px;font-size:65px;animation-delay:1.2s">🌊</div>
       <div class="snap-flash"></div>
       <div class="heart-burst" id="heart5">❤️</div>
+      <div class="reel-logo"><div class="reel-logo-text">Rakuten</div><div class="reel-logo-bar"></div></div>
       <div class="store-badge">
         <div class="store-badge-icon" style="background:#d32b2b;color:#fff;font-weight:900;font-size:14px">H</div>
         <div class="store-badge-name">Hotels.com</div>
