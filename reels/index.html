@@ -304,9 +304,8 @@
     /* ── Bottom tab bar ── */
     .tab-bar {
       height: 72px;
-      background: rgba(10,10,20,0.97);
-      backdrop-filter: blur(20px);
-      border-top: 1px solid rgba(255,255,255,0.08);
+      background: #fff;
+      border-top: 1px solid #e0e0e0;
       display: flex;
       align-items: flex-start;
       justify-content: space-around;
@@ -318,17 +317,15 @@
       display: flex; flex-direction: column;
       align-items: center; gap: 3px;
       cursor: pointer;
+      min-width: 60px;
     }
-    .tab-icon { font-size: 20px; }
-    .tab-label { font-size: 10px; color: rgba(255,255,255,0.4); font-weight: 500; }
-    .tab-item.active .tab-label { color: #c44dff; font-weight: 600; }
-    .tab-item.active .tab-icon { filter: drop-shadow(0 0 5px #c44dff); }
-    .tab-dot {
-      width: 4px; height: 4px;
-      background: #c44dff;
-      border-radius: 50%;
-      margin-top: -2px;
-    }
+    .tab-icon svg { display: block; }
+    .tab-label { font-size: 10px; color: #888; font-weight: 500; }
+    .tab-item.active .tab-label { color: #8b2fc9; font-weight: 600; }
+    .tab-item.active svg path,
+    .tab-item.active svg rect,
+    .tab-item.active svg circle { fill: #8b2fc9; }
+    .tab-item.active svg { filter: none; }
 
     /* ── Mascot bubble (global) ── */
     .global-bubble {
@@ -430,32 +427,7 @@
     }
 
     /* ── Timer bar (urgency) ── */
-    .timer-bar-wrap {
-      position: absolute;
-      bottom: 74px; left: 18px; right: 18px;
-      z-index: 5;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .timer-label { font-size: 10px; color: rgba(255,255,255,0.6); white-space: nowrap; }
-    .timer-track {
-      flex: 1;
-      height: 3px;
-      background: rgba(255,255,255,0.15);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-    .timer-fill {
-      height: 100%;
-      border-radius: 2px;
-      background: #c44dff;
-      animation: timerDrain 12s linear infinite;
-    }
-    @keyframes timerDrain {
-      from { width: 100%; }
-      to   { width: 0%; }
-    }
+    /* timer bar removed */
 
     /* home indicator */
     .home-indicator {
@@ -510,11 +482,6 @@
         <div class="store-badge-name">Sephora</div>
       </div>
       <div class="cashback-pill">8% CB<span>was 2%</span></div>
-      <div class="timer-bar-wrap">
-        <div class="timer-label">⏰ Ends in</div>
-        <div class="timer-track"><div class="timer-fill" style="animation-delay:0s"></div></div>
-        <div class="timer-label">12h</div>
-      </div>
       <div class="reel-actions">
         <div class="action-btn" onclick="likeReel(0)">
           <div class="action-icon" id="likeBtn0">❤️</div>
@@ -554,11 +521,6 @@
         <div class="store-badge-name">Nike</div>
       </div>
       <div class="cashback-pill">6% CB<span>was 2%</span></div>
-      <div class="timer-bar-wrap">
-        <div class="timer-label">⏰ Ends in</div>
-        <div class="timer-track"><div class="timer-fill" style="animation-delay:-3s"></div></div>
-        <div class="timer-label">6h</div>
-      </div>
       <div class="reel-actions">
         <div class="action-btn" onclick="likeReel(1)">
           <div class="action-icon" id="likeBtn1">❤️</div>
@@ -598,11 +560,6 @@
         <div class="store-badge-name">Temu</div>
       </div>
       <div class="cashback-pill">12% CB<span>was 3%</span></div>
-      <div class="timer-bar-wrap">
-        <div class="timer-label">⏰ Ends in</div>
-        <div class="timer-track"><div class="timer-fill" style="animation-delay:-6s"></div></div>
-        <div class="timer-label">2h</div>
-      </div>
       <div class="reel-actions">
         <div class="action-btn" onclick="likeReel(2)">
           <div class="action-icon" id="likeBtn2">❤️</div>
@@ -642,11 +599,6 @@
         <div class="store-badge-name">Booking.com</div>
       </div>
       <div class="cashback-pill">6% CB<span>was 3%</span></div>
-      <div class="timer-bar-wrap">
-        <div class="timer-label">⏰ Ends in</div>
-        <div class="timer-track"><div class="timer-fill" style="animation-delay:-9s"></div></div>
-        <div class="timer-label">24h</div>
-      </div>
       <div class="reel-actions">
         <div class="action-btn" onclick="likeReel(3)">
           <div class="action-icon" id="likeBtn3">❤️</div>
@@ -686,11 +638,6 @@
         <div class="store-badge-name">LEGO</div>
       </div>
       <div class="cashback-pill">5% CB<span>was 2.5%</span></div>
-      <div class="timer-bar-wrap">
-        <div class="timer-label">⏰ Ends in</div>
-        <div class="timer-track"><div class="timer-fill" style="animation-delay:-2s"></div></div>
-        <div class="timer-label">48h</div>
-      </div>
       <div class="reel-actions">
         <div class="action-btn" onclick="likeReel(4)">
           <div class="action-icon" id="likeBtn4">❤️</div>
@@ -730,11 +677,6 @@
         <div class="store-badge-name">Hotels.com</div>
       </div>
       <div class="cashback-pill">6% CB<span>was 3%</span></div>
-      <div class="timer-bar-wrap">
-        <div class="timer-label">⏰ Ends in</div>
-        <div class="timer-track"><div class="timer-fill" style="animation-delay:-4s"></div></div>
-        <div class="timer-label">36h</div>
-      </div>
       <div class="reel-actions">
         <div class="action-btn" onclick="likeReel(5)">
           <div class="action-icon" id="likeBtn5">❤️</div>
@@ -777,25 +719,51 @@
 
   <!-- Bottom Tab Bar -->
   <div class="tab-bar">
-    <div class="tab-item" onclick="goHome()">
-      <span class="tab-icon">🏠</span>
+    <!-- Home -->
+    <div class="tab-item active" onclick="goHome()">
+      <span class="tab-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M3 12L12 4l9 8v8a1 1 0 0 1-1 1H15v-5h-6v5H4a1 1 0 0 1-1-1v-8z" fill="#8b2fc9"/>
+        </svg>
+      </span>
       <span class="tab-label">Home</span>
     </div>
+    <!-- Gift Cards -->
     <div class="tab-item">
-      <span class="tab-icon">🎁</span>
+      <span class="tab-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="9" width="18" height="13" rx="1.5" fill="#aaa"/>
+          <rect x="2" y="6" width="20" height="4" rx="1.2" fill="#bbb"/>
+          <rect x="11" y="6" width="2" height="16" fill="#fff"/>
+          <path d="M12 6c0 0-3-1-3-3s3-2 3 0" stroke="#fff" stroke-width="1.2" fill="none"/>
+          <path d="M12 6c0 0 3-1 3-3s-3-2-3 0" stroke="#fff" stroke-width="1.2" fill="none"/>
+        </svg>
+      </span>
       <span class="tab-label">Gift Cards</span>
     </div>
-    <div class="tab-item active">
-      <span class="tab-icon">🎬</span>
-      <span class="tab-label">Reels</span>
-      <div class="tab-dot"></div>
-    </div>
+    <!-- Refer a Friend -->
     <div class="tab-item">
-      <span class="tab-icon">👥</span>
-      <span class="tab-label">Refer</span>
+      <span class="tab-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="9" width="18" height="13" rx="1.5" fill="#aaa"/>
+          <rect x="2" y="6" width="20" height="4" rx="1.2" fill="#bbb"/>
+          <rect x="11" y="6" width="2" height="16" fill="#fff"/>
+          <circle cx="8" cy="7" r="2.5" fill="#aaa"/>
+          <circle cx="16" cy="7" r="2.5" fill="#aaa"/>
+          <path d="M5 13c0-1.7 1.3-3 3-3s3 1.3 3 3" fill="#aaa"/>
+          <path d="M13 13c0-1.7 1.3-3 3-3s3 1.3 3 3" fill="#aaa"/>
+        </svg>
+      </span>
+      <span class="tab-label">Refer a Friend</span>
     </div>
+    <!-- $0.00 -->
     <div class="tab-item">
-      <span class="tab-icon">💰</span>
+      <span class="tab-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="10" r="5" fill="#aaa"/>
+          <path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6" fill="#aaa"/>
+        </svg>
+      </span>
       <span class="tab-label">$0.00</span>
     </div>
   </div>
