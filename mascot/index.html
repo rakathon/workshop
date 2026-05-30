@@ -128,9 +128,63 @@
       align-items: center;
       gap: 10px;
       padding: 12px 18px;
+      cursor: text;
     }
     .search-icon { font-size: 15px; color: #888; }
-    .search-placeholder { font-size: 14px; color: #999; }
+    .search-placeholder { font-size: 14px; color: #999; flex: 1; }
+    .search-camera {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, #8b2fc9, #c44dff);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .search-camera svg { display: block; }
+
+    /* ── Scanner promo card ── */
+    .scanner-card {
+      margin: 0 16px 20px;
+      background: linear-gradient(135deg, #5b1a8a, #8b2fc9);
+      border-radius: 20px;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    .scanner-card::before {
+      content: '';
+      position: absolute;
+      top: -30px; right: -30px;
+      width: 120px; height: 120px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 50%;
+    }
+    .scanner-card::after {
+      content: '';
+      position: absolute;
+      bottom: -20px; right: 40px;
+      width: 80px; height: 80px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 50%;
+    }
+    .scanner-icon-wrap {
+      width: 52px; height: 52px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .scanner-card-text { flex: 1; z-index: 1; }
+    .scanner-card-title { font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 3px; }
+    .scanner-card-sub { font-size: 12px; color: rgba(255,255,255,0.75); line-height: 1.4; }
+    .scanner-card-arrow {
+      font-size: 20px; color: rgba(255,255,255,0.6);
+      z-index: 1;
+    }
 
     /* ── Banner carousel ── */
     .banner-wrap {
@@ -297,9 +351,9 @@
       user-select: none;
     }
     .mascot-svg {
-      width: 82px; height: 92px;
+      width: 96px; height: 108px;
       animation: idle 3s ease-in-out infinite;
-      filter: drop-shadow(0 6px 18px rgba(139,47,201,0.45));
+      filter: drop-shadow(0 6px 18px rgba(42,111,138,0.5));
       display: block;
     }
     @keyframes idle {
@@ -430,7 +484,30 @@
       <div class="search-bar">
         <span class="search-icon">🔍</span>
         <span class="search-placeholder">Search stores &amp; products</span>
+        <div class="search-camera" onclick="window.location.href='../scanner/index.html'" title="Visual Scanner">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="white" stroke-width="2" fill="none"/>
+            <circle cx="12" cy="12" r="4" fill="white"/>
+            <circle cx="12" cy="12" r="7" stroke="white" stroke-width="1" stroke-dasharray="2 3" fill="none"/>
+          </svg>
+        </div>
       </div>
+    </div>
+
+    <!-- Scanner promo card -->
+    <div class="scanner-card" onclick="window.location.href='../scanner/index.html'">
+      <div class="scanner-icon-wrap">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="white" stroke-width="2" fill="none"/>
+          <circle cx="12" cy="12" r="4" fill="white"/>
+          <circle cx="12" cy="12" r="7" stroke="white" stroke-width="1" stroke-dasharray="2 3" fill="none"/>
+        </svg>
+      </div>
+      <div class="scanner-card-text">
+        <div class="scanner-card-title">Visual Shopping Scanner</div>
+        <div class="scanner-card-sub">Point your camera at any product — find it across stores &amp; earn cashback</div>
+      </div>
+      <div class="scanner-card-arrow">›</div>
     </div>
 
     <!-- Banners -->
@@ -540,19 +617,41 @@
   <!-- Bottom Tab Bar -->
   <div class="tab-bar">
     <div class="tab-item active">
-      <span class="tab-icon">🏠</span>
-      <span class="tab-label">Home</span>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <path d="M3 12L12 4l9 8v8a1 1 0 0 1-1 1H15v-5h-6v5H4a1 1 0 0 1-1-1v-8z" fill="#8b2fc9"/>
+      </svg>
+      <span class="tab-label" style="color:#8b2fc9;font-weight:600">Home</span>
     </div>
     <div class="tab-item">
-      <span class="tab-icon">🎁</span>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <rect x="3" y="9" width="18" height="13" rx="1.5" fill="#aaa"/>
+        <rect x="2" y="6" width="20" height="4" rx="1.2" fill="#bbb"/>
+        <rect x="11" y="6" width="2" height="16" fill="#fff"/>
+      </svg>
       <span class="tab-label">Gift Cards</span>
     </div>
+    <div class="tab-item" onclick="window.location.href='../scanner/index.html'">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="10" stroke="#aaa" stroke-width="2" fill="none"/>
+        <circle cx="12" cy="12" r="4" fill="#aaa"/>
+        <circle cx="12" cy="12" r="7" stroke="#aaa" stroke-width="1" stroke-dasharray="2 3" fill="none"/>
+      </svg>
+      <span class="tab-label">Scanner</span>
+    </div>
     <div class="tab-item">
-      <span class="tab-icon">👥</span>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <circle cx="8" cy="7" r="3" fill="#aaa"/>
+        <circle cx="16" cy="7" r="3" fill="#aaa"/>
+        <path d="M2 18c0-3 2.7-5 6-5s6 2 6 5" fill="#aaa"/>
+        <path d="M16 13c2 0 4 1.3 4 4" stroke="#aaa" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      </svg>
       <span class="tab-label">Refer a Friend</span>
     </div>
     <div class="tab-item">
-      <span class="tab-icon">💰</span>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="10" r="5" fill="#aaa"/>
+        <path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6" fill="#aaa"/>
+      </svg>
       <span class="tab-label">$0.00</span>
     </div>
   </div>
@@ -583,67 +682,90 @@
     </div>
 
     <!-- SVG alien -->
-    <svg class="mascot-svg" id="mascotSvg" viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
+    <!-- KASH v2 — kawaii friendly blue alien -->
+    <svg class="mascot-svg" id="mascotSvg" viewBox="0 0 110 120" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <radialGradient id="bg2" cx="40%" cy="35%" r="65%">
-          <stop offset="0%" stop-color="#b57bee"/>
-          <stop offset="60%" stop-color="#8b2fc9"/>
-          <stop offset="100%" stop-color="#5b1a8a"/>
+        <radialGradient id="bodyG" cx="35%" cy="28%" r="70%">
+          <stop offset="0%" stop-color="#a8dff0"/>
+          <stop offset="50%" stop-color="#5bb8d4"/>
+          <stop offset="100%" stop-color="#3a8fa8"/>
         </radialGradient>
-        <radialGradient id="eg2" cx="35%" cy="30%" r="70%">
-          <stop offset="0%" stop-color="#e0f2fe"/>
-          <stop offset="100%" stop-color="#0ea5e9"/>
+        <radialGradient id="tummyG" cx="50%" cy="35%" r="60%">
+          <stop offset="0%" stop-color="#d6f2fa"/>
+          <stop offset="100%" stop-color="#9dd8ec"/>
         </radialGradient>
-        <filter id="glow2">
-          <feGaussianBlur stdDeviation="2" result="b"/>
-          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter>
+        <radialGradient id="coinG" cx="38%" cy="28%" r="65%">
+          <stop offset="0%" stop-color="#fff0a0"/>
+          <stop offset="100%" stop-color="#f0b800"/>
+        </radialGradient>
       </defs>
 
-      <!-- ears -->
-      <ellipse cx="14" cy="34" rx="13" ry="18" fill="url(#bg2)" transform="rotate(-15 14 34)"/>
-      <ellipse cx="14" cy="34" rx="7"  ry="11" fill="#c4a8f0" opacity="0.5" transform="rotate(-15 14 34)"/>
-      <ellipse cx="86" cy="34" rx="13" ry="18" fill="url(#bg2)" transform="rotate(15 86 34)"/>
-      <ellipse cx="86" cy="34" rx="7"  ry="11" fill="#c4a8f0" opacity="0.5" transform="rotate(15 86 34)"/>
+      <!-- ── SOFT ROUND EARS (top of head, small & cute) ── -->
+      <ellipse cx="32" cy="14" rx="12" ry="16" fill="#5bb8d4"/>
+      <ellipse cx="32" cy="14" rx="7"  ry="10" fill="#f7c5d5" opacity="0.75"/>
+      <ellipse cx="78" cy="14" rx="12" ry="16" fill="#5bb8d4"/>
+      <ellipse cx="78" cy="14"  rx="7" ry="10" fill="#f7c5d5" opacity="0.75"/>
 
-      <!-- antennae -->
-      <line x1="38" y1="14" x2="30" y2="2" stroke="#7b28b8" stroke-width="2.5" stroke-linecap="round"/>
-      <circle cx="29" cy="1" r="4" fill="#bf00ff" filter="url(#glow2)"/>
-      <line x1="62" y1="14" x2="70" y2="2" stroke="#7b28b8" stroke-width="2.5" stroke-linecap="round"/>
-      <circle cx="71" cy="1" r="4" fill="#bf00ff" filter="url(#glow2)"/>
+      <!-- ── BODY ── -->
+      <ellipse cx="55" cy="88" rx="30" ry="28" fill="url(#bodyG)"/>
 
-      <!-- body + head -->
-      <ellipse cx="50" cy="64" rx="30" ry="34" fill="url(#bg2)"/>
-      <ellipse cx="50" cy="36" rx="28" ry="26" fill="url(#bg2)"/>
-      <!-- belly -->
-      <ellipse cx="50" cy="68" rx="18" ry="22" fill="#c4a8f0" opacity="0.45"/>
+      <!-- ── HEAD (large, round, friendly) ── -->
+      <circle cx="55" cy="46" r="32" fill="url(#bodyG)"/>
 
-      <!-- eyes white -->
-      <ellipse cx="38" cy="36" rx="11" ry="13" fill="#f0f9ff"/>
-      <ellipse cx="62" cy="36" rx="11" ry="13" fill="#f0f9ff"/>
-      <!-- pupils -->
-      <circle cx="39" cy="37" r="7"   fill="#1e40af"/>
-      <circle cx="40" cy="36" r="4.5" fill="#1d4ed8"/>
-      <circle cx="41" cy="34" r="2"   fill="#fff" opacity="0.9"/>
-      <circle cx="63" cy="37" r="7"   fill="#1e40af"/>
-      <circle cx="64" cy="36" r="4.5" fill="#1d4ed8"/>
-      <circle cx="65" cy="34" r="2"   fill="#fff" opacity="0.9"/>
+      <!-- ── TUMMY (soft lighter oval) ── -->
+      <ellipse cx="55" cy="90" rx="18" ry="20" fill="url(#tummyG)" opacity="0.6"/>
 
-      <!-- nose + smile -->
-      <ellipse cx="50" cy="47" rx="4" ry="3" fill="#6d28d9" opacity="0.55"/>
-      <path d="M41 55 Q50 63 59 55" stroke="#6d28d9" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <!-- ── LEFT ARM (relaxed, slightly out) ── -->
+      <ellipse cx="20" cy="82" rx="8" ry="14" fill="#5bb8d4" transform="rotate(15 20 82)"/>
+      <circle cx="16" cy="95" r="7" fill="#7dcde0"/>
 
-      <!-- blush -->
-      <ellipse cx="30" cy="48" rx="6" ry="4" fill="#f9a8d4" opacity="0.3"/>
-      <ellipse cx="70" cy="48" rx="6" ry="4" fill="#f9a8d4" opacity="0.3"/>
+      <!-- ── RIGHT ARM (raised, waving) ── -->
+      <ellipse cx="90" cy="72" rx="8" ry="14" fill="#5bb8d4" transform="rotate(-40 90 72)"/>
+      <circle cx="100" cy="60" r="7" fill="#7dcde0"/>
 
-      <!-- arms -->
-      <ellipse cx="21" cy="72" rx="7" ry="14" fill="url(#bg2)" transform="rotate(20 21 72)"/>
-      <ellipse cx="79" cy="72" rx="7" ry="14" fill="url(#bg2)" transform="rotate(-20 79 72)"/>
+      <!-- ── GOLD COIN (held in left hand) ── -->
+      <circle cx="12" cy="106" r="10" fill="url(#coinG)"/>
+      <circle cx="12" cy="106" r="7.5" fill="none" stroke="#c89000" stroke-width="1.2" opacity="0.6"/>
+      <text x="12" y="110" font-size="8" font-weight="900" fill="#a07000" text-anchor="middle" font-family="Arial, sans-serif">$</text>
 
-      <!-- feet -->
-      <ellipse cx="40" cy="98" rx="11" ry="7" fill="#6d28d9"/>
-      <ellipse cx="60" cy="98" rx="11" ry="7" fill="#6d28d9"/>
+      <!-- ── EYES (big, soft, kawaii) ── -->
+      <circle cx="42" cy="43" r="12" fill="#fff"/>
+      <circle cx="68" cy="43" r="12" fill="#fff"/>
+      <!-- subtle eye outline -->
+      <circle cx="42" cy="43" r="12" fill="none" stroke="#b0d8e8" stroke-width="0.8"/>
+      <circle cx="68" cy="43" r="12" fill="none" stroke="#b0d8e8" stroke-width="0.8"/>
+      <!-- pupil -->
+      <circle cx="43" cy="44" r="8" fill="#1a2a3a"/>
+      <circle cx="69" cy="44" r="8" fill="#1a2a3a"/>
+      <!-- inner iris colour ring -->
+      <circle cx="43" cy="44" r="5.5" fill="#2a5a8a"/>
+      <circle cx="69" cy="44" r="5.5" fill="#2a5a8a"/>
+      <!-- main shine -->
+      <circle cx="47" cy="39" r="3"   fill="#fff" opacity="0.95"/>
+      <circle cx="73" cy="39" r="3"   fill="#fff" opacity="0.95"/>
+      <!-- small secondary shine -->
+      <circle cx="40" cy="48" r="1.5" fill="#fff" opacity="0.5"/>
+      <circle cx="66" cy="48" r="1.5" fill="#fff" opacity="0.5"/>
+
+      <!-- ── NOSE (tiny cute dots) ── -->
+      <circle cx="51" cy="55" r="2" fill="#3a8fa8" opacity="0.5"/>
+      <circle cx="59" cy="55" r="2" fill="#3a8fa8" opacity="0.5"/>
+
+      <!-- ── HAPPY CURVED SMILE (gentle, not scary) ── -->
+      <path d="M44 62 Q55 72 66 62" stroke="#2a6a80" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+      <!-- ── ROSY CHEEKS ── -->
+      <ellipse cx="30" cy="54" rx="7" ry="5" fill="#ffb3c6" opacity="0.5"/>
+      <ellipse cx="80" cy="54" rx="7" ry="5" fill="#ffb3c6" opacity="0.5"/>
+
+      <!-- ── FEET (round stubby) ── -->
+      <ellipse cx="42" cy="114" rx="13" ry="8" fill="#3a8fa8"/>
+      <ellipse cx="68" cy="114" rx="13" ry="8" fill="#3a8fa8"/>
+
+      <!-- ── LITTLE STAR SPARKLES ── -->
+      <text x="96" y="52" font-size="9" fill="#ffe066">✦</text>
+      <text x="3"  y="100" font-size="7" fill="#ffe066" opacity="0.8">✦</text>
+      <text x="88" y="98" font-size="6" fill="#ffe066" opacity="0.7">·</text>
     </svg>
 
     <div class="mascot-ring"></div>
