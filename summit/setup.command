@@ -327,6 +327,12 @@ run "Extracting rr-standards..."
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Eject any stale "Rakuten Claude Code Setup" volumes that aren't the one we're running from
+while IFS= read -r vol; do
+  [[ "$vol" == "$SCRIPT_DIR" ]] && continue
+  hdiutil detach "$vol" -quiet 2>/dev/null || true
+done < <(mount | grep -i 'Rakuten Claude Code Setup' | sed 's|.* on \(/Volumes/[^(]*\) (.*|\1|' | sed 's/ *$//')
+
 # The script lives on the DMG volume — assets/ is always next to it
 RR_ZIP=""
 if [[ -f "${SCRIPT_DIR}/assets/rr-standards.zip" ]]; then
