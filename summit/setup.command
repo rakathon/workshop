@@ -374,13 +374,10 @@ if command -v claude &>/dev/null; then
     run "Removing any existing ${plugin}..."
     claude plugin remove "$plugin" 2>&1 || true
     run "Installing ${plugin}..."
-    INSTALL_OUT=$(claude plugin install "$plugin" 2>&1)
-    INSTALL_EXIT=$?
-    printf '%s\n' "$INSTALL_OUT"
-    if [[ $INSTALL_EXIT -eq 0 ]]; then
+    if claude plugin install "$plugin" 2>&1; then
       ok "${plugin} installed"
     else
-      warn "Could not install ${plugin} (exit ${INSTALL_EXIT})"
+      warn "Could not install ${plugin}"
     fi
   done
 else
