@@ -411,7 +411,7 @@ if (Get-Command claude -ErrorAction SilentlyContinue) {
         try { & claude plugin remove $plugin 2>&1 } catch {}
 
         Write-Run "Installing $plugin..."
-        $Out  = & claude plugin install "${plugin}@rr-standards" 2>&1
+        $Out  = & claude plugin install $plugin 2>&1
         Write-Host $Out
         if ($LASTEXITCODE -eq 0) {
             Write-Ok "$plugin installed"
