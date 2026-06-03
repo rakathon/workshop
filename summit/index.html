@@ -8,18 +8,16 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:             #0a0a0a;
-      --surface:        #111111;
-      --surface-light:  #1a1a1a;
-      --surface-border: #2a2a2a;
-      --text:           #f0f0f0;
-      --text-muted:     #888888;
-      --text-dim:       #555555;
-      --accent:         #ffffff;
-      --accent-dim:     #cccccc;
-      --code-bg:        #0d0d0d;
-      --success:        #4ade80;
-      --warning:        #facc15;
+      --bg:             #f5f5f5;
+      --surface:        #ffffff;
+      --surface-light:  #f9f9f9;
+      --surface-border: #e5e5e5;
+      --text:           #111111;
+      --text-muted:     #555555;
+      --text-dim:       #999999;
+      --code-bg:        #f0f0f0;
+      --success:        #16a34a;
+      --warning:        #b45309;
     }
 
     body {
@@ -30,15 +28,22 @@
       padding: 56px 24px 80px;
     }
 
-    .page { max-width: 720px; margin: 0 auto; }
+    .page { max-width: 600px; margin: 0 auto; }
 
-    /* ── Header ── */
-    header { text-align: center; margin-bottom: 48px; }
+    /* ── Landing ── */
+    #landing {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 136px);
+      text-align: center;
+    }
 
-    .badge {
+    .landing-badge {
       display: inline-block;
       border: 1px solid var(--surface-border);
-      color: var(--text-muted);
+      color: var(--text-dim);
       font-size: 0.68rem;
       font-weight: 600;
       letter-spacing: 0.14em;
@@ -48,203 +53,168 @@
       margin-bottom: 24px;
     }
 
-    h1 {
-      font-size: clamp(1.8rem, 4vw, 2.6rem);
+    .landing-title {
+      font-size: clamp(1.5rem, 4vw, 2.2rem);
       font-weight: 700;
-      line-height: 1.15;
-      color: var(--accent);
-      letter-spacing: -0.5px;
-      margin-bottom: 14px;
+      color: var(--text);
+      letter-spacing: -0.4px;
+      line-height: 1.2;
+      margin-bottom: 12px;
+      max-width: 480px;
     }
 
-    .subtitle {
+    .landing-sub {
+      font-size: 0.9rem;
       color: var(--text-muted);
-      font-size: 1rem;
       line-height: 1.65;
+      margin-bottom: 48px;
     }
 
-    /* ── Before you begin ── */
-    .before-begin {
+    .os-cards {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      width: 100%;
+      max-width: 460px;
+    }
+
+    .os-card {
+      flex: 1;
+      min-width: 160px;
+      max-width: 200px;
+      background: var(--surface);
+      border: 1.5px solid var(--surface-border);
+      border-radius: 16px;
+      padding: 28px 20px 22px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+    }
+
+    .os-card:hover {
+      border-color: #aaa;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      transform: translateY(-2px);
+    }
+
+    .os-card.detected {
+      border-color: #111;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    .os-card-icon { width: 44px; height: 44px; }
+    .os-card-icon svg { width: 100%; height: 100%; }
+    .os-card-name { font-size: 15px; font-weight: 600; color: var(--text); }
+
+    .os-card-action {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .os-card.detected .os-card-action { color: #111; font-weight: 600; }
+
+    /* ── Steps page ── */
+    #steps-page { display: none; }
+
+    .steps-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px 0;
+      transition: color 0.15s;
+    }
+
+    .back-btn:hover { color: var(--text); }
+
+    .progress-text {
+      font-size: 12px;
+      color: var(--text-dim);
+      font-weight: 500;
+    }
+
+    /* progress dots */
+    .progress-dots {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--surface-border);
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .dot.active { background: #111; transform: scale(1.3); }
+    .dot.done   { background: #86efac; }
+
+    /* ── Step card ── */
+    .step-card {
+      display: none;
       background: var(--surface);
       border: 1px solid var(--surface-border);
-      border-radius: 12px;
-      padding: 24px 28px;
+      border-radius: 16px;
+      padding: 32px 32px 28px;
+      animation: fadeUp 0.22s ease;
+    }
+
+    .step-card.active { display: block; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .step-card-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
       margin-bottom: 20px;
     }
 
-    .before-begin h3 {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--text-muted);
-      margin-bottom: 14px;
-    }
-
-    .before-begin ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-
-    .before-begin ul li {
-      font-size: 14px;
-      color: var(--text-muted);
-      line-height: 1.55;
-      padding-left: 16px;
-      position: relative;
-    }
-
-    .before-begin ul li::before {
-      content: "›";
-      position: absolute;
-      left: 0;
-      color: var(--text-dim);
-      font-weight: 700;
-    }
-
-    .before-begin ul li strong { color: var(--text); }
-
-    .before-begin .help-line {
-      margin-top: 14px;
-      padding-top: 12px;
-      border-top: 1px solid var(--surface-border);
-      font-size: 13px;
-      color: var(--text-dim);
-    }
-
-    .before-begin .help-line a { color: var(--text-muted); text-decoration: none; }
-    .before-begin .help-line a:hover { color: var(--accent-dim); text-decoration: underline; }
-
-    /* ── What this installs ── */
-    .installs-section {
-      background: var(--surface);
-      border: 1px solid var(--surface-border);
-      border-radius: 12px;
-      overflow: hidden;
-      margin-bottom: 40px;
-    }
-
-    .installs-section h3 {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--text-muted);
-      padding: 18px 22px 12px;
-    }
-
-    .installs-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-
-    .installs-table th {
-      background: var(--surface-light);
-      color: var(--text-dim);
-      font-weight: 600;
-      text-align: left;
-      padding: 9px 16px;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      border-top: 1px solid var(--surface-border);
-    }
-
-    .installs-table td {
-      padding: 10px 16px;
-      border-top: 1px solid var(--surface-border);
-      color: var(--text-muted);
-      vertical-align: top;
-      line-height: 1.5;
-    }
-
-    .installs-table td:first-child { color: var(--text); font-weight: 500; white-space: nowrap; }
-    .installs-table tr:last-child td { border-bottom: none; }
-
-    /* ── Steps ── */
-    .steps { display: flex; flex-direction: column; gap: 12px; }
-
-    .step {
-      background: var(--surface);
-      border: 1px solid var(--surface-border);
-      border-radius: 12px;
-      padding: 24px 28px;
-      transition: border-color 0.2s;
-    }
-
-    .step:hover { border-color: #3a3a3a; }
-
-    .step-header {
-      display: flex;
-      align-items: flex-start;
-      gap: 16px;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .step-number {
+    .step-num {
       flex-shrink: 0;
       width: 32px;
       height: 32px;
       border-radius: 50%;
       background: var(--surface-light);
       border: 1px solid var(--surface-border);
-      color: var(--text-muted);
-      font-size: 14px;
-      font-weight: 600;
+      color: var(--text-dim);
+      font-size: 13px;
+      font-weight: 700;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-top: 1px;
-      transition: background 0.2s, border-color 0.2s, color 0.2s;
     }
 
-    .step.collapsed .step-number { color: var(--text-dim); }
-    .step.completed .step-number {
-      background: rgba(74, 222, 128, 0.1);
-      border-color: rgba(74, 222, 128, 0.4);
-      color: var(--success);
-    }
+    .step-card-title { font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: -0.2px; }
+    .step-card-sub   { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
 
-    .step-text h2 {
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 4px;
-      letter-spacing: -0.1px;
-    }
-
-    .step.collapsed .step-text h2 { color: var(--text-muted); }
-
-    .step-text p { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
-
-    .step-chevron {
-      margin-left: auto;
-      flex-shrink: 0;
-      color: var(--text-dim);
-      transition: transform 0.25s;
-    }
-
-    .step.collapsed .step-chevron { transform: rotate(-90deg); }
-
-    .step-body {
-      overflow: hidden;
-      transition: max-height 0.4s ease, opacity 0.3s ease;
-      max-height: 5000px;
-      opacity: 1;
-    }
-
-    .step-body-inner { padding-top: 20px; }
-
-    .step.collapsed .step-body { max-height: 0; opacity: 0; }
-    .step.collapsed { padding-bottom: 20px; }
-
-    kbd {
-      display: inline-block;
-      background: var(--code-bg);
-      border: 1px solid var(--surface-border);
-      border-bottom-width: 2px;
-      border-radius: 5px;
-      padding: 1px 7px;
-      font-family: 'SF Mono', Menlo, monospace;
-      font-size: 12px;
-      color: var(--text-muted);
-      white-space: nowrap;
-    }
+    .step-card-body { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+    .step-card-body strong { color: var(--text); font-weight: 600; }
 
     code {
       background: var(--code-bg);
@@ -252,200 +222,86 @@
       border-radius: 4px;
       padding: 1px 6px;
       font-family: 'SF Mono', Menlo, monospace;
-      font-size: 0.85em;
-      color: var(--accent-dim);
+      font-size: 0.83em;
+      color: #333;
     }
-
-    p strong { color: var(--text); font-weight: 600; }
 
     .screenshot-wrap {
       background: var(--surface-light);
       border: 1px solid var(--surface-border);
       border-radius: 10px;
-      padding: 16px;
+      padding: 12px;
       text-align: center;
       margin: 16px 0;
     }
 
-    .screenshot-wrap--narrow { max-width: 320px; }
+    .screenshot-wrap--narrow { max-width: 260px; }
 
     .screenshot-wrap img {
       max-width: 100%;
       height: auto;
-      border-radius: 8px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+      border-radius: 7px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.1);
       display: block;
       margin: 0 auto;
     }
 
     .tip {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      background: rgba(250, 204, 21, 0.05);
-      border: 1px solid rgba(250, 204, 21, 0.2);
+      background: #fffbeb;
+      border: 1px solid #fde68a;
       border-radius: 8px;
-      padding: 12px 14px;
-      margin-top: 16px;
+      padding: 10px 14px;
+      margin-top: 14px;
       font-size: 13px;
-      color: #d4a820;
+      color: var(--warning);
       line-height: 1.55;
     }
-
-    .tip strong { color: #facc15; }
-    .tip-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
-
-    .warning-callout {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      background: rgba(239, 68, 68, 0.06);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      border-radius: 10px;
-      padding: 14px 16px;
-      margin-bottom: 20px;
-      font-size: 13px;
-      color: #fca5a5;
-      line-height: 1.6;
-    }
-
-    .warning-callout strong { color: #fecaca; }
-    .warning-callout-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
 
     .verify-check {
       background: var(--surface-light);
       border: 1px solid var(--surface-border);
-      border-radius: 10px;
-      padding: 16px 18px;
-      margin-bottom: 12px;
-    }
-
-    .verify-check-label {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--text-dim);
-      margin-bottom: 8px;
-    }
-
-    .verify-check p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
-    .verify-check p strong { color: var(--text); }
-
-    .prompt-quote {
-      margin: 10px 0 0;
-      padding: 10px 14px;
-      background: var(--code-bg);
-      border-left: 2px solid var(--surface-border);
-      border-radius: 0 6px 6px 0;
-      font-size: 13px;
-      color: var(--text-muted);
-      font-style: italic;
-      line-height: 1.6;
-    }
-
-    .connector {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 12px;
-    }
-
-    .connector::before {
-      content: "";
-      display: block;
-      width: 1px;
-      height: 100%;
-      background: var(--surface-border);
-    }
-
-    .os-paths { display: flex; gap: 10px; align-items: center; }
-
-    .os-path {
-      flex: 1;
-      background: var(--surface-light);
-      border: 1px solid var(--surface-border);
       border-radius: 8px;
-      padding: 14px 16px;
+      padding: 12px 16px;
+      margin: 14px 0;
     }
 
-    .os-path-label {
+    .verify-label {
       font-size: 10px;
       font-weight: 700;
-      letter-spacing: 0.1em;
       text-transform: uppercase;
+      letter-spacing: 0.1em;
       color: var(--text-dim);
       margin-bottom: 6px;
     }
 
-    .os-path p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
-    .os-path p strong { color: var(--text); }
-
-    .os-path-divider {
-      flex-shrink: 0;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-dim);
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-    }
-
-    .step-actions { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
-
-    .btn-next {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      margin-top: 20px;
-      padding: 9px 22px;
-      border-radius: 999px;
-      font-size: 0.84rem;
-      font-weight: 600;
+    .prompt-quote {
+      padding: 8px 12px;
+      background: var(--code-bg);
+      border-left: 2px solid #ccc;
+      border-radius: 0 5px 5px 0;
+      font-size: 13px;
       color: var(--text-muted);
-      background: transparent;
-      border: 1px solid var(--surface-border);
-      cursor: pointer;
-      transition: color 0.2s, border-color 0.2s;
+      font-style: italic;
+      margin-bottom: 8px;
     }
-
-    .btn-next:hover { color: var(--text); border-color: #555; }
-
-    .btn-download {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 8px;
-      padding: 12px 28px;
-      border-radius: 999px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      text-decoration: none;
-      color: var(--bg);
-      background: var(--accent);
-      border: none;
-      transition: opacity 0.2s, transform 0.15s;
-    }
-
-    .btn-download:hover  { opacity: 0.88; transform: translateY(-1px); }
-    .btn-download:active { transform: translateY(0); }
 
     .try-list {
       list-style: none;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      margin-top: 16px;
+      gap: 6px;
+      margin-top: 14px;
     }
 
     .try-list li {
       background: var(--surface-light);
       border: 1px solid var(--surface-border);
-      border-radius: 8px;
-      padding: 10px 14px;
+      border-radius: 7px;
+      padding: 9px 13px;
       font-size: 13px;
       color: var(--text-muted);
-      line-height: 1.55;
       font-style: italic;
+      line-height: 1.5;
     }
 
     .try-list li::before {
@@ -455,549 +311,479 @@
       font-weight: 600;
     }
 
-    footer {
-      text-align: center;
-      margin-top: 48px;
-      font-size: 13px;
-      color: var(--text-dim);
+    /* ── Footer buttons ── */
+    .step-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px solid var(--surface-border);
     }
 
-    footer a { color: var(--text-muted); text-decoration: none; }
-    footer a:hover { text-decoration: underline; }
+    .btn-back-step {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-dim);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      transition: color 0.15s;
+    }
 
-    @media (max-width: 520px) {
-      body { padding: 32px 16px; }
-      h1 { font-size: 24px; }
-      .step { padding: 20px 18px; }
-      .os-paths { flex-direction: column; }
-      .os-path-divider { align-self: center; }
-      .before-begin { padding: 18px 16px; }
+    .btn-back-step:hover { color: var(--text-muted); }
+
+    .btn-next {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 22px;
+      border-radius: 999px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #fff;
+      background: #111;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.15s;
+    }
+
+    .btn-next:hover  { opacity: 0.82; transform: translateY(-1px); }
+    .btn-next:active { transform: translateY(0); }
+
+    .btn-next-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 20px;
+      border-radius: 999px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: transparent;
+      border: 1px solid var(--surface-border);
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+      text-decoration: none;
+    }
+
+    .btn-next-outline:hover { color: var(--text); border-color: #999; }
+
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      text-align: center;
+      padding: 12px 0;
+      font-size: 13px;
+      color: var(--text-dim);
+      background: var(--bg);
+      border-top: 1px solid var(--surface-border);
+      z-index: 100;
+    }
+
+    @media (max-width: 480px) {
+      body { padding: 28px 16px 60px; }
+      .step-card { padding: 24px 20px 20px; }
+      .os-cards { flex-direction: column; align-items: center; }
+      .os-card { max-width: 100%; width: 100%; }
     }
   </style>
 </head>
 <body>
+<div class="page">
 
-  <div class="page">
+  <!-- ── Landing ── -->
+  <div id="landing">
+    <div class="landing-badge">Claude Code · Summit 2026</div>
+    <h1 class="landing-title">7 Quick Minutes, Then You're Ready to Roll</h1>
+    <p class="landing-sub">Your OS has been detected. Click below to begin.</p>
 
-  <header>
-    <div class="badge">Claude Code · Summit Setup</div>
-    <h1>Rakuten Claude Code Setup</h1>
-    <p class="subtitle">
-      Installs <strong>Claude Code CLI</strong> and configures it to use the Rakuten AI gateway.<br />
-      Just download, run, and you're ready to code.
-    </p>
-  </header>
+    <div class="os-cards">
+      <div class="os-card" id="card-mac" onclick="startSetup('mac')">
+        <div class="os-card-icon">
+          <svg viewBox="0 0 48 48" fill="none"><path d="M33.2 7.6c-1.6 1.9-4.2 3.4-6.7 3.2-.3-2.6 1-5.3 2.5-7C30.6 1.9 33.3.4 35.6.2c.3 2.7-.8 5.4-2.4 7.4z" fill="#111"/><path d="M35.5 11.5c-3.7-.2-6.9 2.1-8.7 2.1-1.8 0-4.6-2-7.6-1.9-3.9.1-7.5 2.3-9.5 5.8-4.1 7-.1 17.3 2.9 23 1.5 2.3 3.3 4.8 5.7 4.7 2.3-.1 3.1-1.5 5.9-1.5 2.7 0 3.5 1.5 5.9 1.4 2.4 0 4-2.3 5.5-4.6 1.7-2.6 2.4-5.1 2.5-5.2-.1 0-4.8-1.8-4.8-7.2 0-4.5 3.7-6.6 3.9-6.8-2.1-3.1-5.4-3.7-6.7-3.8z" fill="#111"/></svg>
+        </div>
+        <div class="os-card-name">macOS</div>
+        <div class="os-card-action">Let's go <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
 
-  <!-- ── Before you begin ── -->
-  <div class="before-begin">
-    <h3>Before you begin</h3>
-    <ul>
-      <li><strong>Time required:</strong> 5–10 minutes on Mac or Windows.</li>
-      <li><strong>Supported OS:</strong> macOS 14 (Sonoma) or later &nbsp;·&nbsp; Windows 10 / 11</li>
-      <li><strong>You will need:</strong> your Rakuten OKTA account and access to the Rakuten corporate network or VPN.</li>
-    </ul>
-    <div class="help-line">
-      Need help? Post in <a href="https://rakuten-international.slack.com/archives/C0B1SE4UJ06">#wg-2026-05-ls-summit-claude</a> on Slack.
+      <div class="os-card" id="card-win" onclick="startSetup('win')">
+        <div class="os-card-icon">
+          <svg viewBox="0 0 48 48" fill="none"><path d="M4 9.6L21.3 7.2V23H4V9.6z" fill="#111"/><path d="M23.3 6.9L44 4v19H23.3V6.9z" fill="#111"/><path d="M4 25h17.3v15.8L4 38.4V25z" fill="#111"/><path d="M23.3 25H44v19l-20.7-2.9V25z" fill="#111"/></svg>
+        </div>
+        <div class="os-card-name">Windows</div>
+        <div class="os-card-action">Let's go <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
     </div>
   </div>
 
-  <!-- ── What this installs ── -->
-  <div class="installs-section">
-    <h3>What this installs</h3>
-    <table class="installs-table">
-      <thead>
-        <tr><th>Component</th><th>Why</th></tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Claude Code CLI</td>
-          <td>Terminal coding agent, configured to use Rakuten AI gateway</td>
-        </tr>
-        <tr>
-          <td>Rakuten AI Gateway config</td>
-          <td>Routes Claude Code to Rakuten's Bedrock endpoint — keeps prompts internal</td>
-        </tr>
-        <tr>
-          <td>rr-standards plugin</td>
-          <td>Rakuten Rewards coding standards and forge skill for Claude Code</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  <!-- ── Steps page ── -->
+  <div id="steps-page">
 
-  <!-- ── macOS flow ── -->
-  <div id="macos-flow">
-    <div class="steps">
+    <div class="steps-nav">
+      <button class="back-btn" onclick="goBack()">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M10 4L6 8l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Back
+      </button>
+      <div class="progress-dots" id="progress-dots"></div>
+      <span class="progress-text" id="progress-text"></span>
+    </div>
 
-      <div class="step" id="step-1">
-        <div class="step-header" onclick="toggleStep(1)">
-          <div class="step-number">1</div>
-          <div class="step-text">
-            <h2>Download the Setup File</h2>
-            <p>Click below to download <code>setup.command</code> to your Mac.</p>
-          </div>
-          <div class="step-chevron">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <!-- macOS steps -->
+    <div id="macos-steps" style="display:none;">
+
+      <div class="step-card active" data-step="1">
+        <div class="step-card-header">
+          <div class="step-num">1</div>
+          <div>
+            <div class="step-card-title">Downloading setup file</div>
+            <div class="step-card-sub">setup.dmg is downloading to your Mac</div>
           </div>
         </div>
-        <div class="step-body">
-          <div class="step-body-inner">
-            <p style="font-size:14px; color:var(--text-muted); line-height:1.65; margin-bottom:24px;">
-              This will install Claude Code CLI on your Mac and connect it to Rakuten's AI gateway.
-            </p>
-            <div class="step-actions">
-              <a class="btn-download" href="setup.dmg" download="setup.dmg">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2v9M4 8l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 14h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                Download for Mac
-              </a>
-              <button class="btn-next" onclick="nextStep(1)">Already downloaded? Next &rarr;</button>
-            </div>
-          </div>
+        <div class="step-card-body">
+          <p>Your download started automatically. Once <strong>setup.dmg</strong> appears in your Downloads folder, move on.</p>
+          <p style="margin-top:10px;">Didn't download? <a href="setup.dmg" download="setup.dmg" style="color:#111;font-weight:600;text-decoration:underline;">Download again</a></p>
+        </div>
+        <div class="step-card-footer">
+          <span></span>
+          <button class="btn-next" onclick="goToStep('mac', 2)">Downloaded &rarr;</button>
         </div>
       </div>
 
-      <div class="connector"></div>
-
-      <div class="step collapsed" id="step-2">
-        <div class="step-header" onclick="toggleStep(2)">
-          <div class="step-number">2</div>
-          <div class="step-text">
-            <h2>Open <code>setup.dmg</code> from Downloads</h2>
-            <p>Double-click the downloaded file to mount the disk image.</p>
-          </div>
-          <div class="step-chevron">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="step-card" data-step="2">
+        <div class="step-card-header">
+          <div class="step-num">2</div>
+          <div>
+            <div class="step-card-title">Open setup.dmg</div>
+            <div class="step-card-sub">Mount the disk image from your Downloads</div>
           </div>
         </div>
-        <div class="step-body">
-          <div class="step-body-inner">
-            <p style="font-size:14px; color:var(--text-muted); line-height:1.65; margin-bottom:16px;">
-              Open your <strong>Downloads</strong> folder — you'll see <strong>setup.dmg</strong>. Double-click it to mount.
-            </p>
-            <div class="screenshot-wrap">
-              <img src="macos/setup-dmg.png" alt="Downloads folder showing setup.dmg" />
-            </div>
-            <button class="btn-next" onclick="nextStep(2)">Next &rarr;</button>
-          </div>
+        <div class="step-card-body">
+          <p>Open your <strong>Downloads</strong> folder and double-click <strong>setup.dmg</strong> to mount it.</p>
+          <div class="screenshot-wrap"><img src="macos/setup-dmg.png" alt="Downloads showing setup.dmg" /></div>
+        </div>
+        <div class="step-card-footer">
+          <button class="btn-back-step" onclick="goToStep('mac', 1)">&larr; Back</button>
+          <button class="btn-next" onclick="goToStep('mac', 3)">Mounted &rarr;</button>
         </div>
       </div>
 
-      <div class="connector"></div>
-
-      <div class="step collapsed" id="step-3">
-        <div class="step-header" onclick="toggleStep(3)">
-          <div class="step-number">3</div>
-          <div class="step-text">
-            <h2>Double-click <code>setup.command</code></h2>
-            <p>Run the setup script from the mounted disk image window.</p>
-          </div>
-          <div class="step-chevron">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="step-card" data-step="3">
+        <div class="step-card-header">
+          <div class="step-num">3</div>
+          <div>
+            <div class="step-card-title">Run setup.command</div>
+            <div class="step-card-sub">Double-click it in the disk image window</div>
           </div>
         </div>
-        <div class="step-body">
-          <div class="step-body-inner">
-            <p style="font-size:14px; color:var(--text-muted); line-height:1.65; margin-bottom:16px;">
-              The disk image window shows <strong>setup.command</strong>. Double-click it. macOS will show a security warning — click <strong>Open</strong>.
-            </p>
-            <div class="screenshot-wrap">
-              <img src="macos/setup-command.png" alt="Disk image window showing setup.command" />
-            </div>
-            <div class="screenshot-wrap screenshot-wrap--narrow" style="margin-top:12px;">
-              <img src="macos/command-warning.png" alt="macOS security warning" />
-            </div>
-            <button class="btn-next" onclick="nextStep(3)">Next &rarr;</button>
-          </div>
+        <div class="step-card-body">
+          <p>Double-click <strong>setup.command</strong> in the disk image window.</p>
+          <div class="screenshot-wrap"><img src="macos/setup-command.png" alt="Disk image showing setup.command" /></div>
+          <p style="margin-top:12px;">macOS will show a security warning — click <strong>Open</strong> to continue.</p>
+          <div class="screenshot-wrap screenshot-wrap--narrow"><img src="macos/command-warning.png" alt="macOS security warning" /></div>
+        </div>
+        <div class="step-card-footer">
+          <button class="btn-back-step" onclick="goToStep('mac', 2)">&larr; Back</button>
+          <button class="btn-next" onclick="goToStep('mac', 4)">Next &rarr;</button>
         </div>
       </div>
 
-      <div class="connector"></div>
-
-      <div class="step collapsed" id="step-4">
-        <div class="step-header" onclick="toggleStep(4)">
-          <div class="step-number">4</div>
-          <div class="step-text">
-            <h2>Sign in with Rakuten OKTA</h2>
-            <p>A browser window will open — sign in and complete MFA.</p>
-          </div>
-          <div class="step-chevron">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="step-card" data-step="4">
+        <div class="step-card-header">
+          <div class="step-num">4</div>
+          <div>
+            <div class="step-card-title">Sign in with Rakuten OKTA</div>
+            <div class="step-card-sub">Log in and complete MFA in the browser</div>
           </div>
         </div>
-        <div class="step-body">
-          <div class="step-body-inner">
-            <p style="font-size:14px; color:var(--text-muted); line-height:1.65; margin-bottom:16px;">
-              Safari will open automatically. Enter your INTRA username (<code>username@rakuten.com</code>) and complete MFA to authenticate.
-            </p>
-            <div class="screenshot-wrap screenshot-wrap--narrow">
-              <img src="macos/rakuten-okta-sign-in.png" alt="Rakuten OKTA sign-in page" />
-            </div>
-            <button class="btn-next" onclick="nextStep(4)">Signed in &rarr;</button>
-          </div>
+        <div class="step-card-body">
+          <p>Safari opens automatically. Enter <code>username@rakuten.com</code> and complete MFA.</p>
+          <div class="screenshot-wrap screenshot-wrap--narrow"><img src="macos/rakuten-okta-sign-in.png" alt="Rakuten OKTA sign-in" /></div>
+        </div>
+        <div class="step-card-footer">
+          <button class="btn-back-step" onclick="goToStep('mac', 3)">&larr; Back</button>
+          <button class="btn-next" onclick="goToStep('mac', 5)">Signed in &rarr;</button>
         </div>
       </div>
 
-      <div class="connector"></div>
-
-      <div class="step collapsed" id="step-5">
-        <div class="step-header" onclick="toggleStep(5)">
-          <div class="step-number">5</div>
-          <div class="step-text">
-            <h2>Let the script finish</h2>
-            <p>The terminal will install Claude Code CLI and write your configuration.</p>
-          </div>
-          <div class="step-chevron">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="step-card" data-step="5">
+        <div class="step-card-header">
+          <div class="step-num">5</div>
+          <div>
+            <div class="step-card-title">Let the script finish</div>
+            <div class="step-card-sub">Terminal installs Claude Code and writes your config</div>
           </div>
         </div>
-        <div class="step-body">
-          <div class="step-body-inner">
-            <p style="font-size:14px; color:var(--text-muted); line-height:1.65; margin-bottom:16px;">
-              A Terminal window runs the setup. Wait for <strong>Setup complete</strong> to appear before closing.
-            </p>
-            <div class="screenshot-wrap">
-              <img src="macos/command-run.png" alt="Terminal showing setup script running" />
-            </div>
-            <button class="btn-next" onclick="nextStep(5)">Setup complete &rarr;</button>
-          </div>
+        <div class="step-card-body">
+          <p>Wait until you see <strong>Setup complete</strong> in the Terminal window before closing it.</p>
+          <div class="screenshot-wrap"><img src="macos/command-run.png" alt="Terminal running setup" /></div>
+        </div>
+        <div class="step-card-footer">
+          <button class="btn-back-step" onclick="goToStep('mac', 4)">&larr; Back</button>
+          <button class="btn-next" onclick="goToStep('mac', 6)">Setup complete &rarr;</button>
         </div>
       </div>
 
-      <div class="connector"></div>
-
-      <div class="step collapsed" id="step-6">
-        <div class="step-header" onclick="toggleStep(6)">
-          <div class="step-number">6</div>
-          <div class="step-text">
-            <h2>Install the Configuration Profile</h2>
-            <p>Install the profile that routes Claude Code to Rakuten's AI gateway.</p>
-          </div>
-          <div class="step-chevron">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="step-card" data-step="6">
+        <div class="step-card-header">
+          <div class="step-num">6</div>
+          <div>
+            <div class="step-card-title">Install the configuration profile</div>
+            <div class="step-card-sub">Routes Claude Code to Rakuten's AI gateway</div>
           </div>
         </div>
-        <div class="step-body">
-          <div class="step-body-inner">
-            <p style="font-size:14px; color:var(--text-muted); line-height:1.65; margin-bottom:16px;">
-              System Settings will open to the <strong>Device Management</strong> pane. Find <strong>Rakuten Claude AI Configuration</strong> in the Downloaded section and click <strong>Install…</strong>
-            </p>
-            <div class="screenshot-wrap">
-              <img src="macos/profile-preinstall.png" alt="Device Management showing profile" />
-            </div>
-            <div class="screenshot-wrap" style="margin-top:12px;">
-              <img src="macos/profile-install.png" alt="Profile installation dialog" />
-            </div>
-            <div class="tip">
-              <span class="tip-icon">&#128274;</span>
-              <span>This profile is distributed internally by Rakuten IT. Click "Show Details" to inspect its contents before installing.</span>
-            </div>
-            <button class="btn-next" onclick="nextStep(6)">Profile installed &rarr;</button>
-          </div>
+        <div class="step-card-body">
+          <p>System Settings opens to <strong>Device Management</strong>. Find <strong>Rakuten Claude AI Configuration</strong> under Downloaded and click <strong>Install…</strong></p>
+          <div class="screenshot-wrap"><img src="macos/profile-preinstall.png" alt="Device Management" /></div>
+          <div class="screenshot-wrap" style="margin-top:10px;"><img src="macos/profile-install.png" alt="Profile install dialog" /></div>
+          <div class="tip">&#128274; Distributed internally by Rakuten IT. Click <strong>Show Details</strong> to inspect before installing.</div>
+        </div>
+        <div class="step-card-footer">
+          <button class="btn-back-step" onclick="goToStep('mac', 5)">&larr; Back</button>
+          <button class="btn-next" onclick="goToStep('mac', 7)">Profile installed &rarr;</button>
         </div>
       </div>
 
-      <div class="connector"></div>
-
-      <div class="step collapsed" id="step-7">
-        <div class="step-header" onclick="toggleStep(7)">
-          <div class="step-number">7</div>
-          <div class="step-text">
-            <h2>Verify Claude Code is connected</h2>
-            <p>Run one command to confirm Claude Code is using the Rakuten endpoint.</p>
-          </div>
-          <div class="step-chevron">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="step-card" data-step="7">
+        <div class="step-card-header">
+          <div class="step-num">7</div>
+          <div>
+            <div class="step-card-title">Verify Claude Code works</div>
+            <div class="step-card-sub">One quick check to confirm it's connected</div>
           </div>
         </div>
-        <div class="step-body">
-          <div class="step-body-inner">
-            <p style="font-size:14px; color:var(--text-muted); line-height:1.65; margin-bottom:16px;">
-              Open Terminal and run <code>claude</code>. Type the prompt below and verify the response.
-            </p>
-            <div class="verify-check">
-              <div class="verify-check-label">Verification prompt</div>
-              <div class="prompt-quote">What model are you, and what is today's date?</div>
-              <p style="margin-top:10px;">A correct response names a Claude model (Sonnet, Opus, or Haiku) and gives today's date. If it says it can't access the internet or fails to respond, go back to the previous step and ensure the profile is installed.</p>
-            </div>
-            <button class="btn-next" onclick="nextStep(7)">Verified &rarr;</button>
+        <div class="step-card-body">
+          <p>Open Terminal, run <code>claude</code>, and send this prompt:</p>
+          <div class="verify-check">
+            <div class="verify-label">Verification prompt</div>
+            <div class="prompt-quote">What model are you, and what is today's date?</div>
+            <p style="font-size:13px; color:var(--text-muted);">Correct response names a Claude model and today's date.</p>
           </div>
+        </div>
+        <div class="step-card-footer">
+          <button class="btn-back-step" onclick="goToStep('mac', 6)">&larr; Back</button>
+          <button class="btn-next" onclick="goToStep('mac', 8)">Verified &rarr;</button>
         </div>
       </div>
 
-      <div class="connector"></div>
-
-      <div class="step collapsed" id="step-8">
-        <div class="step-header" onclick="toggleStep(8)">
-          <div class="step-number">8</div>
-          <div class="step-text">
-            <h2>You're all set!</h2>
-            <p>Claude Code is ready to use with Rakuten's AI gateway.</p>
-          </div>
-          <div class="step-chevron">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="step-card" data-step="8">
+        <div class="step-card-header">
+          <div class="step-num">&#10003;</div>
+          <div>
+            <div class="step-card-title">You're all set!</div>
+            <div class="step-card-sub">Claude Code is live on the Rakuten AI gateway</div>
           </div>
         </div>
-        <div class="step-body">
-          <div class="step-body-inner">
-            <p style="font-size:14px; color:var(--text-muted); line-height:1.65; margin-bottom:16px;">
-              Open any project folder in Terminal and run <code>claude</code>. Try one of these to get started:
-            </p>
-            <ul class="try-list">
-              <li data-n="1">Review this file for potential bugs and explain what each function does.</li>
-              <li data-n="2">Write unit tests for the selected function using our testing conventions.</li>
-              <li data-n="3">Refactor this code to follow the rr-standards guidelines.</li>
-            </ul>
-            <button class="btn-next" onclick="finishSteps()">&#10003; Done</button>
-          </div>
+        <div class="step-card-body">
+          <p>Open any project folder in Terminal and run <code>claude</code>. Try one of these to get started:</p>
+          <ul class="try-list">
+            <li data-n="1">Review this file for potential bugs and explain what each function does.</li>
+            <li data-n="2">Write unit tests for the selected function using our testing conventions.</li>
+            <li data-n="3">Refactor this code to follow the rr-standards guidelines.</li>
+          </ul>
+        </div>
+        <div class="step-card-footer">
+          <button class="btn-back-step" onclick="goToStep('mac', 7)">&larr; Back</button>
+          <span style="font-size:13px; color:var(--text-dim);">Questions? <a href="https://rakuten-international.slack.com/archives/C0B1SE4UJ06" style="color:var(--text-muted);">#wg-2026-05-ls-summit-claude</a></span>
         </div>
       </div>
 
     </div>
 
-    <footer id="footer" style="display:none;">
-      <p>All done! Questions? Post in <a href="https://rakuten-international.slack.com/archives/C0B1SE4UJ06">#wg-2026-05-ls-summit-claude</a> on Slack.</p>
-    </footer>
-    <footer id="footer-default">
-      <p>Complete all steps above to finish setup.</p>
-    </footer>
-  </div>
+    <!-- Windows steps -->
+    <div id="windows-steps" style="display:none;">
 
-  <!-- ── Windows flow ── -->
-  <div id="windows-flow">
-    <div class="steps">
-
-      <div class="step" id="win-1">
-        <div class="step-header" onclick="winToggle(1)">
-          <div class="step-number">1</div>
-          <div class="step-text">
-            <h2>Download the Setup Script</h2>
-            <p>Click below to download <code>setup.ps1</code> to your PC.</p>
-          </div>
-          <div class="step-chevron">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="step-card active" data-step="1">
+        <div class="step-card-header">
+          <div class="step-num">1</div>
+          <div>
+            <div class="step-card-title">Downloading setup script</div>
+            <div class="step-card-sub">setup.ps1 is downloading to your PC</div>
           </div>
         </div>
-        <div class="step-body">
-          <div class="step-body-inner">
-            <p style="font-size:14px; color:var(--text-muted); line-height:1.65; margin-bottom:24px;">
-              This will install Claude Code CLI on your PC and connect it to Rakuten's AI gateway.
-            </p>
-            <div class="step-actions">
-              <a class="btn-download" href="setup.ps1" download="setup.ps1">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2v9M4 8l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 14h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                Download for Windows
-              </a>
-              <button class="btn-next" onclick="winNext(1)">Already downloaded? Next &rarr;</button>
-            </div>
-          </div>
+        <div class="step-card-body">
+          <p>Your download started automatically. Once <strong>setup.ps1</strong> appears in your Downloads folder, move on.</p>
+          <p style="margin-top:10px;">Didn't download? <a href="setup.ps1" download="setup.ps1" style="color:#111;font-weight:600;text-decoration:underline;">Download again</a></p>
+        </div>
+        <div class="step-card-footer">
+          <span></span>
+          <button class="btn-next" onclick="goToStep('win', 2)">Downloaded &rarr;</button>
         </div>
       </div>
 
-      <div class="connector"></div>
-
-      <div class="step collapsed" id="win-2">
-        <div class="step-header" onclick="winToggle(2)">
-          <div class="step-number">2</div>
-          <div class="step-text">
-            <h2>Right-click &amp; Run with PowerShell</h2>
-            <p>Find <code>setup.ps1</code> in Downloads and run it.</p>
-          </div>
-          <div class="step-chevron">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="step-card" data-step="2">
+        <div class="step-card-header">
+          <div class="step-num">2</div>
+          <div>
+            <div class="step-card-title">Run with PowerShell</div>
+            <div class="step-card-sub">Right-click setup.ps1 in Downloads</div>
           </div>
         </div>
-        <div class="step-body">
-          <div class="step-body-inner">
-            <p style="font-size:14px; color:var(--text-muted); line-height:1.65; margin-bottom:16px;">
-              <strong>Right-click</strong> <code>setup.ps1</code> in Downloads and select <strong>Run with PowerShell</strong>.
-            </p>
-            <div class="screenshot-wrap">
-              <img src="windows/ps1-run-with-powershell.png" alt="Right-click Run with PowerShell" />
-            </div>
-            <div class="tip">
-              <span class="tip-icon">&#9888;&#65039;</span>
-              <span>If PowerShell blocks the script, run this first in an elevated PowerShell window:<br /><code>Set-ExecutionPolicy Bypass -Scope Process -Force</code></span>
-            </div>
-            <button class="btn-next" onclick="winNext(2)">Next &rarr;</button>
-          </div>
+        <div class="step-card-body">
+          <p><strong>Right-click</strong> <code>setup.ps1</code> and select <strong>Run with PowerShell</strong>.</p>
+          <div class="screenshot-wrap"><img src="windows/ps1-run-with-powershell.png" alt="Run with PowerShell" /></div>
+          <div class="tip">&#9888;&#65039; If PowerShell blocks it, run first: <code>Set-ExecutionPolicy Bypass -Scope Process -Force</code></div>
+        </div>
+        <div class="step-card-footer">
+          <button class="btn-back-step" onclick="goToStep('win', 1)">&larr; Back</button>
+          <button class="btn-next" onclick="goToStep('win', 3)">Next &rarr;</button>
         </div>
       </div>
 
-      <div class="connector"></div>
-
-      <div class="step collapsed" id="win-3">
-        <div class="step-header" onclick="winToggle(3)">
-          <div class="step-number">3</div>
-          <div class="step-text">
-            <h2>Sign in with Rakuten OKTA</h2>
-            <p>A browser will open — sign in and complete MFA.</p>
-          </div>
-          <div class="step-chevron">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="step-card" data-step="3">
+        <div class="step-card-header">
+          <div class="step-num">3</div>
+          <div>
+            <div class="step-card-title">Sign in with Rakuten OKTA</div>
+            <div class="step-card-sub">Log in and complete MFA in the browser</div>
           </div>
         </div>
-        <div class="step-body">
-          <div class="step-body-inner">
-            <p style="font-size:14px; color:var(--text-muted); line-height:1.65; margin-bottom:16px;">
-              Your browser opens automatically. Enter your INTRA username (<code>username@rakuten.com</code>) and complete MFA.
-            </p>
-            <div class="screenshot-wrap screenshot-wrap--narrow">
-              <img src="windows/rakuten-okta-sign-in.png" alt="Rakuten OKTA sign-in page" />
-            </div>
-            <button class="btn-next" onclick="winNext(3)">Signed in &rarr;</button>
-          </div>
+        <div class="step-card-body">
+          <p>Your browser opens. Enter <code>username@rakuten.com</code> and complete MFA.</p>
+          <div class="screenshot-wrap screenshot-wrap--narrow"><img src="windows/rakuten-okta-sign-in.png" alt="Rakuten OKTA sign-in" /></div>
+        </div>
+        <div class="step-card-footer">
+          <button class="btn-back-step" onclick="goToStep('win', 2)">&larr; Back</button>
+          <button class="btn-next" onclick="goToStep('win', 4)">Signed in &rarr;</button>
         </div>
       </div>
 
-      <div class="connector"></div>
-
-      <div class="step collapsed" id="win-4">
-        <div class="step-header" onclick="winToggle(4)">
-          <div class="step-number">4</div>
-          <div class="step-text">
-            <h2>Let the script finish</h2>
-            <p>PowerShell installs Claude Code CLI and writes your configuration.</p>
-          </div>
-          <div class="step-chevron">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="step-card" data-step="4">
+        <div class="step-card-header">
+          <div class="step-num">4</div>
+          <div>
+            <div class="step-card-title">Let the script finish</div>
+            <div class="step-card-sub">PowerShell installs Claude Code and writes your config</div>
           </div>
         </div>
-        <div class="step-body">
-          <div class="step-body-inner">
-            <p style="font-size:14px; color:var(--text-muted); line-height:1.65; margin-bottom:16px;">
-              Wait for <strong>Setup complete</strong> to appear in the PowerShell window before closing it.
-            </p>
-            <div class="screenshot-wrap">
-              <img src="windows/ps1-running.png" alt="PowerShell running setup" />
-            </div>
-            <button class="btn-next" onclick="winNext(4)">Setup complete &rarr;</button>
-          </div>
+        <div class="step-card-body">
+          <p>Wait for <strong>Setup complete</strong> before closing PowerShell.</p>
+          <div class="screenshot-wrap"><img src="windows/ps1-running.png" alt="PowerShell running setup" /></div>
+        </div>
+        <div class="step-card-footer">
+          <button class="btn-back-step" onclick="goToStep('win', 3)">&larr; Back</button>
+          <button class="btn-next" onclick="goToStep('win', 5)">Setup complete &rarr;</button>
         </div>
       </div>
 
-      <div class="connector"></div>
-
-      <div class="step collapsed" id="win-5">
-        <div class="step-header" onclick="winToggle(5)">
-          <div class="step-number">5</div>
-          <div class="step-text">
-            <h2>Verify Claude Code is connected</h2>
-            <p>Open a new terminal and confirm Claude Code works.</p>
-          </div>
-          <div class="step-chevron">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="step-card" data-step="5">
+        <div class="step-card-header">
+          <div class="step-num">5</div>
+          <div>
+            <div class="step-card-title">Verify Claude Code works</div>
+            <div class="step-card-sub">One quick check to confirm it's connected</div>
           </div>
         </div>
-        <div class="step-body">
-          <div class="step-body-inner">
-            <p style="font-size:14px; color:var(--text-muted); line-height:1.65; margin-bottom:16px;">
-              Open a new PowerShell window and run <code>claude</code>. Type the prompt below.
-            </p>
-            <div class="verify-check">
-              <div class="verify-check-label">Verification prompt</div>
-              <div class="prompt-quote">What model are you, and what is today's date?</div>
-              <p style="margin-top:10px;">A correct response names a Claude model and gives today's date.</p>
-            </div>
-            <button class="btn-next" onclick="winNext(5)">Verified &rarr;</button>
+        <div class="step-card-body">
+          <p>Open a new PowerShell window, run <code>claude</code>, and send this prompt:</p>
+          <div class="verify-check">
+            <div class="verify-label">Verification prompt</div>
+            <div class="prompt-quote">What model are you, and what is today's date?</div>
+            <p style="font-size:13px; color:var(--text-muted);">Correct response names a Claude model and today's date.</p>
           </div>
+        </div>
+        <div class="step-card-footer">
+          <button class="btn-back-step" onclick="goToStep('win', 4)">&larr; Back</button>
+          <button class="btn-next" onclick="goToStep('win', 6)">Verified &rarr;</button>
         </div>
       </div>
 
-      <div class="connector"></div>
-
-      <div class="step collapsed" id="win-6">
-        <div class="step-header" onclick="winToggle(6)">
-          <div class="step-number">6</div>
-          <div class="step-text">
-            <h2>You're all set!</h2>
-            <p>Claude Code is ready to use with Rakuten's AI gateway.</p>
-          </div>
-          <div class="step-chevron">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="step-card" data-step="6">
+        <div class="step-card-header">
+          <div class="step-num">&#10003;</div>
+          <div>
+            <div class="step-card-title">You're all set!</div>
+            <div class="step-card-sub">Claude Code is live on the Rakuten AI gateway</div>
           </div>
         </div>
-        <div class="step-body">
-          <div class="step-body-inner">
-            <p style="font-size:14px; color:var(--text-muted); line-height:1.65; margin-bottom:16px;">
-              Open any project folder in PowerShell and run <code>claude</code>. Try one of these:
-            </p>
-            <ul class="try-list">
-              <li data-n="1">Review this file for potential bugs and explain what each function does.</li>
-              <li data-n="2">Write unit tests for the selected function using our testing conventions.</li>
-              <li data-n="3">Refactor this code to follow the rr-standards guidelines.</li>
-            </ul>
-            <button class="btn-next" onclick="winFinish()">&#10003; Done</button>
-          </div>
+        <div class="step-card-body">
+          <p>Open any project folder in PowerShell and run <code>claude</code>. Try one of these:</p>
+          <ul class="try-list">
+            <li data-n="1">Review this file for potential bugs and explain what each function does.</li>
+            <li data-n="2">Write unit tests for the selected function using our testing conventions.</li>
+            <li data-n="3">Refactor this code to follow the rr-standards guidelines.</li>
+          </ul>
+        </div>
+        <div class="step-card-footer">
+          <button class="btn-back-step" onclick="goToStep('win', 5)">&larr; Back</button>
+          <span style="font-size:13px; color:var(--text-dim);">Questions? <a href="https://rakuten-international.slack.com/archives/C0B1SE4UJ06" style="color:var(--text-muted);">#wg-2026-05-ls-summit-claude</a></span>
         </div>
       </div>
 
     </div>
-
-    <footer id="win-footer" style="display:none;">
-      <p>All done! Questions? Post in <a href="https://rakuten-international.slack.com/archives/C0B1SE4UJ06">#wg-2026-05-ls-summit-claude</a> on Slack.</p>
-    </footer>
-    <footer id="win-footer-default">
-      <p>Complete all steps above to finish setup.</p>
-    </footer>
   </div>
 
-  </div><!-- /.page -->
+</div>
 
-  <script>
-    const ua = navigator.userAgent;
-    const isMac = /Mac/.test(ua) && !/iPhone|iPad/.test(ua);
-    const isWin = /Windows/.test(ua);
+<footer>
+  🌿 Platform Engineering Trainings 🌿
+</footer>
 
-    if (isMac) {
-      document.getElementById('windows-flow').style.display = 'none';
-    } else if (isWin) {
-      document.getElementById('macos-flow').style.display = 'none';
+<script>
+  const ua = navigator.userAgent;
+  const isMac = /Mac/.test(ua) && !/iPhone|iPad/.test(ua);
+  const isWin = /Windows/.test(ua);
+
+  if (isMac) {
+    document.getElementById('card-mac').classList.add('detected');
+    document.getElementById('card-win').style.display = 'none';
+  } else if (isWin) {
+    document.getElementById('card-win').classList.add('detected');
+    document.getElementById('card-mac').style.display = 'none';
+  }
+
+  let currentOS = null;
+  const totals = { mac: 8, win: 6 };
+
+  function startSetup(os) {
+    currentOS = os;
+    const a = document.createElement('a');
+    a.href = os === 'mac' ? 'setup.dmg' : 'setup.ps1';
+    a.download = os === 'mac' ? 'setup.dmg' : 'setup.ps1';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    document.getElementById('landing').style.display = 'none';
+    document.getElementById('steps-page').style.display = 'block';
+    document.getElementById(os === 'mac' ? 'macos-steps' : 'windows-steps').style.display = 'block';
+
+    goToStep(os, 2);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function goToStep(os, n) {
+    const container = document.getElementById(os === 'mac' ? 'macos-steps' : 'windows-steps');
+    container.querySelectorAll('.step-card').forEach(c => c.classList.remove('active'));
+    container.querySelector(`.step-card[data-step="${n}"]`).classList.add('active');
+    renderDots(os, n);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function renderDots(os, current) {
+    const total = totals[os];
+    const dots = document.getElementById('progress-dots');
+    const txt  = document.getElementById('progress-text');
+    dots.innerHTML = '';
+    for (let i = 1; i <= total; i++) {
+      const d = document.createElement('div');
+      d.className = 'dot' + (i < current ? ' done' : i === current ? ' active' : '');
+      dots.appendChild(d);
     }
+    txt.textContent = `${current} of ${total}`;
+  }
 
-    const MAC_TOTAL = 8;
-
-    function toggleStep(n) {
-      document.getElementById('step-' + n).classList.toggle('collapsed');
-    }
-
-    function nextStep(current) {
-      document.getElementById('step-' + current).classList.add('completed', 'collapsed');
-      if (current < MAC_TOTAL) {
-        const next = document.getElementById('step-' + (current + 1));
-        next.classList.remove('collapsed');
-        next.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }
-
-    function finishSteps() {
-      document.getElementById('step-' + MAC_TOTAL).classList.add('completed', 'collapsed');
-      document.getElementById('footer').style.display = 'block';
-      document.getElementById('footer-default').style.display = 'none';
-      document.getElementById('footer').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
-    const WIN_TOTAL = 6;
-
-    function winToggle(n) {
-      document.getElementById('win-' + n).classList.toggle('collapsed');
-    }
-
-    function winNext(current) {
-      document.getElementById('win-' + current).classList.add('completed', 'collapsed');
-      if (current < WIN_TOTAL) {
-        const next = document.getElementById('win-' + (current + 1));
-        next.classList.remove('collapsed');
-        next.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }
-
-    function winFinish() {
-      document.getElementById('win-' + WIN_TOTAL).classList.add('completed', 'collapsed');
-      document.getElementById('win-footer').style.display = 'block';
-      document.getElementById('win-footer-default').style.display = 'none';
-      document.getElementById('win-footer').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  </script>
-
+  function goBack() {
+    document.getElementById('steps-page').style.display = 'none';
+    document.getElementById('macos-steps').style.display = 'none';
+    document.getElementById('windows-steps').style.display = 'none';
+    document.getElementById('landing').style.display = 'flex';
+    currentOS = null;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
 </body>
 </html>
