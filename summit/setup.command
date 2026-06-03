@@ -2,8 +2,8 @@
 set -euo pipefail
 
 # Rakuten Claude Code Setup — macOS (Summit)
-# Authenticates via Okta PKCE, installs Claude Code CLI,
-# writes ~/.claude/settings.json, and installs rr-standards plugin.
+# Authenticates via Okta PKCE, installs dev tools via curl,
+# writes ~/.claude/settings.json, and installs rr-standards plugins.
 
 OKTA_ISSUER="https://rakuten.okta.com/oauth2/ausxr4nv1gcTtBswT357"
 CLIENT_ID="0oa1hk5jgg1Oz3zDm358"
@@ -25,13 +25,19 @@ CYAN='\033[0;36m'
 WHITE='\033[1;37m'
 RESET='\033[0m'
 
-ok()   { printf "  ${GREEN}✓${RESET}  ${WHITE}${1}${RESET}\n"; }
-run()  { printf "  ${CYAN}→${RESET}  ${DIM}${1}${RESET}\n"; }
-warn() { printf "  ${YELLOW}⚠${RESET}  ${YELLOW}${1}${RESET}\n" >&2; }
-die()  { printf "\n  ${BOLD}${RED}✗  Error: ${1}${RESET}\n\n" >&2; exit 1; }
+step=0
+total=9
+
+ok()      { printf "  ${GREEN}✓${RESET}  ${WHITE}${1}${RESET}\n"; }
+run()     { printf "  ${CYAN}→${RESET}  ${DIM}${1}${RESET}\n"; }
+warn()    { printf "  ${YELLOW}⚠${RESET}  ${YELLOW}${1}${RESET}\n" >&2; }
+die()     { printf "\n  ${BOLD}${RED}✗  Error: ${1}${RESET}\n\n" >&2; exit 1; }
+section() {
+  step=$((step + 1))
+  printf "\n  ${BOLD}${CYAN}[${step}/${total}] ${1}${RESET}\n"
+}
 
 [[ "$OSTYPE" == darwin* ]] || die "This script requires macOS."
-command -v openssl   &>/dev/null || die "openssl not found."
 command -v curl      &>/dev/null || die "curl not found."
 command -v osascript &>/dev/null || die "osascript not found."
 
@@ -42,7 +48,102 @@ printf "\n"
 printf "  ${BOLD}${WHITE}Rakuten Claude Code Setup${RESET}  ${DIM}(macOS)${RESET}\n"
 printf "  ${DIM}─────────────────────────────────────────${RESET}\n\n"
 
-# ── step 1: okta sign-in ───────────────────────────────────────────────────────
+# ── step 1: git ────────────────────────────────────────────────────────────────
+
+section "Git"
+
+if command -v git &>/dev/null; then
+  ok "Git already installed ($(git --version | awk '{print $3}'))"
+else
+  run "Installing Git via Xcode Command Line Tools..."
+  xcode-select --install 2>/dev/null || true
+  # Wait up to 120s for git to appear
+  for i in $(seq 1 24); do
+    command -v git &>/dev/null && break
+    sleep 5
+  done
+  command -v git &>/dev/null && ok "Git installed ($(git --version | awk '{print $3}'))" \
+    || warn "Git not found after install — you may need to restart Terminal"
+fi
+
+# ── step 2: node.js ────────────────────────────────────────────────────────────
+
+section "Node.js"
+
+if command -v node &>/dev/null; then
+  ok "Node.js already installed ($(node --version))"
+else
+  run "Downloading Node.js LTS..."
+  NODE_PKG=/tmp/node-lts.pkg
+  # Get latest LTS version number
+  NODE_VERSION=$(curl -fsSL https://nodejs.org/dist/index.json \
+    | python3 -c "import json,sys; lts=[r for r in json.load(sys.stdin) if r['lts']]; print(lts[0]['version'])")
+  curl -fsSL "https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}.pkg" -o "$NODE_PKG"
+  run "Installing Node.js ${NODE_VERSION}..."
+  sudo installer -pkg "$NODE_PKG" -target / > /dev/null
+  rm -f "$NODE_PKG"
+  export PATH="/usr/local/bin:$PATH"
+  command -v node &>/dev/null && ok "Node.js installed ($(node --version))" \
+    || warn "Node.js not found on PATH — you may need to restart Terminal"
+fi
+
+# ── step 3: claude code cli ────────────────────────────────────────────────────
+
+section "Claude Code CLI"
+
+if command -v claude &>/dev/null; then
+  ok "Claude Code CLI already installed ($(claude --version 2>/dev/null || echo 'version unknown'))"
+else
+  run "Installing Claude Code CLI..."
+  curl -fsSL https://claude.ai/install.sh | bash \
+    || warn "Could not install Claude Code CLI automatically. Visit https://claude.ai/install"
+  export PATH="$HOME/.local/bin:$PATH"
+  command -v claude &>/dev/null && ok "Claude Code CLI installed" \
+    || warn "Claude Code CLI not found on PATH after install — restart Terminal after setup"
+fi
+
+# ── step 4: vs code ────────────────────────────────────────────────────────────
+
+section "Visual Studio Code"
+
+if command -v code &>/dev/null || [[ -d "/Applications/Visual Studio Code.app" ]]; then
+  ok "VS Code already installed"
+else
+  run "Downloading Visual Studio Code..."
+  VSCODE_ZIP=/tmp/VSCode-darwin.zip
+  curl -fsSL "https://code.visualstudio.com/sha/download?build=stable&os=darwin-universal" \
+    -o "$VSCODE_ZIP"
+  run "Installing Visual Studio Code..."
+  unzip -q "$VSCODE_ZIP" -d /tmp/VSCode-extract
+  mv "/tmp/VSCode-extract/Visual Studio Code.app" /Applications/ 2>/dev/null \
+    || sudo mv "/tmp/VSCode-extract/Visual Studio Code.app" /Applications/
+  rm -rf "$VSCODE_ZIP" /tmp/VSCode-extract
+  # Symlink code CLI
+  sudo ln -sf "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" \
+    /usr/local/bin/code 2>/dev/null || true
+  ok "VS Code installed"
+fi
+
+# ── step 5: claude code vs code extension ─────────────────────────────────────
+
+section "Claude Code VS Code extension"
+
+if command -v code &>/dev/null; then
+  if code --list-extensions 2>/dev/null | grep -qi "anthropic.claude-code"; then
+    ok "Claude Code extension already installed"
+  else
+    run "Installing Claude Code extension..."
+    code --install-extension anthropic.claude-code \
+      && ok "Claude Code extension installed" \
+      || warn "Could not install extension — install manually from VS Code marketplace"
+  fi
+else
+  warn "VS Code CLI not on PATH — skipping extension install"
+fi
+
+# ── step 6: okta sign-in ───────────────────────────────────────────────────────
+
+section "Rakuten OKTA sign-in"
 
 run "Opening browser for Rakuten OKTA sign-in..."
 
@@ -163,21 +264,9 @@ USER_EMAIL=$(curl -sS "${OKTA_ISSUER}/v1/userinfo" \
 
 ok "Signed in${USER_EMAIL:+ as ${USER_EMAIL}}"
 
-# ── step 2: install Claude Code CLI ───────────────────────────────────────────
+# ── step 7: write ~/.claude/settings.json ─────────────────────────────────────
 
-run "Installing Claude Code CLI..."
-
-if ! command -v claude &>/dev/null; then
-  curl -fsSL https://claude.ai/install.sh | bash \
-    || warn "Could not install Claude Code CLI automatically. Visit https://claude.ai/install"
-  export PATH="$HOME/.local/bin:$PATH"
-  command -v claude &>/dev/null && ok "Claude Code CLI installed" \
-    || warn "Claude Code CLI not found on PATH after install — you may need to restart your terminal"
-else
-  ok "Claude Code CLI already installed ($(claude --version 2>/dev/null || echo 'version unknown'))"
-fi
-
-# ── step 3: write ~/.claude/settings.json ─────────────────────────────────────
+section "Rakuten AI Gateway config"
 
 run "Writing ~/.claude/settings.json..."
 
@@ -230,117 +319,76 @@ fi
 
 ok "Claude Code configured → Rakuten AI gateway"
 
-# ── step 4: install rr-standards plugin ───────────────────────────────────────
+# ── step 8: install rr-standards plugins ──────────────────────────────────────
 
-run "Installing rr-standards plugin..."
+section "rr-standards plugins"
+
+run "Extracting rr-standards..."
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Locate the volume (running from DMG) or fall back to local assets/
+# Locate the zip — prefer DMG volume, fall back to local assets/
+RR_ZIP=""
 PLUGIN_VOLUME=""
 while IFS= read -r vol; do
   [[ -n "$vol" ]] && PLUGIN_VOLUME="$vol"
 done < <(mount | grep -oi '/Volumes/Rakuten Claude Code Setup[^(]*' | sed 's/ *$//' | sort -V)
 
-if [[ -z "$PLUGIN_VOLUME" ]]; then
-  if [[ -f "${SCRIPT_DIR}/assets/rr-standards.zip" ]]; then
-    PLUGIN_VOLUME="${SCRIPT_DIR}/assets"
-  fi
+if [[ -n "$PLUGIN_VOLUME" ]] && [[ -f "${PLUGIN_VOLUME}/assets/rr-standards.zip" ]]; then
+  RR_ZIP="${PLUGIN_VOLUME}/assets/rr-standards.zip"
+elif [[ -f "${SCRIPT_DIR}/assets/rr-standards.zip" ]]; then
+  RR_ZIP="${SCRIPT_DIR}/assets/rr-standards.zip"
 fi
 
-if [[ -n "$PLUGIN_VOLUME" ]] && [[ -f "${PLUGIN_VOLUME}/rr-standards.zip" ]]; then
+if [[ -z "$RR_ZIP" ]]; then
+  warn "rr-standards.zip not found — skipping plugin install"
+else
+  RR_DEST="$HOME/rr-standards"
   RR_TMP=/tmp/rr-standards-extract
-  PLUGIN_DEST="/Library/Application Support/Claude/org-plugins"
-
   rm -rf "$RR_TMP" && mkdir -p "$RR_TMP"
-  unzip -q "${PLUGIN_VOLUME}/rr-standards.zip" -d "$RR_TMP"
+  unzip -q "$RR_ZIP" -d "$RR_TMP"
 
-  INSTALL_CMD="mkdir -p '${PLUGIN_DEST}'"
-  INSTALL_CMD+=" && rm -rf '${PLUGIN_DEST}/rr-standards' '${PLUGIN_DEST}/forge-skill-creator' '${PLUGIN_DEST}/forge'"
-  INSTALL_CMD+=" && cp -R '${RR_TMP}/rr-standards-main/plugins/forge-skill-creator' '${PLUGIN_DEST}/'"
-  INSTALL_CMD+=" && cp -R '${RR_TMP}/rr-standards-main/plugins/forge' '${PLUGIN_DEST}/'"
+  # rr-standards-main is the top-level folder in the zip
+  SRC="${RR_TMP}/rr-standards-main"
 
-  OSASCRIPT_ERR=$(osascript 2>&1 <<OSASCRIPT
-do shell script "${INSTALL_CMD}" with administrator privileges
-OSASCRIPT
-  )
-  INSTALL_STATUS=$?
+  rm -rf "$RR_DEST"
+  cp -R "$SRC" "$RR_DEST"
   rm -rf "$RR_TMP"
 
-  if [[ $INSTALL_STATUS -eq 0 ]]; then
-    ok "rr-standards plugin installed"
+  ok "rr-standards extracted to ~/rr-standards"
+
+  if command -v claude &>/dev/null; then
+    for plugin in forge forge-skill-creator forge-product-management; do
+      PLUGIN_PATH="$RR_DEST/plugins/${plugin}"
+      if [[ -d "$PLUGIN_PATH" ]]; then
+        run "Installing ${plugin}..."
+        claude plugin install "$PLUGIN_PATH" --force 2>&1 \
+          && ok "${plugin} installed" \
+          || warn "Could not install ${plugin}"
+      else
+        warn "Plugin directory not found: ${PLUGIN_PATH}"
+      fi
+    done
   else
-    warn "Could not install rr-standards plugin: ${OSASCRIPT_ERR}"
+    warn "claude CLI not on PATH — skipping plugin install (run after restarting Terminal)"
   fi
-else
-  warn "rr-standards.zip not found — skipping plugin install"
 fi
 
-# ── step 5: install mobileconfig ──────────────────────────────────────────────
+# ── step 9: marketplace ────────────────────────────────────────────────────────
 
-run "Opening configuration profile for installation..."
+section "rr-standards marketplace"
 
-MOBILECONFIG_CONTENT='<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-	<dict>
-		<key>PayloadContent</key>
-		<array>
-			<dict>
-				<key>PayloadType</key>
-				<string>com.anthropic.claudefordesktop</string>
-				<key>PayloadIdentifier</key>
-				<string>com.anthropic.claudefordesktop.settings</string>
-				<key>PayloadUUID</key>
-				<string>0CBCAB4D-4E52-4C0C-A13C-FB31188A443A</string>
-				<key>PayloadVersion</key>
-				<integer>1</integer>
-				<key>PayloadDisplayName</key>
-				<string>Claude Desktop</string>
-				<key>coworkEgressAllowedHosts</key>
-				<string>["*"]</string>
-				<key>inferenceProvider</key>
-				<string>bedrock</string>
-				<key>inferenceBedrockRegion</key>
-				<string>us-east-1</string>
-				<key>inferenceBedrockBearerToken</key>
-				<string>{{BEARER_TOKEN}}</string>
-				<key>inferenceBedrockBaseUrl</key>
-				<string>https://api.ai.public.rakuten-it.com/claude-code-aws-bedrock/v1</string>
-				<key>inferenceModels</key>
-				<string>[{"name":"us.anthropic.claude-sonnet-4-6","supports1m":true}]</string>
-				<key>banner</key>
-				<string>{"enabled":true,"text":"Rakuten Rewards - Summit - v1.0.0","backgroundColor":"#1a1a1a","textColor":"#f0f0f0","linkUrl":"https://www.rakuten.com"}</string>
-			</dict>
-		</array>
-		<key>PayloadDisplayName</key>
-		<string>Rakuten Claude AI Configuration</string>
-		<key>PayloadIdentifier</key>
-		<string>com.anthropic.claudefordesktop.profile</string>
-		<key>PayloadType</key>
-		<string>Configuration</string>
-		<key>PayloadUUID</key>
-		<string>5294DE36-EBCB-4778-81DC-35849822638C</string>
-		<key>PayloadVersion</key>
-		<integer>1</integer>
-		<key>PayloadScope</key>
-		<string>User</string>
-	</dict>
-</plist>'
+if command -v claude &>/dev/null; then
+  run "Removing any existing rr-standards marketplace entry..."
+  claude plugin marketplace remove rr-standards 2>&1 || true
 
-MOBILECONFIG_TMP=/tmp/Claude-summit-setup.mobileconfig
-rm -f "$MOBILECONFIG_TMP"
-trap 'sleep 3; rm -f "$MOBILECONFIG_TMP"' EXIT
-
-PAT_SED=$(printf '%s' "$PAT" | sed 's/[&/\]/\\&/g')
-
-printf '%s' "$MOBILECONFIG_CONTENT" \
-  | sed "s|{{BEARER_TOKEN}}|${PAT_SED}|g" \
-  > "$MOBILECONFIG_TMP"
-
-open "$MOBILECONFIG_TMP"
-
-ok "Configuration profile opened — click Install in System Settings"
+  run "Adding rr-standards from marketplace..."
+  claude plugin marketplace add rewards-guilds/rr-standards 2>&1 \
+    && ok "rr-standards marketplace added" \
+    || warn "rr-standards may already be added"
+else
+  warn "claude CLI not on PATH — skipping marketplace step"
+fi
 
 # ── done ──────────────────────────────────────────────────────────────────────
 
@@ -349,6 +397,8 @@ printf "  ${DIM}─────────────────────�
 ok "Setup complete"
 printf "\n"
 printf "  ${DIM}Next steps:${RESET}\n"
-printf "  ${DIM}1. Click${RESET} ${BOLD}Install${RESET}${DIM} in System Settings (profile window that just opened)${RESET}\n"
-printf "  ${DIM}2. Open your project folder and run${RESET} ${BOLD}claude${RESET}${DIM} to start coding${RESET}\n"
+printf "  ${DIM}1. Open your project folder and run${RESET} ${BOLD}claude${RESET}${DIM} to start coding${RESET}\n"
+printf "  ${DIM}2. Or open VS Code and use the Claude Code extension${RESET}\n"
 printf "\n"
+printf "  ${DIM}Press any key to close...${RESET}\n"
+read -n 1 -s

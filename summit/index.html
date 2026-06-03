@@ -480,14 +480,12 @@
           </div>
         </div>
         <div class="step-card-body">
-          <p>Double-click <strong>setup.command</strong> in the disk image window.</p>
+          <p>Double-click <strong>setup.command</strong> in the disk image window. Terminal opens and the installer begins — it will install Git, Node.js, VS Code, and Claude Code automatically.</p>
           <div class="screenshot-wrap"><img src="macos/setup-command.png" alt="Disk image showing setup.command" /></div>
-          <p style="margin-top:12px;">macOS will show a security warning — click <strong>Open</strong> to continue.</p>
-          <div class="screenshot-wrap screenshot-wrap--narrow"><img src="macos/command-warning.png" alt="macOS security warning" /></div>
         </div>
         <div class="step-card-footer">
           <button class="btn-back-step" onclick="goToStep('mac', 2)">&larr; Back</button>
-          <button class="btn-next" onclick="goToStep('mac', 4)">Next &rarr;</button>
+          <button class="btn-next" onclick="goToStep('mac', 4)">Terminal opened &rarr;</button>
         </div>
       </div>
 
@@ -500,7 +498,7 @@
           </div>
         </div>
         <div class="step-card-body">
-          <p>Safari opens automatically. Enter <code>username@rakuten.com</code> and complete MFA.</p>
+          <p>After tools install, Safari opens automatically. Enter <code>username@rakuten.com</code> and complete MFA to connect Claude Code to the Rakuten AI gateway.</p>
           <div class="screenshot-wrap screenshot-wrap--narrow"><img src="macos/rakuten-okta-sign-in.png" alt="Rakuten OKTA sign-in" /></div>
         </div>
         <div class="step-card-footer">
@@ -514,11 +512,12 @@
           <div class="step-num">5</div>
           <div>
             <div class="step-card-title">Let the script finish</div>
-            <div class="step-card-sub">Terminal installs Claude Code and writes your config</div>
+            <div class="step-card-sub">Installing plugins and writing your config</div>
           </div>
         </div>
         <div class="step-card-body">
-          <p>Wait until you see <strong>Setup complete</strong> in the Terminal window before closing it.</p>
+          <p>After sign-in the script installs the <strong>forge</strong>, <strong>forge-skill-creator</strong>, and <strong>forge-product-management</strong> plugins, then writes your <code>~/.claude/settings.json</code>.</p>
+          <p style="margin-top:10px;">Wait until you see <strong>Setup complete</strong> before closing Terminal.</p>
           <div class="screenshot-wrap"><img src="macos/command-run.png" alt="Terminal running setup" /></div>
         </div>
         <div class="step-card-footer">
@@ -531,32 +530,12 @@
         <div class="step-card-header">
           <div class="step-num">6</div>
           <div>
-            <div class="step-card-title">Install the configuration profile</div>
-            <div class="step-card-sub">Routes Claude Code to Rakuten's AI gateway</div>
-          </div>
-        </div>
-        <div class="step-card-body">
-          <p>System Settings opens to <strong>Device Management</strong>. Find <strong>Rakuten Claude AI Configuration</strong> under Downloaded and click <strong>Install…</strong></p>
-          <div class="screenshot-wrap"><img src="macos/profile-preinstall.png" alt="Device Management" /></div>
-          <div class="screenshot-wrap" style="margin-top:10px;"><img src="macos/profile-install.png" alt="Profile install dialog" /></div>
-          <div class="tip">&#128274; Distributed internally by Rakuten IT. Click <strong>Show Details</strong> to inspect before installing.</div>
-        </div>
-        <div class="step-card-footer">
-          <button class="btn-back-step" onclick="goToStep('mac', 5)">&larr; Back</button>
-          <button class="btn-next" onclick="goToStep('mac', 7)">Profile installed &rarr;</button>
-        </div>
-      </div>
-
-      <div class="step-card" data-step="7">
-        <div class="step-card-header">
-          <div class="step-num">7</div>
-          <div>
             <div class="step-card-title">Verify Claude Code works</div>
             <div class="step-card-sub">One quick check to confirm it's connected</div>
           </div>
         </div>
         <div class="step-card-body">
-          <p>Open Terminal, run <code>claude</code>, and send this prompt:</p>
+          <p>Open a new Terminal window, run <code>claude</code>, and send this prompt:</p>
           <div class="verify-check">
             <div class="verify-label">Verification prompt</div>
             <div class="prompt-quote">What model are you, and what is today's date?</div>
@@ -564,12 +543,12 @@
           </div>
         </div>
         <div class="step-card-footer">
-          <button class="btn-back-step" onclick="goToStep('mac', 6)">&larr; Back</button>
-          <button class="btn-next" onclick="goToStep('mac', 8)">Verified &rarr;</button>
+          <button class="btn-back-step" onclick="goToStep('mac', 5)">&larr; Back</button>
+          <button class="btn-next" onclick="goToStep('mac', 7)">Verified &rarr;</button>
         </div>
       </div>
 
-      <div class="step-card" data-step="8">
+      <div class="step-card" data-step="7">
         <div class="step-card-header">
           <div class="step-num">&#10003;</div>
           <div>
@@ -586,7 +565,7 @@
           </ul>
         </div>
         <div class="step-card-footer">
-          <button class="btn-back-step" onclick="goToStep('mac', 7)">&larr; Back</button>
+          <button class="btn-back-step" onclick="goToStep('mac', 6)">&larr; Back</button>
           <span style="font-size:13px; color:var(--text-dim);">Questions? <a href="https://rakuten-international.slack.com/archives/C0B1SE4UJ06" style="color:var(--text-muted);">#wg-2026-05-ls-summit-claude</a></span>
         </div>
       </div>
@@ -736,7 +715,7 @@
   }
 
   let currentOS = null;
-  const totals = { mac: 8, win: 6 };
+  const totals = { mac: 7, win: 6 };
 
   function startSetup(os) {
     currentOS = os;
