@@ -319,39 +319,47 @@ fi
 
 ok "Claude Code configured → Rakuten AI gateway"
 
-# Eject stale volumes now that we no longer need the DMG assets
-while IFS= read -r vol; do
-  hdiutil detach "$vol" -quiet 2>/dev/null || true
-done < <(mount | grep -i 'Rakuten Claude Code Setup' | sed 's|.* on \(/Volumes/[^(]*\) (.*|\1|' | sed 's/ *$//')
-
 # ── step 8: rr-standards marketplace ─────────────────────────────────────────
 
 section "rr-standards marketplace"
+
+# Find rr-standards.zip — scan all mounted Rakuten Claude Code Setup volumes
+RR_ZIP=""
+while IFS= read -r vol; do
+  vol="${vol%"${vol##*[![:space:]]}"}"  # trim trailing whitespace
+  if [[ -f "${vol}/assets/rr-standards.zip" ]]; then
+    RR_ZIP="${vol}/assets/rr-standards.zip"
+    break
+  fi
+done < <(mount | grep -i 'Rakuten Claude Code Setup' | sed 's|.* on \(/Volumes/[^)]*\) (.*|\1|')
 
 if command -v claude &>/dev/null; then
   run "Removing any existing rr-standards marketplace entry..."
   claude plugin marketplace remove rr-standards 2>&1 || true
 
-  # RR_STANDARDS_ZIP is set by the launcher to the assets/ dir on the DMG volume
-  if [[ -n "${RR_STANDARDS_ZIP:-}" ]] && [[ -f "$RR_STANDARDS_ZIP" ]]; then
-    run "Adding rr-standards marketplace from bundled zip..."
+  if [[ -n "$RR_ZIP" ]]; then
+    run "Extracting rr-standards from bundled zip..."
     RR_DEST="$HOME/rr-standards"
     RR_TMP=/tmp/rr-standards-extract
     rm -rf "$RR_TMP" && mkdir -p "$RR_TMP"
-    unzip -q "$RR_STANDARDS_ZIP" -d "$RR_TMP"
+    unzip -q "$RR_ZIP" -d "$RR_TMP"
     rm -rf "$RR_DEST"
     cp -R "${RR_TMP}/rr-standards-main" "$RR_DEST"
     rm -rf "$RR_TMP"
     ok "rr-standards extracted to ~/rr-standards"
 
+    run "Adding rr-standards marketplace from ~/rr-standards..."
     claude plugin marketplace add "$RR_DEST" 2>&1 \
-      && ok "rr-standards marketplace added (local)" \
-      || warn "Could not add marketplace from local path"
-  else
-    run "Adding rr-standards from GitHub marketplace..."
-    claude plugin marketplace add rewards-guilds/rr-standards 2>&1 \
       && ok "rr-standards marketplace added" \
-      || warn "rr-standards may already be added"
+      || warn "Could not add rr-standards marketplace"
+
+    # Zip consumed — eject all mounted Rakuten Claude Code Setup volumes
+    while IFS= read -r vol; do
+      vol="${vol%"${vol##*[![:space:]]}"}"
+      hdiutil detach "$vol" -quiet 2>/dev/null || true
+    done < <(mount | grep -i 'Rakuten Claude Code Setup' | sed 's|.* on \(/Volumes/[^)]*\) (.*|\1|')
+  else
+    warn "rr-standards.zip not found on DMG — cannot add marketplace"
   fi
 else
   warn "claude CLI not on PATH — skipping marketplace step"
