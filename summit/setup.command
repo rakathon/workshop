@@ -327,16 +327,9 @@ run "Extracting rr-standards..."
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Locate the zip — prefer DMG volume, fall back to local assets/
+# The script lives on the DMG volume — assets/ is always next to it
 RR_ZIP=""
-PLUGIN_VOLUME=""
-while IFS= read -r vol; do
-  [[ -n "$vol" ]] && PLUGIN_VOLUME="$vol"
-done < <(mount | grep -oi '/Volumes/Rakuten Claude Code Setup[^(]*' | sed 's/ *$//' | sort -V)
-
-if [[ -n "$PLUGIN_VOLUME" ]] && [[ -f "${PLUGIN_VOLUME}/assets/rr-standards.zip" ]]; then
-  RR_ZIP="${PLUGIN_VOLUME}/assets/rr-standards.zip"
-elif [[ -f "${SCRIPT_DIR}/assets/rr-standards.zip" ]]; then
+if [[ -f "${SCRIPT_DIR}/assets/rr-standards.zip" ]]; then
   RR_ZIP="${SCRIPT_DIR}/assets/rr-standards.zip"
 fi
 
