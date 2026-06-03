@@ -1,10 +1,10 @@
 # Rakuten Claude Code Setup - Windows (Summit)
-# Authenticates via Okta PKCE, installs Claude Code CLI,
-# and writes %USERPROFILE%\.claude\settings.json.
+# Installs Git, Node.js, VS Code, Claude Code CLI via curl/direct download,
+# authenticates via Okta PKCE, writes settings.json, installs rr-standards plugins and MCPs.
 #
 # Run from PowerShell: Set-ExecutionPolicy Bypass -Scope Process -Force; .\setup.ps1
 
-$ErrorActionPreference = 'Stop'
+$ErrorActionPreference = 'Continue'
 
 $OktaIssuer  = "https://rakuten.okta.com/oauth2/ausxr4nv1gcTtBswT357"
 $ClientId    = "0oa1hk5jgg1Oz3zDm358"
@@ -15,17 +15,30 @@ $PatUrl      = "https://developer-backend.ai.public.rakuten-it.com/projects/540f
 $PollSecs    = 2
 $TimeoutSecs = 300
 $DebugPort   = 9229
+$Step        = 0
+$Total       = 10
 
 # ── helpers ────────────────────────────────────────────────────────────────────
 
-function Write-Ok($msg)   { Write-Host "  [OK]  $msg" -ForegroundColor Green }
-function Write-Run($msg)  { Write-Host "   ->   $msg" -ForegroundColor DarkGray }
-function Write-Warn($msg) { Write-Host "  [!!]  $msg" -ForegroundColor Yellow }
+function Write-Ok($msg)      { Write-Host "  [OK]  $msg" -ForegroundColor Green }
+function Write-Run($msg)     { Write-Host "   ->   $msg" -ForegroundColor DarkGray }
+function Write-Warn($msg)    { Write-Host "  [!!]  $msg" -ForegroundColor Yellow }
+function Write-Section($msg) {
+    $script:Step++
+    Write-Host ""
+    Write-Host "  [$script:Step/$Total] $msg" -ForegroundColor Cyan
+}
 function Exit-Error($msg) {
     Write-Host ""
     Write-Host "  [ERR] $msg" -ForegroundColor Red
     Write-Host ""
     exit 1
+}
+
+# Refresh PATH in current session
+function Refresh-Path {
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" +
+                [System.Environment]::GetEnvironmentVariable("Path","User")
 }
 
 # ── PKCE helpers ───────────────────────────────────────────────────────────────
@@ -67,12 +80,130 @@ Write-Host "  Rakuten Claude Code Setup  (Windows)" -ForegroundColor White
 Write-Host "  ─────────────────────────────────────────" -ForegroundColor DarkGray
 Write-Host ""
 
-# ── step 1: okta sign-in ───────────────────────────────────────────────────────
+# ── step 1: git ────────────────────────────────────────────────────────────────
+
+Write-Section "Git"
+
+if (Get-Command git -ErrorAction SilentlyContinue) {
+    $GitVer = & git --version 2>$null
+    Write-Ok "Git already installed ($GitVer)"
+} else {
+    Write-Run "Downloading Git for Windows..."
+    try {
+        $GitApi     = Invoke-RestMethod "https://api.github.com/repos/git-for-windows/git/releases/latest"
+        $GitAsset   = $GitApi.assets | Where-Object { $_.name -like "*64-bit.exe" } | Select-Object -First 1
+        $GitInstaller = "$env:TEMP\git-installer.exe"
+        Invoke-WebRequest -Uri $GitAsset.browser_download_url -OutFile $GitInstaller -UseBasicParsing
+        Write-Run "Installing Git..."
+        Start-Process -FilePath $GitInstaller -ArgumentList "/VERYSILENT /NORESTART /NOCANCEL /SP-" -Wait
+        Remove-Item $GitInstaller -ErrorAction SilentlyContinue
+        Refresh-Path
+        Write-Ok "Git installed"
+    } catch {
+        Write-Warn "Could not install Git automatically: $_"
+    }
+}
+
+# ── step 2: node.js ────────────────────────────────────────────────────────────
+
+Write-Section "Node.js"
+
+if (Get-Command node -ErrorAction SilentlyContinue) {
+    $NodeVer = & node --version 2>$null
+    Write-Ok "Node.js already installed ($NodeVer)"
+} else {
+    Write-Run "Downloading Node.js LTS..."
+    try {
+        $NodeIndex   = Invoke-RestMethod "https://nodejs.org/dist/index.json"
+        $NodeVersion = ($NodeIndex | Where-Object { $_.lts } | Select-Object -First 1).version
+        $NodeMsi     = "$env:TEMP\node-lts.msi"
+        Invoke-WebRequest -Uri "https://nodejs.org/dist/$NodeVersion/node-$NodeVersion-x64.msi" `
+            -OutFile $NodeMsi -UseBasicParsing
+        Write-Run "Installing Node.js $NodeVersion..."
+        Start-Process msiexec -ArgumentList "/i `"$NodeMsi`" /qn /norestart" -Wait
+        Remove-Item $NodeMsi -ErrorAction SilentlyContinue
+        Refresh-Path
+        Write-Ok "Node.js installed"
+    } catch {
+        Write-Warn "Could not install Node.js automatically: $_"
+    }
+}
+
+# ── step 3: claude code cli ────────────────────────────────────────────────────
+
+Write-Section "Claude Code CLI"
+
+if (Get-Command claude -ErrorAction SilentlyContinue) {
+    $ClaudeVer = & claude --version 2>$null
+    Write-Ok "Claude Code CLI already installed ($ClaudeVer)"
+} else {
+    Write-Run "Installing Claude Code CLI..."
+    try {
+        Invoke-RestMethod https://claude.ai/install.ps1 | Invoke-Expression
+        $LocalBin = "$env:USERPROFILE\.local\bin"
+        $UserPath = [System.Environment]::GetEnvironmentVariable("Path", "User")
+        if ($UserPath -notlike "*$LocalBin*") {
+            [System.Environment]::SetEnvironmentVariable("Path", "$UserPath;$LocalBin", "User")
+        }
+        Refresh-Path
+        Write-Ok "Claude Code CLI installed"
+    } catch {
+        Write-Warn "Could not install Claude Code CLI automatically. Visit https://claude.ai/install"
+    }
+}
+
+# ── step 4: visual studio code ────────────────────────────────────────────────
+
+Write-Section "Visual Studio Code"
+
+$VsCodeExe = "$env:LOCALAPPDATA\Programs\Microsoft VS Code\Code.exe"
+if ((Get-Command code -ErrorAction SilentlyContinue) -or (Test-Path $VsCodeExe)) {
+    Write-Ok "VS Code already installed"
+} else {
+    Write-Run "Downloading Visual Studio Code..."
+    try {
+        $VsCodeInstaller = "$env:TEMP\vscode-installer.exe"
+        Invoke-WebRequest -Uri "https://code.visualstudio.com/sha/download?build=stable&os=win32-x64-user" `
+            -OutFile $VsCodeInstaller -UseBasicParsing
+        Write-Run "Installing Visual Studio Code..."
+        Start-Process -FilePath $VsCodeInstaller -ArgumentList "/VERYSILENT /NORESTART /MERGETASKS=!runcode,addcontextmenufiles,addcontextmenufolders,addtopath" -Wait
+        Remove-Item $VsCodeInstaller -ErrorAction SilentlyContinue
+        Refresh-Path
+        Write-Ok "VS Code installed"
+    } catch {
+        Write-Warn "Could not install VS Code automatically: $_"
+    }
+}
+
+# ── step 5: claude code vs code extension ─────────────────────────────────────
+
+Write-Section "Claude Code VS Code extension"
+
+if (Get-Command code -ErrorAction SilentlyContinue) {
+    $Extensions = & code --list-extensions 2>$null
+    if ($Extensions -match "anthropic.claude-code") {
+        Write-Ok "Claude Code extension already installed"
+    } else {
+        Write-Run "Installing Claude Code extension..."
+        try {
+            & code --install-extension anthropic.claude-code 2>$null
+            Write-Ok "Claude Code extension installed"
+        } catch {
+            Write-Warn "Could not install extension — install manually from VS Code marketplace"
+        }
+    }
+} else {
+    Write-Warn "VS Code CLI not on PATH — skipping extension install"
+}
+
+# ── step 6: okta sign-in ───────────────────────────────────────────────────────
+
+Write-Section "Rakuten OKTA sign-in"
 
 Write-Run "Opening browser for Rakuten OKTA sign-in..."
 
-$Verifier  = New-PkceVerifier
-$Challenge = Get-PkceChallenge $Verifier
+$Verifier   = New-PkceVerifier
+$Challenge  = Get-PkceChallenge $Verifier
 $StateBytes = New-Object byte[] 16
 [System.Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($StateBytes)
 $State = ([System.BitConverter]::ToString($StateBytes) -replace '-', '').ToLower()
@@ -184,30 +315,9 @@ if ([string]::IsNullOrEmpty($Pat)) { Exit-Error "No secret_key in response." }
 
 Write-Ok "Signed in successfully"
 
-# ── step 2: install Claude Code CLI ───────────────────────────────────────────
+# ── step 7: write settings.json ───────────────────────────────────────────────
 
-Write-Run "Installing Claude Code CLI..."
-
-if (-not (Get-Command claude -ErrorAction SilentlyContinue)) {
-    try {
-        irm https://claude.ai/install.ps1 | iex
-        $LocalBin = "$env:USERPROFILE\.local\bin"
-        $UserPath = [System.Environment]::GetEnvironmentVariable("Path", "User")
-        if ($UserPath -notlike "*$LocalBin*") {
-            [System.Environment]::SetEnvironmentVariable("Path", "$UserPath;$LocalBin", "User")
-        }
-        $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" +
-                    [System.Environment]::GetEnvironmentVariable("Path", "User")
-        Write-Ok "Claude Code CLI installed"
-    } catch {
-        Write-Warn "Could not install Claude Code CLI automatically. Visit https://claude.ai/install"
-    }
-} else {
-    $ClaudeVersion = & claude --version 2>$null
-    Write-Ok "Claude Code CLI already installed ($ClaudeVersion)"
-}
-
-# ── step 3: write settings.json ───────────────────────────────────────────────
+Write-Section "Rakuten AI Gateway config"
 
 Write-Run "Writing settings.json..."
 
@@ -255,52 +365,83 @@ if (Test-Path $SettingsFile) {
 
 Write-Ok "Claude Code configured -> Rakuten AI gateway"
 
-# ── step 4: install rr-standards plugin ───────────────────────────────────────
+# ── step 8: rr-standards marketplace ─────────────────────────────────────────
 
-Write-Run "Installing rr-standards plugin..."
-
-$PluginDest  = "$env:ProgramFiles\Claude\org-plugins"
-$RrZipTmp    = Join-Path $env:TEMP "rr-standards.zip"
-$RrExtractTmp= Join-Path $env:TEMP "rr-standards-extract"
+Write-Section "rr-standards marketplace"
 
 $RrZipAsset = Join-Path $PSScriptRoot "assets\rr-standards.zip"
-$Installed  = $false
+$RrDest     = "$env:USERPROFILE\rr-standards"
+$RrTmp      = "$env:TEMP\rr-standards-extract"
 
-try {
+if (Get-Command claude -ErrorAction SilentlyContinue) {
+    Write-Run "Removing any existing rr-standards marketplace entry..."
+    try { & claude plugin marketplace remove rr-standards 2>&1 } catch {}
+
     if (Test-Path $RrZipAsset) {
-        Copy-Item $RrZipAsset $RrZipTmp -Force
-    } else {
-        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/rakathon/workshop/main/setup/assets/rr-standards.zip" `
-            -OutFile $RrZipTmp -UseBasicParsing
-    }
+        Write-Run "Extracting rr-standards from bundled zip..."
+        try {
+            if (Test-Path $RrTmp) { Remove-Item -Recurse -Force $RrTmp }
+            Expand-Archive -Path $RrZipAsset -DestinationPath $RrTmp -Force
+            if (Test-Path $RrDest) { Remove-Item -Recurse -Force $RrDest }
+            Copy-Item -Recurse "$RrTmp\rr-standards-main" $RrDest
+            Remove-Item -Recurse -Force $RrTmp -ErrorAction SilentlyContinue
+            Write-Ok "rr-standards extracted to ~/rr-standards"
 
-    if (!(Test-Path $PluginDest)) {
-        New-Item -ItemType Directory -Path $PluginDest -Force | Out-Null
-    }
-
-    if (Test-Path $RrExtractTmp) { Remove-Item -Recurse -Force $RrExtractTmp }
-    Expand-Archive -Path $RrZipTmp -DestinationPath $RrExtractTmp -Force
-
-    $ForgeSkillSrc = Join-Path $RrExtractTmp "rr-standards-main\plugins\forge-skill-creator"
-    $ForgeSrc      = Join-Path $RrExtractTmp "rr-standards-main\plugins\forge"
-
-    foreach ($src in @($ForgeSkillSrc, $ForgeSrc)) {
-        if (Test-Path $src) {
-            $dest = Join-Path $PluginDest (Split-Path $src -Leaf)
-            if (Test-Path $dest) { Remove-Item -Recurse -Force $dest }
-            Copy-Item -Recurse $src $dest
+            Write-Run "Adding rr-standards marketplace from ~/rr-standards..."
+            $Out = & claude plugin marketplace add $RrDest 2>&1
+            Write-Host $Out
+            Write-Ok "rr-standards marketplace added"
+        } catch {
+            Write-Warn "Could not add rr-standards marketplace: $_"
         }
+    } else {
+        Write-Warn "rr-standards.zip not found — cannot add marketplace"
     }
-
-    $Installed = $true
-} catch {
-    Write-Warn "Could not install rr-standards plugin: $_"
-} finally {
-    Remove-Item $RrZipTmp -ErrorAction SilentlyContinue
-    if (Test-Path $RrExtractTmp) { Remove-Item -Recurse -Force $RrExtractTmp -ErrorAction SilentlyContinue }
+} else {
+    Write-Warn "claude CLI not on PATH — skipping marketplace step"
 }
 
-if ($Installed) { Write-Ok "rr-standards plugin installed" }
+# ── step 9: install forge plugins ─────────────────────────────────────────────
+
+Write-Section "Installing forge plugins"
+
+if (Get-Command claude -ErrorAction SilentlyContinue) {
+    foreach ($plugin in @("forge", "forge-product-management", "forge-skill-creator")) {
+        Write-Run "Removing any existing $plugin..."
+        try { & claude plugin remove $plugin 2>&1 } catch {}
+
+        Write-Run "Installing $plugin..."
+        $Out  = & claude plugin install "${plugin}@rr-standards" 2>&1
+        Write-Host $Out
+        if ($LASTEXITCODE -eq 0) {
+            Write-Ok "$plugin installed"
+        } else {
+            Write-Warn "Could not install $plugin"
+        }
+    }
+} else {
+    Write-Warn "claude CLI not on PATH — skipping plugin install"
+}
+
+# ── step 10: mcp integrations ─────────────────────────────────────────────────
+
+Write-Section "MCP integrations"
+
+if (Get-Command claude -ErrorAction SilentlyContinue) {
+    Write-Run "Adding Monday.com MCP..."
+    try { & claude mcp add --transport sse mondaycom https://mcp.monday.com/sse --scope user 2>&1; Write-Ok "Monday.com MCP added" } catch { Write-Warn "Monday.com MCP may already be configured" }
+
+    Write-Run "Adding Playwright MCP..."
+    try { & claude mcp add playwright -- npx @executeautomation/playwright-mcp-server 2>&1; Write-Ok "Playwright MCP added" } catch { Write-Warn "Playwright MCP may already be configured" }
+
+    Write-Run "Adding BrowserStack MCP..."
+    try { & claude mcp add --transport http browserstack-remote https://mcp.browserstack.com/mcp 2>&1; Write-Ok "BrowserStack MCP added" } catch { Write-Warn "BrowserStack MCP may already be configured" }
+
+    Write-Run "Adding Figma MCP..."
+    try { & claude mcp add --transport http --scope user figma https://mcp.figma.com/mcp 2>&1; Write-Ok "Figma MCP added" } catch { Write-Warn "Figma MCP may already be configured" }
+} else {
+    Write-Warn "claude CLI not on PATH — skipping MCP integrations"
+}
 
 # ── done ──────────────────────────────────────────────────────────────────────
 
