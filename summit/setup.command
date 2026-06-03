@@ -26,7 +26,7 @@ WHITE='\033[1;37m'
 RESET='\033[0m'
 
 step=0
-total=9
+total=10
 
 ok()      { printf "  ${GREEN}✓${RESET}  ${WHITE}${1}${RESET}\n"; }
 run()     { printf "  ${CYAN}→${RESET}  ${DIM}${1}${RESET}\n"; }
@@ -380,6 +380,30 @@ if command -v claude &>/dev/null; then
   done
 else
   warn "claude CLI not on PATH — skipping plugin install"
+fi
+
+# ── step 10: mcp integrations ────────────────────────────────────────────────
+
+section "MCP integrations"
+
+if command -v claude &>/dev/null; then
+  run "Adding Monday.com MCP..."
+  claude mcp add --transport sse mondaycom https://mcp.monday.com/sse --scope user 2>&1 \
+    && ok "Monday.com MCP added" || warn "Monday.com MCP may already be configured"
+
+  run "Adding Playwright MCP..."
+  claude mcp add playwright -- npx @executeautomation/playwright-mcp-server 2>&1 \
+    && ok "Playwright MCP added" || warn "Playwright MCP may already be configured"
+
+  run "Adding BrowserStack MCP..."
+  claude mcp add --transport http browserstack-remote https://mcp.browserstack.com/mcp 2>&1 \
+    && ok "BrowserStack MCP added" || warn "BrowserStack MCP may already be configured"
+
+  run "Adding Figma MCP..."
+  claude mcp add --transport http --scope user figma https://mcp.figma.com/mcp 2>&1 \
+    && ok "Figma MCP added" || warn "Figma MCP may already be configured"
+else
+  warn "claude CLI not on PATH — skipping MCP integrations"
 fi
 
 # ── done ──────────────────────────────────────────────────────────────────────
