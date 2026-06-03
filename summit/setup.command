@@ -319,61 +319,12 @@ fi
 
 ok "Claude Code configured → Rakuten AI gateway"
 
-# ── step 8: install rr-standards plugins ──────────────────────────────────────
-
-section "rr-standards plugins"
-
-run "Extracting rr-standards..."
-
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-# Eject any stale "Rakuten Claude Code Setup" volumes that aren't the one we're running from
+# Eject stale volumes now that we no longer need the DMG assets
 while IFS= read -r vol; do
-  [[ "$vol" == "$SCRIPT_DIR" ]] && continue
   hdiutil detach "$vol" -quiet 2>/dev/null || true
 done < <(mount | grep -i 'Rakuten Claude Code Setup' | sed 's|.* on \(/Volumes/[^(]*\) (.*|\1|' | sed 's/ *$//')
 
-# The script lives on the DMG volume — assets/ is always next to it
-RR_ZIP=""
-if [[ -f "${SCRIPT_DIR}/assets/rr-standards.zip" ]]; then
-  RR_ZIP="${SCRIPT_DIR}/assets/rr-standards.zip"
-fi
-
-if [[ -z "$RR_ZIP" ]]; then
-  warn "rr-standards.zip not found — skipping plugin install"
-else
-  RR_DEST="$HOME/rr-standards"
-  RR_TMP=/tmp/rr-standards-extract
-  rm -rf "$RR_TMP" && mkdir -p "$RR_TMP"
-  unzip -q "$RR_ZIP" -d "$RR_TMP"
-
-  # rr-standards-main is the top-level folder in the zip
-  SRC="${RR_TMP}/rr-standards-main"
-
-  rm -rf "$RR_DEST"
-  cp -R "$SRC" "$RR_DEST"
-  rm -rf "$RR_TMP"
-
-  ok "rr-standards extracted to ~/rr-standards"
-
-  if command -v claude &>/dev/null; then
-    for plugin in forge forge-skill-creator forge-product-management; do
-      PLUGIN_PATH="$RR_DEST/plugins/${plugin}"
-      if [[ -d "$PLUGIN_PATH" ]]; then
-        run "Installing ${plugin}..."
-        claude plugin install "$PLUGIN_PATH" --force 2>&1 \
-          && ok "${plugin} installed" \
-          || warn "Could not install ${plugin}"
-      else
-        warn "Plugin directory not found: ${PLUGIN_PATH}"
-      fi
-    done
-  else
-    warn "claude CLI not on PATH — skipping plugin install (run after restarting Terminal)"
-  fi
-fi
-
-# ── step 9: marketplace ────────────────────────────────────────────────────────
+# ── step 8: rr-standards marketplace ─────────────────────────────────────────
 
 section "rr-standards marketplace"
 
@@ -381,12 +332,44 @@ if command -v claude &>/dev/null; then
   run "Removing any existing rr-standards marketplace entry..."
   claude plugin marketplace remove rr-standards 2>&1 || true
 
-  run "Adding rr-standards from marketplace..."
-  claude plugin marketplace add rewards-guilds/rr-standards 2>&1 \
-    && ok "rr-standards marketplace added" \
-    || warn "rr-standards may already be added"
+  # RR_STANDARDS_ZIP is set by the launcher to the assets/ dir on the DMG volume
+  if [[ -n "${RR_STANDARDS_ZIP:-}" ]] && [[ -f "$RR_STANDARDS_ZIP" ]]; then
+    run "Adding rr-standards marketplace from bundled zip..."
+    RR_DEST="$HOME/rr-standards"
+    RR_TMP=/tmp/rr-standards-extract
+    rm -rf "$RR_TMP" && mkdir -p "$RR_TMP"
+    unzip -q "$RR_STANDARDS_ZIP" -d "$RR_TMP"
+    rm -rf "$RR_DEST"
+    cp -R "${RR_TMP}/rr-standards-main" "$RR_DEST"
+    rm -rf "$RR_TMP"
+    ok "rr-standards extracted to ~/rr-standards"
+
+    claude plugin marketplace add "$RR_DEST" 2>&1 \
+      && ok "rr-standards marketplace added (local)" \
+      || warn "Could not add marketplace from local path"
+  else
+    run "Adding rr-standards from GitHub marketplace..."
+    claude plugin marketplace add rewards-guilds/rr-standards 2>&1 \
+      && ok "rr-standards marketplace added" \
+      || warn "rr-standards may already be added"
+  fi
 else
   warn "claude CLI not on PATH — skipping marketplace step"
+fi
+
+# ── step 9: install plugins ───────────────────────────────────────────────────
+
+section "Installing forge plugins"
+
+if command -v claude &>/dev/null; then
+  for plugin in forge forge-product-management forge-skill-creator; do
+    run "Installing ${plugin}..."
+    claude plugin install "${plugin}@rr-standards" 2>&1 \
+      && ok "${plugin} installed" \
+      || warn "Could not install ${plugin}"
+  done
+else
+  warn "claude CLI not on PATH — skipping plugin install"
 fi
 
 # ── done ──────────────────────────────────────────────────────────────────────
