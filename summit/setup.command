@@ -108,6 +108,12 @@ section "Visual Studio Code"
 
 if command -v code &>/dev/null || [[ -d "/Applications/Visual Studio Code.app" ]]; then
   ok "VS Code already installed"
+  # Ensure code CLI is on PATH even if VS Code was pre-installed
+  if ! command -v code &>/dev/null; then
+    sudo ln -sf "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" \
+      /usr/local/bin/code 2>/dev/null || true
+    export PATH="/usr/local/bin:$PATH"
+  fi
 else
   run "Downloading Visual Studio Code..."
   VSCODE_ZIP=/tmp/VSCode-darwin.zip
