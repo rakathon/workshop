@@ -16,7 +16,7 @@ $PollSecs    = 2
 $TimeoutSecs = 300
 $DebugPort   = 9229
 $Step        = 0
-$Total       = 10
+$Total       = 11
 
 # ── helpers ────────────────────────────────────────────────────────────────────
 
@@ -60,6 +60,28 @@ function ConvertTo-UrlEncoded($str) { return [Uri]::EscapeDataString($str) }
 
 $amp = [char]38
 
+function Install-RestaurantBooking {
+    $ZipAsset = Join-Path $PSScriptRoot "assets\restaurant-booking.zip"
+    if (-not (Test-Path $ZipAsset)) {
+        Write-Warn "restaurant-booking.zip not found — skipping"
+        return
+    }
+    Write-Run "Extracting restaurant-booking to ~/restaurant-booking..."
+    $Dest = "$env:USERPROFILE\restaurant-booking"
+    $Tmp  = "$env:TEMP\restaurant-booking-extract"
+    if (Test-Path $Tmp)  { Remove-Item -Recurse -Force $Tmp }
+    if (Test-Path $Dest) { Remove-Item -Recurse -Force $Dest }
+    Expand-Archive -Path $ZipAsset -DestinationPath $Tmp -Force
+    # normalise top-level folder name
+    $Inner = Get-ChildItem $Tmp | Select-Object -First 1
+    if ($Inner -and $Inner.Name -ne "restaurant-booking") {
+        Rename-Item $Inner.FullName "restaurant-booking"
+    }
+    Move-Item "$Tmp\restaurant-booking" $Dest
+    Remove-Item -Recurse -Force $Tmp -ErrorAction SilentlyContinue
+    Write-Ok "restaurant-booking ready at ~/restaurant-booking"
+}
+
 function Find-ChromiumExe {
     $candidates = @(
         "$env:ProgramFiles\Microsoft\Edge\Application\msedge.exe",
@@ -79,6 +101,23 @@ Write-Host ""
 Write-Host "  Rakuten Claude Code Setup  (Windows)" -ForegroundColor White
 Write-Host "  ─────────────────────────────────────────" -ForegroundColor DarkGray
 Write-Host ""
+
+# ── already installed? ────────────────────────────────────────────────────────
+
+Write-Host "  Did you install this setup before? " -NoNewline -ForegroundColor White
+Write-Host "(yes / no) " -NoNewline -ForegroundColor DarkGray
+$PrevInstall = Read-Host
+
+if ($PrevInstall -match '^y(es)?$') {
+    Write-Host ""
+    Write-Ok "Re-run detected — refreshing project files only"
+    Install-RestaurantBooking
+    Write-Host ""
+    Write-Host "  ─────────────────────────────────────────" -ForegroundColor DarkGray
+    Write-Ok "Done — restaurant-booking updated at ~/restaurant-booking"
+    Write-Host ""
+    exit 0
+}
 
 # ── step 1: git ────────────────────────────────────────────────────────────────
 
@@ -442,6 +481,11 @@ if (Get-Command claude -ErrorAction SilentlyContinue) {
 } else {
     Write-Warn "claude CLI not on PATH — skipping MCP integrations"
 }
+
+# ── step 11: restaurant-booking project ──────────────────────────────────────
+
+Write-Section "restaurant-booking project"
+Install-RestaurantBooking
 
 # ── done ──────────────────────────────────────────────────────────────────────
 

@@ -26,7 +26,35 @@ WHITE='\033[1;37m'
 RESET='\033[0m'
 
 step=0
-total=10
+total=11
+
+# helper — unzip restaurant-booking from the DMG into $HOME
+install_restaurant_booking() {
+  local zip=""
+  while IFS= read -r vol; do
+    vol="${vol%"${vol##*[![:space:]]}"}"
+    if [[ -f "${vol}/assets/restaurant-booking.zip" ]]; then
+      zip="${vol}/assets/restaurant-booking.zip"
+      break
+    fi
+  done < <(mount | grep -i 'Rakuten Claude Code Setup' | sed 's|.* on \(/Volumes/[^)]*\) (.*|\1|')
+
+  if [[ -z "$zip" ]]; then
+    warn "restaurant-booking.zip not found on DMG — skipping"
+    return
+  fi
+
+  run "Extracting restaurant-booking to ~/restaurant-booking..."
+  rm -rf "$HOME/restaurant-booking"
+  unzip -q "$zip" -d "$HOME"
+  # zip may contain a top-level folder with a different name — normalise it
+  local extracted
+  extracted=$(unzip -Z1 "$zip" | head -1 | cut -d/ -f1)
+  if [[ -n "$extracted" && "$extracted" != "restaurant-booking" && -d "$HOME/$extracted" ]]; then
+    mv "$HOME/$extracted" "$HOME/restaurant-booking"
+  fi
+  ok "restaurant-booking ready at ~/restaurant-booking"
+}
 
 ok()      { printf "  ${GREEN}✓${RESET}  ${WHITE}${1}${RESET}\n"; }
 run()     { printf "  ${CYAN}→${RESET}  ${DIM}${1}${RESET}\n"; }
@@ -47,6 +75,22 @@ clear
 printf "\n"
 printf "  ${BOLD}${WHITE}Rakuten Claude Code Setup${RESET}  ${DIM}(macOS)${RESET}\n"
 printf "  ${DIM}─────────────────────────────────────────${RESET}\n\n"
+
+# ── already installed? ────────────────────────────────────────────────────────
+
+printf "  ${BOLD}Did you install this setup before?${RESET}  ${DIM}(yes / no)${RESET} "
+read -r PREV_INSTALL
+
+if [[ "${PREV_INSTALL,,}" == "yes" || "${PREV_INSTALL,,}" == "y" ]]; then
+  printf "\n"
+  ok "Re-run detected — refreshing project files only"
+  install_restaurant_booking
+  printf "\n"
+  printf "  ${DIM}─────────────────────────────────────────${RESET}\n"
+  ok "Done — restaurant-booking updated at ~/restaurant-booking"
+  printf "\n"
+  exit 0
+fi
 
 # ── step 1: git ────────────────────────────────────────────────────────────────
 
@@ -413,6 +457,12 @@ if command -v claude &>/dev/null; then
 else
   warn "claude CLI not on PATH — skipping MCP integrations"
 fi
+
+# ── step 11: restaurant-booking project ──────────────────────────────────────
+
+section "restaurant-booking project"
+
+install_restaurant_booking
 
 # ── done ──────────────────────────────────────────────────────────────────────
 
