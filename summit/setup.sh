@@ -155,9 +155,9 @@ if command -v node &>/dev/null; then
 else
   run "Downloading Node.js LTS..."
   NODE_PKG=/tmp/node-lts.pkg
-  # Get latest LTS version number
-  NODE_VERSION=$(curl -fsSL https://nodejs.org/dist/index.json \
-    | python3 -c "import json,sys; lts=[r for r in json.load(sys.stdin) if r['lts']]; print(lts[0]['version'])")
+  # Get latest LTS version from tab-separated index (no python needed)
+  NODE_VERSION=$(curl -fsSL https://nodejs.org/dist/index.tab 2>/dev/null \
+    | awk -F'\t' 'NR>1 && $10!="false" {print $1; exit}')
   curl -fsSL "https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}.pkg" -o "$NODE_PKG"
   run "Installing Node.js ${NODE_VERSION}..."
   sudo installer -pkg "$NODE_PKG" -target / > /dev/null
