@@ -28,7 +28,9 @@ RESET='\033[0m'
 step=0
 total=11
 
-# helper — unzip restaurant-booking from the DMG into $HOME
+DESKTOP="$HOME/Desktop"
+
+# helper — unzip restaurant-booking from the DMG onto Desktop
 install_restaurant_booking() {
   local zip=""
   while IFS= read -r vol; do
@@ -44,16 +46,22 @@ install_restaurant_booking() {
     return
   fi
 
-  run "Extracting restaurant-booking to ~/restaurant-booking..."
-  rm -rf "$HOME/restaurant-booking"
-  unzip -q "$zip" -d "$HOME"
-  # zip may contain a top-level folder with a different name — normalise it
+  run "Extracting restaurant-booking to Desktop..."
+  rm -rf "${DESKTOP}/restaurant-booking"
+  local tmp=/tmp/restaurant-booking-extract
+  rm -rf "$tmp" && mkdir -p "$tmp"
+  unzip -q "$zip" -d "$tmp"
   local extracted
   extracted=$(unzip -Z1 "$zip" | head -1 | cut -d/ -f1)
-  if [[ -n "$extracted" && "$extracted" != "restaurant-booking" && -d "$HOME/$extracted" ]]; then
-    mv "$HOME/$extracted" "$HOME/restaurant-booking"
-  fi
-  ok "restaurant-booking ready at ~/restaurant-booking"
+  mv "${tmp}/${extracted}" "${DESKTOP}/restaurant-booking"
+  rm -rf "$tmp"
+  ok "restaurant-booking ready at ~/Desktop/restaurant-booking"
+}
+
+# helper — create playground dir on Desktop
+make_playground() {
+  mkdir -p "${DESKTOP}/playground"
+  ok "playground directory ready at ~/Desktop/playground"
 }
 
 ok()      { printf "  ${GREEN}✓${RESET}  ${WHITE}${1}${RESET}\n"; }
@@ -95,9 +103,10 @@ if [[ "$PREV_INSTALL" == "Yes — Update Project" ]]; then
   printf "\n"
   ok "Re-run detected — refreshing project files only"
   install_restaurant_booking
+  make_playground
   printf "\n"
   printf "  ${DIM}─────────────────────────────────────────${RESET}\n"
-  ok "Done — restaurant-booking updated at ~/restaurant-booking"
+  ok "Done"
   printf "\n"
   exit 0
 fi
@@ -398,17 +407,17 @@ if command -v claude &>/dev/null; then
   claude plugin marketplace remove rr-standards 2>&1 || true
 
   if [[ -n "$RR_ZIP" ]]; then
-    run "Extracting rr-standards from bundled zip..."
-    RR_DEST="$HOME/rr-standards"
+    run "Extracting rr-standards to Desktop..."
+    RR_DEST="${DESKTOP}/rr-standards"
     RR_TMP=/tmp/rr-standards-extract
     rm -rf "$RR_TMP" && mkdir -p "$RR_TMP"
     unzip -q "$RR_ZIP" -d "$RR_TMP"
     rm -rf "$RR_DEST"
     cp -R "${RR_TMP}/rr-standards-main" "$RR_DEST"
     rm -rf "$RR_TMP"
-    ok "rr-standards extracted to ~/rr-standards"
+    ok "rr-standards extracted to ~/Desktop/rr-standards"
 
-    run "Adding rr-standards marketplace from ~/rr-standards..."
+    run "Adding rr-standards marketplace from ~/Desktop/rr-standards..."
     claude plugin marketplace add "$RR_DEST" 2>&1 \
       && ok "rr-standards marketplace added" \
       || warn "Could not add rr-standards marketplace"
@@ -473,6 +482,7 @@ fi
 section "restaurant-booking project"
 
 install_restaurant_booking
+make_playground
 
 # ── done ──────────────────────────────────────────────────────────────────────
 

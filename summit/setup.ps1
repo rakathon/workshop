@@ -60,26 +60,33 @@ function ConvertTo-UrlEncoded($str) { return [Uri]::EscapeDataString($str) }
 
 $amp = [char]38
 
+$Desktop = "$env:USERPROFILE\Desktop"
+
 function Install-RestaurantBooking {
     $ZipAsset = Join-Path $PSScriptRoot "assets\restaurant-booking.zip"
     if (-not (Test-Path $ZipAsset)) {
         Write-Warn "restaurant-booking.zip not found — skipping"
         return
     }
-    Write-Run "Extracting restaurant-booking to ~/restaurant-booking..."
-    $Dest = "$env:USERPROFILE\restaurant-booking"
+    Write-Run "Extracting restaurant-booking to Desktop..."
+    $Dest = "$Desktop\restaurant-booking"
     $Tmp  = "$env:TEMP\restaurant-booking-extract"
     if (Test-Path $Tmp)  { Remove-Item -Recurse -Force $Tmp }
     if (Test-Path $Dest) { Remove-Item -Recurse -Force $Dest }
     Expand-Archive -Path $ZipAsset -DestinationPath $Tmp -Force
-    # normalise top-level folder name
     $Inner = Get-ChildItem $Tmp | Select-Object -First 1
     if ($Inner -and $Inner.Name -ne "restaurant-booking") {
         Rename-Item $Inner.FullName "restaurant-booking"
     }
     Move-Item "$Tmp\restaurant-booking" $Dest
     Remove-Item -Recurse -Force $Tmp -ErrorAction SilentlyContinue
-    Write-Ok "restaurant-booking ready at ~/restaurant-booking"
+    Write-Ok "restaurant-booking ready at Desktop\restaurant-booking"
+}
+
+function Make-Playground {
+    $PlaygroundPath = "$Desktop\playground"
+    New-Item -ItemType Directory -Path $PlaygroundPath -Force | Out-Null
+    Write-Ok "playground directory ready at Desktop\playground"
 }
 
 function Find-ChromiumExe {
@@ -116,9 +123,10 @@ if ($DialogResult -eq [System.Windows.Forms.DialogResult]::Yes) {
     Write-Host ""
     Write-Ok "Re-run detected — refreshing project files only"
     Install-RestaurantBooking
+    Make-Playground
     Write-Host ""
     Write-Host "  ─────────────────────────────────────────" -ForegroundColor DarkGray
-    Write-Ok "Done — restaurant-booking updated at ~/restaurant-booking"
+    Write-Ok "Done"
     Write-Host ""
     exit 0
 }
@@ -413,7 +421,7 @@ Write-Ok "Claude Code configured -> Rakuten AI gateway"
 Write-Section "rr-standards marketplace"
 
 $RrZipAsset = Join-Path $PSScriptRoot "assets\rr-standards.zip"
-$RrDest     = "$env:USERPROFILE\rr-standards"
+$RrDest     = "$Desktop\rr-standards"
 $RrTmp      = "$env:TEMP\rr-standards-extract"
 
 if (Get-Command claude -ErrorAction SilentlyContinue) {
@@ -428,9 +436,9 @@ if (Get-Command claude -ErrorAction SilentlyContinue) {
             if (Test-Path $RrDest) { Remove-Item -Recurse -Force $RrDest }
             Copy-Item -Recurse "$RrTmp\rr-standards-main" $RrDest
             Remove-Item -Recurse -Force $RrTmp -ErrorAction SilentlyContinue
-            Write-Ok "rr-standards extracted to ~/rr-standards"
+            Write-Ok "rr-standards extracted to Desktop\rr-standards"
 
-            Write-Run "Adding rr-standards marketplace from ~/rr-standards..."
+            Write-Run "Adding rr-standards marketplace from Desktop\rr-standards..."
             $Out = & claude plugin marketplace add $RrDest 2>&1
             Write-Host $Out
             Write-Ok "rr-standards marketplace added"
@@ -490,6 +498,7 @@ if (Get-Command claude -ErrorAction SilentlyContinue) {
 
 Write-Section "restaurant-booking project"
 Install-RestaurantBooking
+Make-Playground
 
 # ── done ──────────────────────────────────────────────────────────────────────
 
