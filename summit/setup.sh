@@ -211,17 +211,25 @@ else
   run "Installing Visual Studio Code..."
   VSCODE_MOUNT=$(hdiutil attach "$VSCODE_DMG" -nobrowse -quiet | grep '/Volumes/' | sed 's|.*\(/Volumes/.*\)|\1|') || true
   if [[ -d "${VSCODE_MOUNT}/Visual Studio Code.app" ]]; then
-    mkdir -p "$HOME/Applications"
-    cp -R "${VSCODE_MOUNT}/Visual Studio Code.app" "$HOME/Applications/" 2>/dev/null || true
+    ADMIN_PASS=$(osascript -e 'display dialog "Enter your Mac password to install Visual Studio Code to /Applications:" with title "Install Visual Studio Code" default answer "" with hidden answer giving up after 120' -e 'text returned of result' 2>/dev/null) || true
+    if [[ -n "$ADMIN_PASS" ]]; then
+      echo "$ADMIN_PASS" | sudo -S cp -R "${VSCODE_MOUNT}/Visual Studio Code.app" /Applications/ 2>/dev/null || true
+    fi
+    # fallback to ~/Applications if /Applications install failed
+    if [[ ! -d "/Applications/Visual Studio Code.app" ]]; then
+      mkdir -p "$HOME/Applications"
+      cp -R "${VSCODE_MOUNT}/Visual Studio Code.app" "$HOME/Applications/" 2>/dev/null || true
+    fi
   else
     warn "VS Code app not found in DMG — skipping"
   fi
   hdiutil detach "$VSCODE_MOUNT" -quiet 2>/dev/null || true
   rm -f "$VSCODE_DMG"
-  # Symlink code CLI from user Applications
+  # Symlink code CLI
+  VSCODE_APP="/Applications/Visual Studio Code.app"
+  [[ ! -d "$VSCODE_APP" ]] && VSCODE_APP="$HOME/Applications/Visual Studio Code.app"
   mkdir -p "$HOME/.local/bin"
-  ln -sf "$HOME/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" \
-    "$HOME/.local/bin/code" 2>/dev/null || true
+  ln -sf "${VSCODE_APP}/Contents/Resources/app/bin/code" "$HOME/.local/bin/code" 2>/dev/null || true
   export PATH="$HOME/.local/bin:$PATH"
   ok "VS Code installed"
 fi
