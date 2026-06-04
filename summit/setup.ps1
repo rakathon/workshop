@@ -81,6 +81,14 @@ function Install-RestaurantBooking {
     Move-Item "$Tmp\restaurant-booking" $Dest
     Remove-Item -Recurse -Force $Tmp -ErrorAction SilentlyContinue
     Write-Ok "restaurant-booking ready at Desktop\restaurant-booking"
+
+    $Landscape = "$Desktop\restaurant-booking\.forge\products\restaurant-booking\competitive\initial-landscape.md"
+    if (Test-Path $Landscape) {
+        Copy-Item $Landscape "$Desktop\initial-landscape.md" -Force
+        Write-Ok "initial-landscape.md copied to Desktop"
+    } else {
+        Write-Warn "initial-landscape.md not found in restaurant-booking"
+    }
 }
 
 function Make-Playground {

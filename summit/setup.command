@@ -56,6 +56,14 @@ install_restaurant_booking() {
   mv "${tmp}/${extracted}" "${DESKTOP}/restaurant-booking"
   rm -rf "$tmp"
   ok "restaurant-booking ready at ~/Desktop/restaurant-booking"
+
+  local landscape="${DESKTOP}/restaurant-booking/.forge/products/restaurant-booking/competitive/initial-landscape.md"
+  if [[ -f "$landscape" ]]; then
+    cp "$landscape" "${DESKTOP}/initial-landscape.md"
+    ok "initial-landscape.md copied to Desktop"
+  else
+    warn "initial-landscape.md not found in restaurant-booking"
+  fi
 }
 
 # helper — create playground dir on Desktop
