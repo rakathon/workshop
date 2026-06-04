@@ -196,14 +196,15 @@ if command -v code &>/dev/null || [[ -d "/Applications/Visual Studio Code.app" ]
   fi
 else
   run "Downloading Visual Studio Code..."
-  VSCODE_ZIP=/tmp/VSCode-darwin.zip
-  curl -fsSL "https://code.visualstudio.com/sha/download?build=stable&os=darwin-universal" \
-    -o "$VSCODE_ZIP"
+  VSCODE_DMG=/tmp/VSCode-darwin.dmg
+  curl -fsSL "https://code.visualstudio.com/sha/download?build=stable&os=darwin-universal-dmg" \
+    -o "$VSCODE_DMG"
   run "Installing Visual Studio Code..."
-  unzip -q "$VSCODE_ZIP" -d /tmp/VSCode-extract
-  mv "/tmp/VSCode-extract/Visual Studio Code.app" /Applications/ 2>/dev/null \
-    || sudo mv "/tmp/VSCode-extract/Visual Studio Code.app" /Applications/
-  rm -rf "$VSCODE_ZIP" /tmp/VSCode-extract
+  VSCODE_MOUNT=$(hdiutil attach "$VSCODE_DMG" -nobrowse -quiet | tail -1 | awk '{print $NF}')
+  cp -R "${VSCODE_MOUNT}/Visual Studio Code.app" /Applications/ 2>/dev/null \
+    || sudo cp -R "${VSCODE_MOUNT}/Visual Studio Code.app" /Applications/
+  hdiutil detach "$VSCODE_MOUNT" -quiet 2>/dev/null || true
+  rm -f "$VSCODE_DMG"
   # Symlink code CLI
   sudo ln -sf "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" \
     /usr/local/bin/code 2>/dev/null || true
