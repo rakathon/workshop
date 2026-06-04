@@ -78,10 +78,20 @@ printf "  ${DIM}─────────────────────�
 
 # ── already installed? ────────────────────────────────────────────────────────
 
-printf "  ${BOLD}Did you install this setup before?${RESET}  ${DIM}(yes / no)${RESET} "
-read -r PREV_INSTALL
+PREV_INSTALL=$(osascript <<'APPLES'
+tell application "System Events"
+  activate
+  set result to button returned of (display dialog "Did you install this setup before?" ¬
+    buttons {"No — Fresh Install", "Yes — Update Project"} ¬
+    default button "No — Fresh Install" ¬
+    with title "Rakuten Claude Code Setup" ¬
+    with icon note)
+  return result
+end tell
+APPLES
+)
 
-if [[ "${PREV_INSTALL,,}" == "yes" || "${PREV_INSTALL,,}" == "y" ]]; then
+if [[ "$PREV_INSTALL" == "Yes — Update Project" ]]; then
   printf "\n"
   ok "Re-run detected — refreshing project files only"
   install_restaurant_booking
