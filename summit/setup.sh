@@ -36,7 +36,11 @@ if [[ ! -f "$HOME/certs/rak-ca-bundle.pem" ]]; then
   run "Rakuten CA cert not found — downloading..." 2>/dev/null || true
   printf "  \033[2m→\033[0m  \033[2mRakuten CA cert not found — downloading...\033[0m\n"
   (
-    wget -q "http://pki.rakuten-it.com/pki/RootCA.zip" -O "$HOME/certs/RootCA.zip" 2>&1 \
+    if command -v wget &>/dev/null; then
+      wget -q "http://pki.rakuten-it.com/pki/RootCA.zip" -O "$HOME/certs/RootCA.zip" 2>&1
+    else
+      curl -fsSL "http://pki.rakuten-it.com/pki/RootCA.zip" -o "$HOME/certs/RootCA.zip" 2>&1
+    fi \
       && unzip -q -o "$HOME/certs/RootCA.zip" -d "$HOME/certs/" 2>&1 \
       && printf "  \033[0;32m✓\033[0m  \033[1;37mRakuten CA cert downloaded to ~/certs\033[0m\n" \
       || printf "  \033[0;33m⚠\033[0m  \033[0;33mCould not download Rakuten CA cert — continuing without it\033[0m\n"
