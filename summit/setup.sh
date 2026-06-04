@@ -455,7 +455,6 @@ if command -v claude &>/dev/null; then
     unzip -q -o "$RR_ZIP" -d "$RR_TMP" || true
     rm -rf "$RR_DEST"
     # move whatever top-level folder was extracted
-    local rr_top
     rr_top=$(ls "$RR_TMP" | grep -v __MACOSX | head -1) || true
     if [[ -n "$rr_top" ]]; then
       mv "${RR_TMP}/${rr_top}" "$RR_DEST"
