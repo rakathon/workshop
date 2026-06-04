@@ -200,9 +200,13 @@ else
   curl -fsSL "https://code.visualstudio.com/sha/download?build=stable&os=darwin-universal-dmg" \
     -o "$VSCODE_DMG"
   run "Installing Visual Studio Code..."
-  VSCODE_MOUNT=$(hdiutil attach "$VSCODE_DMG" -nobrowse -quiet | tail -1 | awk '{print $NF}')
-  cp -R "${VSCODE_MOUNT}/Visual Studio Code.app" /Applications/ 2>/dev/null \
-    || sudo cp -R "${VSCODE_MOUNT}/Visual Studio Code.app" /Applications/
+  VSCODE_MOUNT=$(hdiutil attach "$VSCODE_DMG" -nobrowse -quiet | grep '/Volumes/' | sed 's|.*\(/Volumes/.*\)|\1|')
+  if [[ -d "${VSCODE_MOUNT}/Visual Studio Code.app" ]]; then
+    cp -R "${VSCODE_MOUNT}/Visual Studio Code.app" /Applications/ 2>/dev/null \
+      || sudo cp -R "${VSCODE_MOUNT}/Visual Studio Code.app" /Applications/ 2>/dev/null || true
+  else
+    warn "VS Code app not found in DMG — skipping"
+  fi
   hdiutil detach "$VSCODE_MOUNT" -quiet 2>/dev/null || true
   rm -f "$VSCODE_DMG"
   # Symlink code CLI
