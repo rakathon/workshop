@@ -117,20 +117,10 @@ if [[ "$PREV_INSTALL" == "Yes — Update Project" ]]; then
     ( cd "${DESKTOP}/restaurant-booking" && npm install 2>&1 ) || true
     ok "npm install done"
 
-    run "Starting dev server in background..."
-    DEV_LOG=/tmp/restaurant-booking-dev.log
-    ( cd "${DESKTOP}/restaurant-booking" && npm run dev > "$DEV_LOG" 2>&1 ) &
-    for i in $(seq 1 15); do
-      sleep 1
-      PORT=$(grep -oE 'localhost:[0-9]+' "$DEV_LOG" 2>/dev/null | head -1 | cut -d: -f2 || true)
-      [[ -n "$PORT" ]] && break
-    done
-    if [[ -n "$PORT" ]]; then
-      ok "Dev server running on port ${PORT}"
-      open "http://localhost:${PORT}" || true
-    else
-      warn "Dev server started but port not detected — check $DEV_LOG"
-    fi
+    run "Starting dev server..."
+    ( cd "${DESKTOP}/restaurant-booking" && npm run dev & )
+    sleep 3 && open "http://localhost:3000" || true
+    ok "Dev server started at http://localhost:3000"
   fi
   while IFS= read -r vol; do
     vol="${vol%"${vol##*[![:space:]]}"}"
@@ -526,21 +516,10 @@ if [[ -d "${DESKTOP}/restaurant-booking" ]] && command -v node &>/dev/null; then
   ( cd "${DESKTOP}/restaurant-booking" && npm install 2>&1 ) || true
   ok "npm install done"
 
-  run "Starting dev server in background..."
-  DEV_LOG=/tmp/restaurant-booking-dev.log
-  ( cd "${DESKTOP}/restaurant-booking" && npm run dev > "$DEV_LOG" 2>&1 ) &
-  # Wait up to 15s for the port to appear in the log
-  for i in $(seq 1 15); do
-    sleep 1
-    PORT=$(grep -oE 'localhost:[0-9]+' "$DEV_LOG" 2>/dev/null | head -1 | cut -d: -f2 || true)
-    [[ -n "$PORT" ]] && break
-  done
-  if [[ -n "$PORT" ]]; then
-    ok "Dev server running on port ${PORT}"
-    open "http://localhost:${PORT}" || true
-  else
-    warn "Dev server started but port not detected — check $DEV_LOG"
-  fi
+  run "Starting dev server..."
+  ( cd "${DESKTOP}/restaurant-booking" && npm run dev & )
+  sleep 3 && open "http://localhost:3000" || true
+  ok "Dev server started at http://localhost:3000"
 fi
 
 # Eject all mounted Rakuten Claude Code Setup volumes
