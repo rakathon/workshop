@@ -57,13 +57,13 @@ install_restaurant_booking() {
 
   run "Extracting restaurant-booking to Desktop..."
   rm -rf "${DESKTOP}/restaurant-booking"
-  local tmp=/tmp/restaurant-booking-extract
-  rm -rf "$tmp" && mkdir -p "$tmp"
-  unzip -q "$zip" -d "$tmp"
-  local extracted
-  extracted=$(unzip -Z1 "$zip" | head -1 | cut -d/ -f1)
-  mv "${tmp}/${extracted}" "${DESKTOP}/restaurant-booking"
-  rm -rf "$tmp"
+  unzip -q -o "$zip" -d "${DESKTOP}" || true
+  # zip contains a top-level folder; rename it to restaurant-booking if needed
+  if [[ ! -d "${DESKTOP}/restaurant-booking" ]]; then
+    local top
+    top=$(unzip -Z1 "$zip" 2>/dev/null | grep '/' | head -1 | cut -d/ -f1) || true
+    [[ -n "$top" && -d "${DESKTOP}/${top}" ]] && mv "${DESKTOP}/${top}" "${DESKTOP}/restaurant-booking" || true
+  fi
   ok "restaurant-booking ready at ~/Desktop/restaurant-booking"
 
   local landscape="${DESKTOP}/restaurant-booking/.forge/products/restaurant-booking/competitive/initial-landscape.md"
@@ -423,9 +423,14 @@ if command -v claude &>/dev/null; then
     RR_DEST="${DESKTOP}/rr-standards"
     RR_TMP=/tmp/rr-standards-extract
     rm -rf "$RR_TMP" && mkdir -p "$RR_TMP"
-    unzip -q "$RR_ZIP" -d "$RR_TMP"
+    unzip -q -o "$RR_ZIP" -d "$RR_TMP" || true
     rm -rf "$RR_DEST"
-    cp -R "${RR_TMP}/rr-standards-main" "$RR_DEST"
+    # move whatever top-level folder was extracted
+    local rr_top
+    rr_top=$(ls "$RR_TMP" | grep -v __MACOSX | head -1) || true
+    if [[ -n "$rr_top" ]]; then
+      mv "${RR_TMP}/${rr_top}" "$RR_DEST"
+    fi
     rm -rf "$RR_TMP"
     ok "rr-standards extracted to ~/Desktop/rr-standards"
 
