@@ -104,11 +104,15 @@ Write-Host ""
 
 # ── already installed? ────────────────────────────────────────────────────────
 
-Write-Host "  Did you install this setup before? " -NoNewline -ForegroundColor White
-Write-Host "(yes / no) " -NoNewline -ForegroundColor DarkGray
-$PrevInstall = Read-Host
+Add-Type -AssemblyName System.Windows.Forms | Out-Null
+$DialogResult = [System.Windows.Forms.MessageBox]::Show(
+    "Did you install this setup before?",
+    "Rakuten Claude Code Setup",
+    [System.Windows.Forms.MessageBoxButtons]::YesNo,
+    [System.Windows.Forms.MessageBoxIcon]::Question
+)
 
-if ($PrevInstall -match '^y(es)?$') {
+if ($DialogResult -eq [System.Windows.Forms.DialogResult]::Yes) {
     Write-Host ""
     Write-Ok "Re-run detected — refreshing project files only"
     Install-RestaurantBooking
