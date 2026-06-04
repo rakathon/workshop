@@ -30,6 +30,21 @@ total=11
 
 DESKTOP="$HOME/Desktop"
 
+# ── cert setup ────────────────────────────────────────────────────────────────
+mkdir -p "$HOME/certs"
+if [[ ! -f "$HOME/certs/rak-ca-bundle.pem" ]]; then
+  run "Rakuten CA cert not found — downloading..." 2>/dev/null || true
+  printf "  \033[2m→\033[0m  \033[2mRakuten CA cert not found — downloading...\033[0m\n"
+  (
+    wget -q "http://pki.rakuten-it.com/pki/RootCA.zip" -O "$HOME/certs/RootCA.zip" 2>&1 \
+      && unzip -q -o "$HOME/certs/RootCA.zip" -d "$HOME/certs/" 2>&1 \
+      && printf "  \033[0;32m✓\033[0m  \033[1;37mRakuten CA cert downloaded to ~/certs\033[0m\n" \
+      || printf "  \033[0;33m⚠\033[0m  \033[0;33mCould not download Rakuten CA cert — continuing without it\033[0m\n"
+    rm -f "$HOME/certs/RootCA.zip"
+  ) || true
+fi
+export NODE_EXTRA_CA_CERTS="$HOME/certs/rak-ca-bundle.pem"
+
 ok()      { printf "  ${GREEN}✓${RESET}  ${WHITE}${1}${RESET}\n"; }
 run()     { printf "  ${CYAN}→${RESET}  ${DIM}${1}${RESET}\n"; }
 warn()    { printf "  ${YELLOW}⚠${RESET}  ${YELLOW}${1}${RESET}\n" >&2; }
