@@ -30,6 +30,15 @@ total=11
 
 DESKTOP="$HOME/Desktop"
 
+ok()      { printf "  ${GREEN}✓${RESET}  ${WHITE}${1}${RESET}\n"; }
+run()     { printf "  ${CYAN}→${RESET}  ${DIM}${1}${RESET}\n"; }
+warn()    { printf "  ${YELLOW}⚠${RESET}  ${YELLOW}${1}${RESET}\n" >&2; }
+die()     { printf "\n  ${BOLD}${RED}✗  Error: ${1}${RESET}\n\n" >&2; exit 1; }
+section() {
+  step=$((step + 1))
+  printf "\n  ${BOLD}${CYAN}[${step}/${total}] ${1}${RESET}\n"
+}
+
 # helper — unzip restaurant-booking from the DMG onto Desktop
 install_restaurant_booking() {
   local zip=""
@@ -70,15 +79,6 @@ install_restaurant_booking() {
 make_playground() {
   mkdir -p "${DESKTOP}/playground"
   ok "playground directory ready at ~/Desktop/playground"
-}
-
-ok()      { printf "  ${GREEN}✓${RESET}  ${WHITE}${1}${RESET}\n"; }
-run()     { printf "  ${CYAN}→${RESET}  ${DIM}${1}${RESET}\n"; }
-warn()    { printf "  ${YELLOW}⚠${RESET}  ${YELLOW}${1}${RESET}\n" >&2; }
-die()     { printf "\n  ${BOLD}${RED}✗  Error: ${1}${RESET}\n\n" >&2; exit 1; }
-section() {
-  step=$((step + 1))
-  printf "\n  ${BOLD}${CYAN}[${step}/${total}] ${1}${RESET}\n"
 }
 
 [[ "$OSTYPE" == darwin* ]] || die "This script requires macOS."
