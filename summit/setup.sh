@@ -191,13 +191,17 @@ fi
 
 section "Visual Studio Code"
 
-if command -v code &>/dev/null || [[ -d "/Applications/Visual Studio Code.app" ]]; then
+if command -v code &>/dev/null \
+  || [[ -d "/Applications/Visual Studio Code.app" ]] \
+  || [[ -d "$HOME/Applications/Visual Studio Code.app" ]]; then
   ok "VS Code already installed"
   # Ensure code CLI is on PATH even if VS Code was pre-installed
   if ! command -v code &>/dev/null; then
-    sudo ln -sf "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" \
-      /usr/local/bin/code 2>/dev/null || true
-    export PATH="/usr/local/bin:$PATH"
+    VSCODE_APP="/Applications/Visual Studio Code.app"
+    [[ -d "$HOME/Applications/Visual Studio Code.app" ]] && VSCODE_APP="$HOME/Applications/Visual Studio Code.app"
+    mkdir -p "$HOME/.local/bin"
+    ln -sf "${VSCODE_APP}/Contents/Resources/app/bin/code" "$HOME/.local/bin/code" 2>/dev/null || true
+    export PATH="$HOME/.local/bin:$PATH"
   fi
 else
   run "Downloading Visual Studio Code..."
@@ -205,18 +209,20 @@ else
   curl -fsSL "https://code.visualstudio.com/sha/download?build=stable&os=darwin-universal-dmg" \
     -o "$VSCODE_DMG"
   run "Installing Visual Studio Code..."
-  VSCODE_MOUNT=$(hdiutil attach "$VSCODE_DMG" -nobrowse -quiet | grep '/Volumes/' | sed 's|.*\(/Volumes/.*\)|\1|')
+  VSCODE_MOUNT=$(hdiutil attach "$VSCODE_DMG" -nobrowse -quiet | grep '/Volumes/' | sed 's|.*\(/Volumes/.*\)|\1|') || true
   if [[ -d "${VSCODE_MOUNT}/Visual Studio Code.app" ]]; then
-    cp -R "${VSCODE_MOUNT}/Visual Studio Code.app" /Applications/ 2>/dev/null \
-      || sudo cp -R "${VSCODE_MOUNT}/Visual Studio Code.app" /Applications/ 2>/dev/null || true
+    mkdir -p "$HOME/Applications"
+    cp -R "${VSCODE_MOUNT}/Visual Studio Code.app" "$HOME/Applications/" 2>/dev/null || true
   else
     warn "VS Code app not found in DMG — skipping"
   fi
   hdiutil detach "$VSCODE_MOUNT" -quiet 2>/dev/null || true
   rm -f "$VSCODE_DMG"
-  # Symlink code CLI
-  sudo ln -sf "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" \
-    /usr/local/bin/code 2>/dev/null || true
+  # Symlink code CLI from user Applications
+  mkdir -p "$HOME/.local/bin"
+  ln -sf "$HOME/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" \
+    "$HOME/.local/bin/code" 2>/dev/null || true
+  export PATH="$HOME/.local/bin:$PATH"
   ok "VS Code installed"
 fi
 
