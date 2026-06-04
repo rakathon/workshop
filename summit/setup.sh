@@ -112,6 +112,11 @@ if [[ "$PREV_INSTALL" == "Yes — Update Project" ]]; then
   ok "Re-run detected — refreshing project files only"
   install_restaurant_booking
   make_playground
+  if [[ -d "${DESKTOP}/restaurant-booking" ]] && command -v node &>/dev/null; then
+    run "Running npm install in restaurant-booking..."
+    ( cd "${DESKTOP}/restaurant-booking" && npm install 2>&1 ) || true
+    ok "npm install done"
+  fi
   while IFS= read -r vol; do
     vol="${vol%"${vol##*[![:space:]]}"}"
     hdiutil detach "$vol" -quiet 2>/dev/null || true
@@ -494,6 +499,13 @@ section "restaurant-booking project"
 
 install_restaurant_booking
 make_playground
+
+# npm install inside restaurant-booking (non-blocking)
+if [[ -d "${DESKTOP}/restaurant-booking" ]] && command -v node &>/dev/null; then
+  run "Running npm install in restaurant-booking..."
+  ( cd "${DESKTOP}/restaurant-booking" && npm install 2>&1 ) || true
+  ok "npm install done"
+fi
 
 # Eject all mounted Rakuten Claude Code Setup volumes
 while IFS= read -r vol; do
