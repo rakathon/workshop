@@ -62,6 +62,22 @@ $amp = [char]38
 
 $Desktop = "$env:USERPROFILE\Desktop"
 
+# ── cert setup ────────────────────────────────────────────────────────────────
+$CertsDir = "$env:USERPROFILE\certs"
+if (-not (Test-Path $CertsDir)) { New-Item -ItemType Directory -Path $CertsDir -Force | Out-Null }
+if (-not (Test-Path "$CertsDir\rak-ca-bundle.pem")) {
+    Write-Host "   ->   Rakuten CA cert not found — downloading..." -ForegroundColor DarkGray
+    try {
+        Invoke-WebRequest -Uri "http://pki.rakuten-it.com/pki/RootCA.zip" -OutFile "$CertsDir\RootCA.zip" -UseBasicParsing
+        Expand-Archive -Path "$CertsDir\RootCA.zip" -DestinationPath $CertsDir -Force
+        Remove-Item "$CertsDir\RootCA.zip" -ErrorAction SilentlyContinue
+        Write-Host "  [OK]  Rakuten CA cert downloaded to ~\certs" -ForegroundColor Green
+    } catch {
+        Write-Host "  [!!]  Could not download Rakuten CA cert — continuing without it" -ForegroundColor Yellow
+    }
+}
+$env:NODE_EXTRA_CA_CERTS = "$CertsDir\rak-ca-bundle.pem"
+
 function Install-RestaurantBooking {
     $ZipAsset = Join-Path $PSScriptRoot "assets\restaurant-booking.zip"
     if (-not (Test-Path $ZipAsset)) {
@@ -132,6 +148,17 @@ if ($DialogResult -eq [System.Windows.Forms.DialogResult]::Yes) {
     Write-Ok "Re-run detected — refreshing project files only"
     Install-RestaurantBooking
     Make-Playground
+    $RbPath = "$Desktop\restaurant-booking"
+    if ((Test-Path $RbPath) -and (Get-Command node -ErrorAction SilentlyContinue)) {
+        Write-Run "Running npm install in restaurant-booking..."
+        try { & npm install --prefix $RbPath 2>&1 | Write-Host } catch {}
+        Write-Ok "npm install done"
+        Write-Run "Starting dev server in background..."
+        Start-Process -FilePath "npm" -ArgumentList "run", "dev" -WorkingDirectory $RbPath -WindowStyle Hidden
+        Start-Sleep -Seconds 3
+        try { Start-Process "http://localhost:3000" } catch {}
+        Write-Ok "Dev server started at http://localhost:3000"
+    }
     Write-Host ""
     Write-Host "  ─────────────────────────────────────────" -ForegroundColor DarkGray
     Write-Ok "Done"
@@ -442,7 +469,8 @@ if (Get-Command claude -ErrorAction SilentlyContinue) {
             if (Test-Path $RrTmp) { Remove-Item -Recurse -Force $RrTmp }
             Expand-Archive -Path $RrZipAsset -DestinationPath $RrTmp -Force
             if (Test-Path $RrDest) { Remove-Item -Recurse -Force $RrDest }
-            Copy-Item -Recurse "$RrTmp\rr-standards-main" $RrDest
+            $RrTop = Get-ChildItem $RrTmp | Where-Object { $_.Name -ne '__MACOSX' } | Select-Object -First 1
+            Copy-Item -Recurse $RrTop.FullName $RrDest
             Remove-Item -Recurse -Force $RrTmp -ErrorAction SilentlyContinue
             Write-Ok "rr-standards extracted to Desktop\rr-standards"
 
@@ -507,6 +535,20 @@ if (Get-Command claude -ErrorAction SilentlyContinue) {
 Write-Section "restaurant-booking project"
 Install-RestaurantBooking
 Make-Playground
+
+# npm install + dev server
+$RbPath = "$Desktop\restaurant-booking"
+if ((Test-Path $RbPath) -and (Get-Command node -ErrorAction SilentlyContinue)) {
+    Write-Run "Running npm install in restaurant-booking..."
+    try { & npm install --prefix $RbPath 2>&1 | Write-Host } catch {}
+    Write-Ok "npm install done"
+
+    Write-Run "Starting dev server in background..."
+    Start-Process -FilePath "npm" -ArgumentList "run", "dev" -WorkingDirectory $RbPath -WindowStyle Hidden
+    Start-Sleep -Seconds 3
+    try { Start-Process "http://localhost:3000" } catch {}
+    Write-Ok "Dev server started at http://localhost:3000"
+}
 
 # ── done ──────────────────────────────────────────────────────────────────────
 
