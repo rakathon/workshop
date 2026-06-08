@@ -75,7 +75,8 @@ install_restaurant_booking() {
   fi
 
   run "Extracting dishly-platform to Desktop..."
-  rm -rf "${DESKTOP}/dishly-platform"
+  chmod -R u+w "${DESKTOP}/dishly-platform" 2>/dev/null || true
+  rm -rf "${DESKTOP}/dishly-platform" 2>/dev/null || true
   unzip -q -o "$zip" -d "${DESKTOP}" || true
   # zip contains a top-level folder; rename it to dishly-platform if needed
   if [[ ! -d "${DESKTOP}/dishly-platform" ]]; then
