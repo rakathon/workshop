@@ -58,39 +58,39 @@ section() {
   printf "\n  ${BOLD}${CYAN}[${step}/${total}] ${1}${RESET}\n"
 }
 
-# helper — unzip restaurant-booking from the DMG onto Desktop
+# helper — unzip dishly-platform from the DMG onto Desktop
 install_restaurant_booking() {
   local zip=""
   while IFS= read -r vol; do
     vol="${vol%"${vol##*[![:space:]]}"}"
-    if [[ -f "${vol}/assets/restaurant-booking.zip" ]]; then
-      zip="${vol}/assets/restaurant-booking.zip"
+    if [[ -f "${vol}/assets/dishly-platform.zip" ]]; then
+      zip="${vol}/assets/dishly-platform.zip"
       break
     fi
   done < <(mount | grep -i 'Rakuten Claude Code Setup' | sed 's|.* on \(/Volumes/[^)]*\) (.*|\1|')
 
   if [[ -z "$zip" ]]; then
-    warn "restaurant-booking.zip not found on DMG — skipping"
+    warn "dishly-platform.zip not found on DMG — skipping"
     return
   fi
 
-  run "Extracting restaurant-booking to Desktop..."
-  rm -rf "${DESKTOP}/restaurant-booking"
+  run "Extracting dishly-platform to Desktop..."
+  rm -rf "${DESKTOP}/dishly-platform"
   unzip -q -o "$zip" -d "${DESKTOP}" || true
-  # zip contains a top-level folder; rename it to restaurant-booking if needed
-  if [[ ! -d "${DESKTOP}/restaurant-booking" ]]; then
+  # zip contains a top-level folder; rename it to dishly-platform if needed
+  if [[ ! -d "${DESKTOP}/dishly-platform" ]]; then
     local top
     top=$(unzip -Z1 "$zip" 2>/dev/null | grep '/' | head -1 | cut -d/ -f1) || true
-    [[ -n "$top" && -d "${DESKTOP}/${top}" ]] && mv "${DESKTOP}/${top}" "${DESKTOP}/restaurant-booking" || true
+    [[ -n "$top" && -d "${DESKTOP}/${top}" ]] && mv "${DESKTOP}/${top}" "${DESKTOP}/dishly-platform" || true
   fi
-  ok "restaurant-booking ready at ~/Desktop/restaurant-booking"
+  ok "dishly-platform ready at ~/Desktop/dishly-platform"
 
-  local landscape="${DESKTOP}/restaurant-booking/.forge/products/restaurant-booking/competitive/initial-landscape.md"
+  local landscape="${DESKTOP}/dishly-platform/.forge/products/dishly-platform/competitive/initial-landscape.md"
   if [[ -f "$landscape" ]]; then
     cp "$landscape" "${DESKTOP}/initial-landscape.md"
     ok "initial-landscape.md copied to Desktop"
   else
-    warn "initial-landscape.md not found in restaurant-booking"
+    warn "initial-landscape.md not found in dishly-platform"
   fi
 }
 
@@ -131,13 +131,13 @@ if [[ "$PREV_INSTALL" == "Yes — Update Project" ]]; then
   ok "Re-run detected — refreshing project files only"
   install_restaurant_booking
   make_playground
-  if [[ -d "${DESKTOP}/restaurant-booking" ]] && command -v node &>/dev/null; then
-    run "Running npm install in restaurant-booking..."
-    ( cd "${DESKTOP}/restaurant-booking" && npm install 2>&1 ) || true
+  if [[ -d "${DESKTOP}/dishly-platform" ]] && command -v node &>/dev/null; then
+    run "Running npm install in dishly-platform..."
+    ( cd "${DESKTOP}/dishly-platform" && npm install 2>&1 ) || true
     ok "npm install done"
 
     run "Starting dev server..."
-    ( cd "${DESKTOP}/restaurant-booking" && npm run dev & )
+    ( cd "${DESKTOP}/dishly-platform" && npm run dev & )
     sleep 3 && open "http://localhost:3000" || true
     ok "Dev server started at http://localhost:3000"
   fi
@@ -535,21 +535,21 @@ else
   warn "claude CLI not on PATH — skipping MCP integrations"
 fi
 
-# ── step 11: restaurant-booking project ──────────────────────────────────────
+# ── step 11: dishly-platform project ──────────────────────────────────────
 
-section "restaurant-booking project"
+section "dishly-platform project"
 
 install_restaurant_booking
 make_playground
 
-# npm install inside restaurant-booking (non-blocking)
-if [[ -d "${DESKTOP}/restaurant-booking" ]] && command -v node &>/dev/null; then
-  run "Running npm install in restaurant-booking..."
-  ( cd "${DESKTOP}/restaurant-booking" && npm install 2>&1 ) || true
+# npm install inside dishly-platform (non-blocking)
+if [[ -d "${DESKTOP}/dishly-platform" ]] && command -v node &>/dev/null; then
+  run "Running npm install in dishly-platform..."
+  ( cd "${DESKTOP}/dishly-platform" && npm install 2>&1 ) || true
   ok "npm install done"
 
   run "Starting dev server..."
-  ( cd "${DESKTOP}/restaurant-booking" && npm run dev & )
+  ( cd "${DESKTOP}/dishly-platform" && npm run dev & )
   sleep 3 && open "http://localhost:3000" || true
   ok "Dev server started at http://localhost:3000"
 fi
