@@ -1,4 +1,4 @@
-# Rakuten Claude Code Setup - Windows (Summit)
+﻿# Rakuten Claude Code Setup - Windows (Summit)
 # Installs Git, Node.js, VS Code, Claude Code CLI via curl/direct download,
 # authenticates via Okta PKCE, writes settings.json, installs rr-standards plugins and MCPs.
 #
