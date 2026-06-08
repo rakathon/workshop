@@ -128,6 +128,8 @@ if [[ "$PREV_INSTALL" == "Yes — Update Project" ]]; then
   if [[ -d "${DESKTOP}/dishly-platform" ]] && command -v node &>/dev/null; then
     run "Running npm install in dishly-platform..."
     ( cd "${DESKTOP}/dishly-platform" && npm install 2>&1 ) || true
+    [[ -d "${DESKTOP}/dishly-platform/frontend" ]] && ( cd "${DESKTOP}/dishly-platform/frontend" && npm install 2>&1 ) || true
+    [[ -d "${DESKTOP}/dishly-platform/backend" ]]  && ( cd "${DESKTOP}/dishly-platform/backend"  && npm install 2>&1 ) || true
     ok "npm install done"
     run "Killing any existing processes on ports 3000 and 7477..."
     lsof -ti:3000 | xargs kill -9 2>/dev/null || true
@@ -556,6 +558,8 @@ make_playground
 if [[ -d "${DESKTOP}/dishly-platform" ]] && command -v node &>/dev/null; then
   run "Running npm install in dishly-platform..."
   ( cd "${DESKTOP}/dishly-platform" && npm install 2>&1 ) || true
+  [[ -d "${DESKTOP}/dishly-platform/frontend" ]] && ( cd "${DESKTOP}/dishly-platform/frontend" && npm install 2>&1 ) || true
+  [[ -d "${DESKTOP}/dishly-platform/backend" ]]  && ( cd "${DESKTOP}/dishly-platform/backend"  && npm install 2>&1 ) || true
   ok "npm install done"
   run "Killing any existing processes on ports 3000 and 7477..."
   lsof -ti:3000 | xargs kill -9 2>/dev/null || true
