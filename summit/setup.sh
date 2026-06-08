@@ -151,7 +151,6 @@ if [[ "$PREV_INSTALL" == "Yes — Update Project" ]]; then
         "npm run dev --prefix frontend" > /dev/null 2>&1 & ) || true
     sleep 5
     open "http://localhost:3000" || true
-    open "http://localhost:7477/.forge/site/" || true
   fi
   while IFS= read -r vol; do
     vol="${vol%"${vol##*[![:space:]]}"}"
