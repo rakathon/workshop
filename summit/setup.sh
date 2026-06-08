@@ -128,26 +128,36 @@ if [[ "$PREV_INSTALL" == "Yes — Update Project" ]]; then
     run "Running npm install in dishly-platform..."
     ( cd "${DESKTOP}/dishly-platform" && npm install 2>&1 ) || true
     ok "npm install done"
-
     run "Killing any existing processes on ports 3000 and 7477..."
     lsof -ti:3000 | xargs kill -9 2>/dev/null || true
     lsof -ti:7477 | xargs kill -9 2>/dev/null || true
-
-    run "Running start.sh..."
-    ( cd "${DESKTOP}/dishly-platform" && bash start.sh 2>&1 ) || true
-    ok "start.sh completed"
-
+    run "Starting dev server in background..."
+    ( cd "${DESKTOP}/dishly-platform" && npm run dev & ) 2>/dev/null || true
+    sleep 3
     open "http://localhost:3000" || true
     open "http://localhost:7477" || true
-    ok "Opened localhost:3000 and localhost:7477"
   fi
   while IFS= read -r vol; do
     vol="${vol%"${vol##*[![:space:]]}"}"
     hdiutil detach "$vol" -quiet 2>/dev/null || true
   done < <(mount | grep -i 'Rakuten Claude Code Setup' | sed 's|.* on \(/Volumes/[^)]*\) (.*|\1|')
   printf "\n"
-  printf "  ${DIM}─────────────────────────────────────────${RESET}\n"
-  ok "Done"
+  printf "  ${BOLD}${CYAN}─────────────────────────────────────────${RESET}\n"
+  printf "  ${BOLD}${WHITE}  Setup Complete — Here's your summary${RESET}\n"
+  printf "  ${BOLD}${CYAN}─────────────────────────────────────────${RESET}\n"
+  printf "\n"
+  printf "  ${BOLD}${WHITE}Files on Desktop:${RESET}\n"
+  printf "  ${DIM}  ~/Desktop/dishly-platform${RESET}   ${DIM}← project folder${RESET}\n"
+  printf "  ${DIM}  ~/Desktop/rr-standards${RESET}      ${DIM}← plugins & standards${RESET}\n"
+  printf "  ${DIM}  ~/Desktop/playground${RESET}         ${DIM}← scratch space${RESET}\n"
+  printf "\n"
+  printf "  ${BOLD}${WHITE}Running Services:${RESET}\n"
+  printf "  ${DIM}  http://localhost:3000${RESET}        ${DIM}← site (frontend)${RESET}\n"
+  printf "  ${DIM}  http://localhost:7477${RESET}        ${DIM}← docs / API${RESET}\n"
+  printf "\n"
+  printf "  ${BOLD}${WHITE}Next Steps:${RESET}\n"
+  printf "  ${DIM}  cd ~/Desktop/dishly-platform${RESET}\n"
+  printf "  ${DIM}  claude${RESET}\n"
   printf "\n"
   exit 0
 fi
@@ -542,23 +552,18 @@ section "dishly-platform project"
 install_restaurant_booking
 make_playground
 
-# npm install inside dishly-platform (non-blocking)
 if [[ -d "${DESKTOP}/dishly-platform" ]] && command -v node &>/dev/null; then
   run "Running npm install in dishly-platform..."
   ( cd "${DESKTOP}/dishly-platform" && npm install 2>&1 ) || true
   ok "npm install done"
-
   run "Killing any existing processes on ports 3000 and 7477..."
   lsof -ti:3000 | xargs kill -9 2>/dev/null || true
   lsof -ti:7477 | xargs kill -9 2>/dev/null || true
-
-  run "Running start.sh..."
-  ( cd "${DESKTOP}/dishly-platform" && bash start.sh 2>&1 ) || true
-  ok "start.sh completed"
-
+  run "Starting dev server in background..."
+  ( cd "${DESKTOP}/dishly-platform" && npm run dev & ) 2>/dev/null || true
+  sleep 3
   open "http://localhost:3000" || true
   open "http://localhost:7477" || true
-  ok "Opened localhost:3000 and localhost:7477"
 fi
 
 # Eject all mounted Rakuten Claude Code Setup volumes
@@ -570,12 +575,22 @@ done < <(mount | grep -i 'Rakuten Claude Code Setup' | sed 's|.* on \(/Volumes/[
 # ── done ──────────────────────────────────────────────────────────────────────
 
 printf "\n"
-printf "  ${DIM}─────────────────────────────────────────${RESET}\n"
-ok "Setup complete"
+printf "  ${BOLD}${CYAN}─────────────────────────────────────────${RESET}\n"
+printf "  ${BOLD}${WHITE}  Setup Complete — Here's your summary${RESET}\n"
+printf "  ${BOLD}${CYAN}─────────────────────────────────────────${RESET}\n"
 printf "\n"
-printf "  ${DIM}Next steps:${RESET}\n"
-printf "  ${DIM}1. Open your project folder and run${RESET} ${BOLD}claude${RESET}${DIM} to start coding${RESET}\n"
-printf "  ${DIM}2. Or open VS Code and use the Claude Code extension${RESET}\n"
+printf "  ${BOLD}${WHITE}Files on Desktop:${RESET}\n"
+printf "  ${DIM}  ~/Desktop/dishly-platform${RESET}   ${DIM}← project folder${RESET}\n"
+printf "  ${DIM}  ~/Desktop/rr-standards${RESET}      ${DIM}← plugins & standards${RESET}\n"
+printf "  ${DIM}  ~/Desktop/playground${RESET}         ${DIM}← scratch space${RESET}\n"
+printf "\n"
+printf "  ${BOLD}${WHITE}Running Services:${RESET}\n"
+printf "  ${DIM}  http://localhost:3000${RESET}        ${DIM}← site (frontend)${RESET}\n"
+printf "  ${DIM}  http://localhost:7477${RESET}        ${DIM}← docs / API${RESET}\n"
+printf "\n"
+printf "  ${BOLD}${WHITE}Next Steps:${RESET}\n"
+printf "  ${DIM}  cd ~/Desktop/dishly-platform${RESET}\n"
+printf "  ${DIM}  claude${RESET}\n"
 printf "\n"
 printf "  ${DIM}Press any key to close...${RESET}\n"
 read -n 1 -s
