@@ -129,10 +129,17 @@ if [[ "$PREV_INSTALL" == "Yes — Update Project" ]]; then
     ( cd "${DESKTOP}/dishly-platform" && npm install 2>&1 ) || true
     ok "npm install done"
 
-    run "Starting dev server..."
-    ( cd "${DESKTOP}/dishly-platform" && npm run dev & )
-    sleep 3 && open "http://localhost:3000" || true
-    ok "Dev server started at http://localhost:3000"
+    run "Killing any existing processes on ports 3000 and 7477..."
+    lsof -ti:3000 | xargs kill -9 2>/dev/null || true
+    lsof -ti:7477 | xargs kill -9 2>/dev/null || true
+
+    run "Running start.sh..."
+    ( cd "${DESKTOP}/dishly-platform" && bash start.sh 2>&1 ) || true
+    ok "start.sh completed"
+
+    open "http://localhost:3000" || true
+    open "http://localhost:7477" || true
+    ok "Opened localhost:3000 and localhost:7477"
   fi
   while IFS= read -r vol; do
     vol="${vol%"${vol##*[![:space:]]}"}"
@@ -541,10 +548,17 @@ if [[ -d "${DESKTOP}/dishly-platform" ]] && command -v node &>/dev/null; then
   ( cd "${DESKTOP}/dishly-platform" && npm install 2>&1 ) || true
   ok "npm install done"
 
-  run "Starting dev server..."
-  ( cd "${DESKTOP}/dishly-platform" && npm run dev & )
-  sleep 3 && open "http://localhost:3000" || true
-  ok "Dev server started at http://localhost:3000"
+  run "Killing any existing processes on ports 3000 and 7477..."
+  lsof -ti:3000 | xargs kill -9 2>/dev/null || true
+  lsof -ti:7477 | xargs kill -9 2>/dev/null || true
+
+  run "Running start.sh..."
+  ( cd "${DESKTOP}/dishly-platform" && bash start.sh 2>&1 ) || true
+  ok "start.sh completed"
+
+  open "http://localhost:3000" || true
+  open "http://localhost:7477" || true
+  ok "Opened localhost:3000 and localhost:7477"
 fi
 
 # Eject all mounted Rakuten Claude Code Setup volumes
