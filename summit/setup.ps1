@@ -80,6 +80,7 @@ $env:NODE_EXTRA_CA_CERTS = "$CertsDir\rak-ca-bundle.pem"
 
 function Install-RestaurantBooking {
     $ZipAsset = Join-Path $PSScriptRoot "assets\restaurant-booking.zip"
+    if (-not (Test-Path $ZipAsset)) { $ZipAsset = Join-Path $PSScriptRoot "restaurant-booking.zip" }
     if (-not (Test-Path $ZipAsset)) {
         Write-Warn "restaurant-booking.zip not found — skipping"
         return
@@ -456,6 +457,7 @@ Write-Ok "Claude Code configured -> Rakuten AI gateway"
 Write-Section "rr-standards marketplace"
 
 $RrZipAsset = Join-Path $PSScriptRoot "assets\rr-standards.zip"
+if (-not (Test-Path $RrZipAsset)) { $RrZipAsset = Join-Path $PSScriptRoot "rr-standards.zip" }
 $RrDest     = "$Desktop\rr-standards"
 $RrTmp      = "$env:TEMP\rr-standards-extract"
 
