@@ -88,7 +88,10 @@ function Install-DishlyPlatform {
     $Dest = "$Desktop\dishly-platform"
     $Tmp  = "$env:TEMP\dishly-platform-extract"
     if (Test-Path $Tmp)  { Remove-Item -Recurse -Force $Tmp }
-    if (Test-Path $Dest) { Remove-Item -Recurse -Force $Dest }
+    if (Test-Path $Dest) {
+        Get-ChildItem $Dest -Recurse | ForEach-Object { $_.Attributes = $_.Attributes -band (-bnot [IO.FileAttributes]::ReadOnly) }
+        Remove-Item -Recurse -Force $Dest -ErrorAction SilentlyContinue
+    }
     Expand-Archive -Path $ZipAsset -DestinationPath $Tmp -Force
     $Inner = Get-ChildItem $Tmp | Where-Object { $_.Name -ne '__MACOSX' } | Select-Object -First 1
     if ($Inner -and $Inner.Name -ne "dishly-platform") {
@@ -112,16 +115,34 @@ function Start-DishlyPlatform {
     if (-not (Test-Path $RbPath)) { Write-Warn "dishly-platform not found on Desktop — skipping start"; return }
     if (-not (Get-Command node -ErrorAction SilentlyContinue)) { Write-Warn "node not on PATH — skipping start"; return }
 
-    Write-Run "Running npm install in dishly-platform..."
-    try { & npm install --prefix $RbPath 2>&1 | Write-Host } catch {}
-    Write-Ok "npm install done"
+    Push-Location $RbPath
+    Write-Run "Installing dependencies (backend)..."
+    try { & npm install --prefix backend --no-fund --loglevel=error 2>&1 | Write-Host } catch {}
+    Write-Run "Installing dependencies (frontend)..."
+    try { & npm install --prefix frontend --no-fund --loglevel=error 2>&1 | Write-Host } catch {}
+    Write-Run "Installing root dependencies..."
+    try { & npm install --no-fund --loglevel=error 2>&1 | Write-Host } catch {}
 
-    Write-Run "Starting dev server in background..."
-    Start-Process -FilePath "npm" -ArgumentList "run", "dev" -WorkingDirectory $RbPath -WindowStyle Hidden
+    Write-Run "Running database migrations..."
+    try { & node -e "require('./backend/src/db/migrate').migrate()" 2>&1 | Write-Host } catch {}
+    Write-Run "Seeding database..."
+    try { & node "backend/src/db/seed.js" 2>&1 | Write-Host } catch {}
+    Pop-Location
+
+    Write-Run "Starting forge:docs server..."
+    $ForgeDocsSkill = Get-ChildItem "$env:USERPROFILE\.claude\plugins\cache\rr-standards\forge" -Recurse -Filter "generate.py" -ErrorAction SilentlyContinue |
+        Where-Object { $_.FullName -like "*docs*scripts*" } | Sort-Object FullName | Select-Object -Last 1
+    if ($ForgeDocsSkill) {
+        Start-Process -FilePath "python" -ArgumentList $ForgeDocsSkill.FullName, "--serve", "--repo-root", $RbPath -WindowStyle Hidden -ErrorAction SilentlyContinue
+    }
+
+    Write-Run "Starting backend and frontend in background..."
+    Start-Process -FilePath "npm" -ArgumentList "run", "dev:backend" -WorkingDirectory $RbPath -WindowStyle Hidden
+    Start-Process -FilePath "npm" -ArgumentList "run", "dev:frontend" -WorkingDirectory $RbPath -WindowStyle Hidden
     Start-Sleep -Seconds 3
     try { Start-Process "http://localhost:3000" } catch {}
-    try { Start-Process "http://localhost:7477" } catch {}
-    Write-Ok "Dev server started at http://localhost:3000 and http://localhost:7477"
+    try { Start-Process "http://localhost:7477/.forge/site/" } catch {}
+    Write-Ok "Dev server started at http://localhost:3000 and http://localhost:7477/.forge/site/"
 }
 
 function Make-Playground {
@@ -178,7 +199,7 @@ if ($DialogResult -eq [System.Windows.Forms.DialogResult]::Yes) {
     Write-Host ""
     Write-Host "  Running Services:"                                          -ForegroundColor White
     Write-Host "    http://localhost:3000        <- site (frontend)"          -ForegroundColor DarkGray
-    Write-Host "    http://localhost:7477        <- docs / API"               -ForegroundColor DarkGray
+    Write-Host "    http://localhost:7477/.forge/site/   <- forge docs"               -ForegroundColor DarkGray
     Write-Host ""
     Write-Host "  Next Steps:"                                                -ForegroundColor White
     Write-Host "    cd $env:USERPROFILE\Desktop\dishly-platform"             -ForegroundColor DarkGray
@@ -574,7 +595,7 @@ Write-Host "    $env:USERPROFILE\Desktop\playground         <- scratch space"  -
 Write-Host ""
 Write-Host "  Running Services:"                                          -ForegroundColor White
 Write-Host "    http://localhost:3000        <- site (frontend)"          -ForegroundColor DarkGray
-Write-Host "    http://localhost:7477        <- docs / API"               -ForegroundColor DarkGray
+Write-Host "    http://localhost:7477/.forge/site/   <- forge docs"               -ForegroundColor DarkGray
 Write-Host ""
 Write-Host "  Next Steps:"                                                -ForegroundColor White
 Write-Host "    cd $env:USERPROFILE\Desktop\dishly-platform"             -ForegroundColor DarkGray
