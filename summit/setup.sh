@@ -126,19 +126,29 @@ if [[ "$PREV_INSTALL" == "Yes — Update Project" ]]; then
   install_restaurant_booking
   make_playground
   if [[ -d "${DESKTOP}/dishly-platform" ]] && command -v node &>/dev/null; then
-    run "Running npm install in dishly-platform..."
-    ( cd "${DESKTOP}/dishly-platform" && npm install 2>&1 ) || true
-    [[ -d "${DESKTOP}/dishly-platform/frontend" ]] && ( cd "${DESKTOP}/dishly-platform/frontend" && npm install 2>&1 ) || true
-    [[ -d "${DESKTOP}/dishly-platform/backend" ]]  && ( cd "${DESKTOP}/dishly-platform/backend"  && npm install 2>&1 ) || true
+    run "Installing dependencies (backend)..."
+    ( cd "${DESKTOP}/dishly-platform" && npm install --prefix backend --no-fund --loglevel=error 2>&1 ) || true
+    run "Installing dependencies (frontend)..."
+    ( cd "${DESKTOP}/dishly-platform" && npm install --prefix frontend --no-fund --loglevel=error 2>&1 ) || true
+    run "Installing root dependencies..."
+    ( cd "${DESKTOP}/dishly-platform" && npm install --no-fund --loglevel=error 2>&1 ) || true
     ok "npm install done"
+    run "Running database migrations..."
+    ( cd "${DESKTOP}/dishly-platform" && node -e "require('./backend/src/db/migrate').migrate()" 2>&1 ) || true
+    run "Seeding database..."
+    ( cd "${DESKTOP}/dishly-platform" && node backend/src/db/seed.js 2>&1 ) || true
     run "Killing any existing processes on ports 3000 and 7477..."
     lsof -ti:3000 | xargs kill -9 2>/dev/null || true
     lsof -ti:7477 | xargs kill -9 2>/dev/null || true
-    run "Starting dev server in background..."
-    ( cd "${DESKTOP}/dishly-platform" && npm run dev & ) 2>/dev/null || true
+    run "Starting forge:docs server..."
+    FORGE_DOCS_SKILL=$(find ~/.claude/plugins/cache/rr-standards/forge -name "generate.py" -path "*/docs/scripts/*" 2>/dev/null | sort -V | tail -1) || true
+    [[ -n "$FORGE_DOCS_SKILL" ]] && ( python3 "$FORGE_DOCS_SKILL" --serve --repo-root "${DESKTOP}/dishly-platform" > /dev/null 2>&1 & ) || true
+    run "Starting backend and frontend in background..."
+    ( cd "${DESKTOP}/dishly-platform" && npm run dev:backend > /dev/null 2>&1 & ) || true
+    ( cd "${DESKTOP}/dishly-platform" && npm run dev:frontend > /dev/null 2>&1 & ) || true
     sleep 3
     open "http://localhost:3000" || true
-    open "http://localhost:7477" || true
+    open "http://localhost:7477/.forge/site/" || true
   fi
   while IFS= read -r vol; do
     vol="${vol%"${vol##*[![:space:]]}"}"
@@ -156,7 +166,7 @@ if [[ "$PREV_INSTALL" == "Yes — Update Project" ]]; then
   printf "\n"
   printf "  ${BOLD}${WHITE}Running Services:${RESET}\n"
   printf "  ${DIM}  http://localhost:3000${RESET}        ${DIM}← site (frontend)${RESET}\n"
-  printf "  ${DIM}  http://localhost:7477${RESET}        ${DIM}← docs / API${RESET}\n"
+  printf "  ${DIM}  http://localhost:7477/.forge/site/${RESET}   ${DIM}← forge docs${RESET}\n"
   printf "\n"
   printf "  ${BOLD}${WHITE}Next Steps:${RESET}\n"
   printf "  ${DIM}  cd ~/Desktop/dishly-platform${RESET}\n"
@@ -556,19 +566,29 @@ install_restaurant_booking
 make_playground
 
 if [[ -d "${DESKTOP}/dishly-platform" ]] && command -v node &>/dev/null; then
-  run "Running npm install in dishly-platform..."
-  ( cd "${DESKTOP}/dishly-platform" && npm install 2>&1 ) || true
-  [[ -d "${DESKTOP}/dishly-platform/frontend" ]] && ( cd "${DESKTOP}/dishly-platform/frontend" && npm install 2>&1 ) || true
-  [[ -d "${DESKTOP}/dishly-platform/backend" ]]  && ( cd "${DESKTOP}/dishly-platform/backend"  && npm install 2>&1 ) || true
+  run "Installing dependencies (backend)..."
+  ( cd "${DESKTOP}/dishly-platform" && npm install --prefix backend --no-fund --loglevel=error 2>&1 ) || true
+  run "Installing dependencies (frontend)..."
+  ( cd "${DESKTOP}/dishly-platform" && npm install --prefix frontend --no-fund --loglevel=error 2>&1 ) || true
+  run "Installing root dependencies..."
+  ( cd "${DESKTOP}/dishly-platform" && npm install --no-fund --loglevel=error 2>&1 ) || true
   ok "npm install done"
+  run "Running database migrations..."
+  ( cd "${DESKTOP}/dishly-platform" && node -e "require('./backend/src/db/migrate').migrate()" 2>&1 ) || true
+  run "Seeding database..."
+  ( cd "${DESKTOP}/dishly-platform" && node backend/src/db/seed.js 2>&1 ) || true
   run "Killing any existing processes on ports 3000 and 7477..."
   lsof -ti:3000 | xargs kill -9 2>/dev/null || true
   lsof -ti:7477 | xargs kill -9 2>/dev/null || true
-  run "Starting dev server in background..."
-  ( cd "${DESKTOP}/dishly-platform" && npm run dev & ) 2>/dev/null || true
+  run "Starting forge:docs server..."
+  FORGE_DOCS_SKILL=$(find ~/.claude/plugins/cache/rr-standards/forge -name "generate.py" -path "*/docs/scripts/*" 2>/dev/null | sort -V | tail -1) || true
+  [[ -n "$FORGE_DOCS_SKILL" ]] && ( python3 "$FORGE_DOCS_SKILL" --serve --repo-root "${DESKTOP}/dishly-platform" > /dev/null 2>&1 & ) || true
+  run "Starting backend and frontend in background..."
+  ( cd "${DESKTOP}/dishly-platform" && npm run dev:backend > /dev/null 2>&1 & ) || true
+  ( cd "${DESKTOP}/dishly-platform" && npm run dev:frontend > /dev/null 2>&1 & ) || true
   sleep 3
   open "http://localhost:3000" || true
-  open "http://localhost:7477" || true
+  open "http://localhost:7477/.forge/site/" || true
 fi
 
 # Eject all mounted Rakuten Claude Code Setup volumes
