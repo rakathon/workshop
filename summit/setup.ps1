@@ -107,6 +107,39 @@ function Install-DishlyPlatform {
     }
 }
 
+function Start-DishlyPlatform {
+    $RbPath = "$Desktop\dishly-platform"
+    if (-not (Test-Path $RbPath)) { Write-Warn "dishly-platform not found on Desktop — skipping start"; return }
+    if (-not (Get-Command node -ErrorAction SilentlyContinue)) { Write-Warn "node not on PATH — skipping start"; return }
+
+    Write-Run "Running npm install in dishly-platform..."
+    try { & npm install --prefix $RbPath 2>&1 | Write-Host } catch {}
+    Write-Ok "npm install done"
+
+    Write-Run "Killing any existing processes on ports 3000, 3001 and 7477..."
+    foreach ($port in @(3000, 3001, 7477)) {
+        try {
+            $pids = (netstat -ano | Select-String ":$port\s" | ForEach-Object { ($_ -split '\s+')[-1] } | Sort-Object -Unique)
+            foreach ($p in $pids) { if ($p -match '^\d+$' -and $p -ne '0') { Stop-Process -Id $p -Force -ErrorAction SilentlyContinue } }
+        } catch {}
+    }
+
+    Write-Run "Running start.sh in dishly-platform..."
+    $BashExe = "C:\Program Files\Git\bin\bash.exe"
+    if (-not (Test-Path $BashExe)) { $BashCmd = Get-Command bash -ErrorAction SilentlyContinue; if ($BashCmd) { $BashExe = $BashCmd.Source } }
+    if ($BashExe -and (Test-Path "$RbPath\start.sh")) {
+        Start-Process -FilePath $BashExe -ArgumentList "-c", "cd '$($RbPath -replace '\\','/')' && bash start.sh" -WorkingDirectory $RbPath -WindowStyle Hidden
+    } else {
+        Write-Warn "bash not found or start.sh missing — falling back to npm run dev"
+        Start-Process -FilePath "npm" -ArgumentList "run", "dev" -WorkingDirectory $RbPath -WindowStyle Hidden
+    }
+
+    Start-Sleep -Seconds 5
+    try { Start-Process "http://localhost:3000" } catch {}
+    try { Start-Process "http://localhost:7477" } catch {}
+    Write-Ok "Dev server started — opened localhost:3000 and localhost:7477"
+}
+
 function Make-Playground {
     $PlaygroundPath = "$Desktop\playground"
     New-Item -ItemType Directory -Path $PlaygroundPath -Force | Out-Null
@@ -148,17 +181,7 @@ if ($DialogResult -eq [System.Windows.Forms.DialogResult]::Yes) {
     Write-Ok "Re-run detected — refreshing project files only"
     Install-DishlyPlatform
     Make-Playground
-    $RbPath = "$Desktop\dishly-platform"
-    if ((Test-Path $RbPath) -and (Get-Command node -ErrorAction SilentlyContinue)) {
-        Write-Run "Running npm install in dishly-platform..."
-        try { & npm install --prefix $RbPath 2>&1 | Write-Host } catch {}
-        Write-Ok "npm install done"
-        Write-Run "Starting dev server in background..."
-        Start-Process -FilePath "npm" -ArgumentList "run", "dev" -WorkingDirectory $RbPath -WindowStyle Hidden
-        Start-Sleep -Seconds 3
-        try { Start-Process "http://localhost:3000" } catch {}
-        Write-Ok "Dev server started at http://localhost:3000"
-    }
+    Start-DishlyPlatform
     Write-Host ""
     Write-Host "  ─────────────────────────────────────────" -ForegroundColor DarkGray
     Write-Ok "Done"
@@ -537,19 +560,7 @@ Write-Section "dishly-platform project"
 Install-DishlyPlatform
 Make-Playground
 
-# npm install + dev server
-$RbPath = "$Desktop\dishly-platform"
-if ((Test-Path $RbPath) -and (Get-Command node -ErrorAction SilentlyContinue)) {
-    Write-Run "Running npm install in dishly-platform..."
-    try { & npm install --prefix $RbPath 2>&1 | Write-Host } catch {}
-    Write-Ok "npm install done"
-
-    Write-Run "Starting dev server in background..."
-    Start-Process -FilePath "npm" -ArgumentList "run", "dev" -WorkingDirectory $RbPath -WindowStyle Hidden
-    Start-Sleep -Seconds 3
-    try { Start-Process "http://localhost:3000" } catch {}
-    Write-Ok "Dev server started at http://localhost:3000"
-}
+Start-DishlyPlatform
 
 # ── done ──────────────────────────────────────────────────────────────────────
 
