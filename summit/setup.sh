@@ -18,7 +18,7 @@ TIMEOUT=300
 
 BOLD='\033[1m'
 DIM='\033[2m'
-RED='\033[0;31m'
+RED='\033[0;33m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 CYAN='\033[0;36m'
@@ -85,13 +85,6 @@ install_restaurant_booking() {
   fi
   ok "dishly-platform ready at ~/Desktop/dishly-platform"
 
-  local landscape="${DESKTOP}/dishly-platform/.forge/products/dishly-platform/competitive/initial-landscape.md"
-  if [[ -f "$landscape" ]]; then
-    cp "$landscape" "${DESKTOP}/initial-landscape.md"
-    ok "initial-landscape.md copied to Desktop"
-  else
-    warn "initial-landscape.md not found in dishly-platform"
-  fi
 }
 
 # helper — create playground dir on Desktop
