@@ -116,28 +116,12 @@ function Start-DishlyPlatform {
     try { & npm install --prefix $RbPath 2>&1 | Write-Host } catch {}
     Write-Ok "npm install done"
 
-    Write-Run "Killing any existing processes on ports 3000, 3001 and 7477..."
-    foreach ($port in @(3000, 3001, 7477)) {
-        try {
-            $pids = (netstat -ano | Select-String ":$port\s" | ForEach-Object { ($_ -split '\s+')[-1] } | Sort-Object -Unique)
-            foreach ($p in $pids) { if ($p -match '^\d+$' -and $p -ne '0') { Stop-Process -Id $p -Force -ErrorAction SilentlyContinue } }
-        } catch {}
-    }
-
-    Write-Run "Running start.sh in dishly-platform..."
-    $BashExe = "C:\Program Files\Git\bin\bash.exe"
-    if (-not (Test-Path $BashExe)) { $BashCmd = Get-Command bash -ErrorAction SilentlyContinue; if ($BashCmd) { $BashExe = $BashCmd.Source } }
-    if ($BashExe -and (Test-Path "$RbPath\start.sh")) {
-        Start-Process -FilePath $BashExe -ArgumentList "-c", "cd '$($RbPath -replace '\\','/')' && bash start.sh" -WorkingDirectory $RbPath -WindowStyle Hidden
-    } else {
-        Write-Warn "bash not found or start.sh missing — falling back to npm run dev"
-        Start-Process -FilePath "npm" -ArgumentList "run", "dev" -WorkingDirectory $RbPath -WindowStyle Hidden
-    }
-
-    Start-Sleep -Seconds 5
+    Write-Run "Starting dev server in background..."
+    Start-Process -FilePath "npm" -ArgumentList "run", "dev" -WorkingDirectory $RbPath -WindowStyle Hidden
+    Start-Sleep -Seconds 3
     try { Start-Process "http://localhost:3000" } catch {}
     try { Start-Process "http://localhost:7477" } catch {}
-    Write-Ok "Dev server started — opened localhost:3000 and localhost:7477"
+    Write-Ok "Dev server started at http://localhost:3000 and http://localhost:7477"
 }
 
 function Make-Playground {
@@ -183,8 +167,22 @@ if ($DialogResult -eq [System.Windows.Forms.DialogResult]::Yes) {
     Make-Playground
     Start-DishlyPlatform
     Write-Host ""
-    Write-Host "  ─────────────────────────────────────────" -ForegroundColor DarkGray
-    Write-Ok "Done"
+    Write-Host "  ─────────────────────────────────────────" -ForegroundColor Cyan
+    Write-Host "    Setup Complete — Here's your summary"   -ForegroundColor White
+    Write-Host "  ─────────────────────────────────────────" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "  Files on Desktop:"                                          -ForegroundColor White
+    Write-Host "    $env:USERPROFILE\Desktop\dishly-platform   <- project folder"  -ForegroundColor DarkGray
+    Write-Host "    $env:USERPROFILE\Desktop\rr-standards      <- plugins & standards" -ForegroundColor DarkGray
+    Write-Host "    $env:USERPROFILE\Desktop\playground         <- scratch space"  -ForegroundColor DarkGray
+    Write-Host ""
+    Write-Host "  Running Services:"                                          -ForegroundColor White
+    Write-Host "    http://localhost:3000        <- site (frontend)"          -ForegroundColor DarkGray
+    Write-Host "    http://localhost:7477        <- docs / API"               -ForegroundColor DarkGray
+    Write-Host ""
+    Write-Host "  Next Steps:"                                                -ForegroundColor White
+    Write-Host "    cd $env:USERPROFILE\Desktop\dishly-platform"             -ForegroundColor DarkGray
+    Write-Host "    claude"                                                   -ForegroundColor DarkGray
     Write-Host ""
     exit 0
 }
@@ -565,10 +563,20 @@ Start-DishlyPlatform
 # ── done ──────────────────────────────────────────────────────────────────────
 
 Write-Host ""
-Write-Host "  ─────────────────────────────────────────" -ForegroundColor DarkGray
-Write-Ok "Setup complete"
+Write-Host "  ─────────────────────────────────────────" -ForegroundColor Cyan
+Write-Host "    Setup Complete — Here's your summary"   -ForegroundColor White
+Write-Host "  ─────────────────────────────────────────" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "  Next steps:" -ForegroundColor DarkGray
-Write-Host "  1. Open a new terminal window (to reload PATH)" -ForegroundColor DarkGray
-Write-Host "  2. cd into your project folder and run: claude" -ForegroundColor DarkGray
+Write-Host "  Files on Desktop:"                                          -ForegroundColor White
+Write-Host "    $env:USERPROFILE\Desktop\dishly-platform   <- project folder"  -ForegroundColor DarkGray
+Write-Host "    $env:USERPROFILE\Desktop\rr-standards      <- plugins & standards" -ForegroundColor DarkGray
+Write-Host "    $env:USERPROFILE\Desktop\playground         <- scratch space"  -ForegroundColor DarkGray
+Write-Host ""
+Write-Host "  Running Services:"                                          -ForegroundColor White
+Write-Host "    http://localhost:3000        <- site (frontend)"          -ForegroundColor DarkGray
+Write-Host "    http://localhost:7477        <- docs / API"               -ForegroundColor DarkGray
+Write-Host ""
+Write-Host "  Next Steps:"                                                -ForegroundColor White
+Write-Host "    cd $env:USERPROFILE\Desktop\dishly-platform"             -ForegroundColor DarkGray
+Write-Host "    claude"                                                   -ForegroundColor DarkGray
 Write-Host ""
