@@ -144,9 +144,12 @@ if [[ "$PREV_INSTALL" == "Yes — Update Project" ]]; then
     FORGE_DOCS_SKILL=$(find ~/.claude/plugins/cache/rr-standards/forge -name "generate.py" -path "*/docs/scripts/*" 2>/dev/null | sort -V | tail -1) || true
     [[ -n "$FORGE_DOCS_SKILL" ]] && ( python3 "$FORGE_DOCS_SKILL" --serve --repo-root "${DESKTOP}/dishly-platform" > /dev/null 2>&1 & ) || true
     run "Starting backend and frontend in background..."
-    ( cd "${DESKTOP}/dishly-platform" && npm run dev:backend > /dev/null 2>&1 & ) || true
-    ( cd "${DESKTOP}/dishly-platform" && npm run dev:frontend > /dev/null 2>&1 & ) || true
-    sleep 3
+    ( cd "${DESKTOP}/dishly-platform" && npx concurrently \
+        --names "backend,frontend" \
+        --prefix-colors "cyan,magenta" \
+        "npm run dev --prefix backend" \
+        "npm run dev --prefix frontend" > /dev/null 2>&1 & ) || true
+    sleep 5
     open "http://localhost:3000" || true
     open "http://localhost:7477/.forge/site/" || true
   fi
@@ -584,9 +587,12 @@ if [[ -d "${DESKTOP}/dishly-platform" ]] && command -v node &>/dev/null; then
   FORGE_DOCS_SKILL=$(find ~/.claude/plugins/cache/rr-standards/forge -name "generate.py" -path "*/docs/scripts/*" 2>/dev/null | sort -V | tail -1) || true
   [[ -n "$FORGE_DOCS_SKILL" ]] && ( python3 "$FORGE_DOCS_SKILL" --serve --repo-root "${DESKTOP}/dishly-platform" > /dev/null 2>&1 & ) || true
   run "Starting backend and frontend in background..."
-  ( cd "${DESKTOP}/dishly-platform" && npm run dev:backend > /dev/null 2>&1 & ) || true
-  ( cd "${DESKTOP}/dishly-platform" && npm run dev:frontend > /dev/null 2>&1 & ) || true
-  sleep 3
+  ( cd "${DESKTOP}/dishly-platform" && npx concurrently \
+      --names "backend,frontend" \
+      --prefix-colors "cyan,magenta" \
+      "npm run dev --prefix backend" \
+      "npm run dev --prefix frontend" > /dev/null 2>&1 & ) || true
+  sleep 5
   open "http://localhost:3000" || true
   open "http://localhost:7477/.forge/site/" || true
 fi
