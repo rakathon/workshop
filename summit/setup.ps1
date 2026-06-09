@@ -101,13 +101,7 @@ function Install-DishlyPlatform {
     Remove-Item -Recurse -Force $Tmp -ErrorAction SilentlyContinue
     Write-Ok "dishly-platform ready at Desktop\dishly-platform"
 
-    $Landscape = "$Desktop\dishly-platform\.forge\products\dishly-platform\competitive\initial-landscape.md"
-    if (Test-Path $Landscape) {
-        Copy-Item $Landscape "$Desktop\initial-landscape.md" -Force
-        Write-Ok "initial-landscape.md copied to Desktop"
-    } else {
-        Write-Warn "initial-landscape.md not found in dishly-platform"
-    }
+
 }
 
 function Start-DishlyPlatform {
