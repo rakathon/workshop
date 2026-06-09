@@ -578,7 +578,7 @@ if [[ -d "${DESKTOP}/dishly-platform" ]] && command -v node &>/dev/null; then
   run "Running database migrations..."
   ( cd "${DESKTOP}/dishly-platform" && node -e "require('./backend/src/db/migrate').migrate()" 2>&1 ) || true
   run "Seeding database..."
-  ( cd "${DESKTOP}/dishly-platform" && node backend/src/db/seed.js 2>&1 ) || true
+  ( cd "${DESKTOP}/dishly-platform" && node backend/src/db/seed.js --force 2>&1 ) || true
   run "Killing any existing processes on ports 3000 and 7477..."
   lsof -ti:3000 | xargs kill -9 2>/dev/null || true
   lsof -ti:7477 | xargs kill -9 2>/dev/null || true
