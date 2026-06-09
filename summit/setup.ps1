@@ -516,6 +516,20 @@ if (Get-Command claude -ErrorAction SilentlyContinue) {
             Remove-Item -Recurse -Force $RrTmp -ErrorAction SilentlyContinue
             Write-Ok "rr-standards extracted to Desktop\rr-standards"
 
+            Write-Run "Patching marketplace.json to use local plugin sources..."
+            $MarketplaceJson = "$RrDest\.claude-plugin\marketplace.json"
+            if (Test-Path $MarketplaceJson) {
+                $mj = Get-Content $MarketplaceJson -Raw | ConvertFrom-Json
+                foreach ($p in $mj.plugins) {
+                    if ($p.name -in @("forge-product-management", "forge-skill-creator")) {
+                        $p.source = "./plugins/$($p.name)"
+                    }
+                }
+                $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+                [IO.File]::WriteAllText($MarketplaceJson, ($mj | ConvertTo-Json -Depth 10), $utf8NoBom)
+                Write-Ok "marketplace.json patched — forge-product-management and forge-skill-creator use local source"
+            }
+
             Write-Run "Adding rr-standards marketplace from Desktop\rr-standards..."
             $Out = & claude plugin marketplace add $RrDest 2>&1
             Write-Host $Out
