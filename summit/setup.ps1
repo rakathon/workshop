@@ -136,17 +136,27 @@ function Start-DishlyPlatform {
     if (-not (Get-Command node -ErrorAction SilentlyContinue)) { Write-Warn "node not on PATH — skipping start"; return }
 
     Push-Location $RbPath
-    Write-Run "Installing dependencies (backend)..."
-    try { & npm install --prefix backend --no-fund --loglevel=error 2>&1 | Write-Host } catch {}
-    Write-Run "Installing dependencies (frontend)..."
-    try { & npm install --prefix frontend --no-fund --loglevel=error 2>&1 | Write-Host } catch {}
-    Write-Run "Installing root dependencies..."
-    try { & npm install --no-fund --loglevel=error 2>&1 | Write-Host } catch {}
+    if (Test-Path "backend\package.json") {
+        Write-Run "Installing dependencies (backend)..."
+        try { & npm install --prefix backend --no-fund --loglevel=error 2>&1 | Write-Host } catch {}
+    }
+    if (Test-Path "frontend\package.json") {
+        Write-Run "Installing dependencies (frontend)..."
+        try { & npm install --prefix frontend --no-fund --loglevel=error 2>&1 | Write-Host } catch {}
+    }
+    if (Test-Path "package.json") {
+        Write-Run "Installing root dependencies..."
+        try { & npm install --no-fund --loglevel=error 2>&1 | Write-Host } catch {}
+    }
 
-    Write-Run "Running database migrations..."
-    try { & node -e "require('./backend/src/db/migrate').migrate()" 2>&1 | Write-Host } catch {}
-    Write-Run "Seeding database..."
-    try { & node "backend/src/db/seed.js" 2>&1 | Write-Host } catch {}
+    if (Test-Path "backend\src\db\migrate.js") {
+        Write-Run "Running database migrations..."
+        try { & node -e "require('./backend/src/db/migrate').migrate()" 2>&1 | Write-Host } catch {}
+    }
+    if (Test-Path "backend\src\db\seed.js") {
+        Write-Run "Seeding database..."
+        try { & node "backend/src/db/seed.js" 2>&1 | Write-Host } catch {}
+    }
     Pop-Location
 
     Write-Run "Starting forge:docs server..."
@@ -167,7 +177,7 @@ function Start-DishlyPlatform {
     $BashExe = "C:\Program Files\Git\bin\bash.exe"
     if (-not (Test-Path $BashExe)) { $BashCmd = Get-Command bash -ErrorAction SilentlyContinue; if ($BashCmd) { $BashExe = $BashCmd.Source } }
     if ($BashExe -and (Test-Path "$RbPath\start.sh")) {
-        $RbPathUnix = $RbPath -replace '\\', '/' -replace '^([A-Za-z]):', '/$1'
+        $RbPathUnix = '/' + $RbPath[0].ToString().ToLower() + ($RbPath.Substring(2) -replace '\\', '/')
         Start-Process -FilePath $BashExe -ArgumentList "-c", "cd '$RbPathUnix' && bash start.sh" -WorkingDirectory $RbPath -WindowStyle Hidden
     } else {
         Write-Warn "bash or start.sh not found — falling back to dev:backend + dev:frontend"
