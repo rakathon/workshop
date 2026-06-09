@@ -185,17 +185,17 @@ function Start-DishlyPlatform {
         Write-Warn "generate.py not found — forge:docs server will not start"
     }
 
-    Write-Run "Running start.sh in background..."
-    $BashExe = "C:\Program Files\Git\bin\bash.exe"
-    if (-not (Test-Path $BashExe)) { $BashCmd = Get-Command bash -ErrorAction SilentlyContinue; if ($BashCmd) { $BashExe = $BashCmd.Source } }
-    if ($BashExe -and (Test-Path "$RbPath\start.sh")) {
-        $RbPathUnix = '/' + $RbPath[0].ToString().ToLower() + ($RbPath.Substring(2) -replace '\\', '/')
-        Start-Process -FilePath $BashExe -ArgumentList "-c", "cd '$RbPathUnix' && bash start.sh" -WorkingDirectory $RbPath -WindowStyle Hidden
-    } else {
-        Write-Warn "bash or start.sh not found — falling back to dev:backend + dev:frontend"
-        Start-Process -FilePath "npm" -ArgumentList "run", "dev:backend" -WorkingDirectory $RbPath -WindowStyle Hidden
-        Start-Process -FilePath "npm" -ArgumentList "run", "dev:frontend" -WorkingDirectory $RbPath -WindowStyle Hidden
+    Write-Run "Killing any process on ports 3000, 3001, 7477..."
+    foreach ($port in @(3000, 3001, 5173, 7477)) {
+        try {
+            $pids = (netstat -ano | Select-String ":$port\s" | ForEach-Object { ($_ -split '\s+')[-1] } | Sort-Object -Unique)
+            foreach ($p in $pids) { if ($p -match '^\d+$' -and $p -ne '0') { Stop-Process -Id $p -Force -ErrorAction SilentlyContinue } }
+        } catch {}
     }
+    Start-Sleep -Seconds 1
+
+    Write-Run "Starting backend and frontend..."
+    Start-Process -FilePath "cmd" -ArgumentList "/c", "set VITE_PORT=3000 && npm run dev" -WorkingDirectory $RbPath -WindowStyle Hidden
     Write-Run "Waiting for servers to start..."
     $waited = 0
     while ($waited -lt 60) {
