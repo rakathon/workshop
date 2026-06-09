@@ -198,9 +198,9 @@ function Start-DishlyPlatform {
     }
     Write-Run "Waiting for servers to start..."
     $waited = 0
-    while ($waited -lt 30) {
+    while ($waited -lt 60) {
         Start-Sleep -Seconds 2; $waited += 2
-        $listening = netstat -ano 2>$null | Select-String ':3000\s'
+        $listening = netstat -ano 2>$null | Select-String ':3000\s|:3001\s'
         if ($listening) { break }
         Write-Run "  still waiting... ($waited s)"
     }
