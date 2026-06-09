@@ -514,9 +514,9 @@ section "Installing forge plugins"
 if command -v claude &>/dev/null; then
   for plugin in forge forge-product-management forge-skill-creator; do
     run "Removing any existing ${plugin}..."
-    claude plugin remove "${plugin}@rr-standards" 2>&1 || true
+    claude plugin remove "$plugin" 2>&1 || true
     run "Installing ${plugin}..."
-    if claude plugin install "${plugin}@rr-standards" 2>&1; then
+    if claude plugin install "$plugin" 2>&1; then
       ok "${plugin} installed"
     else
       warn "Could not install ${plugin}"
