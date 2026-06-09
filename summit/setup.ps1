@@ -594,7 +594,7 @@ if (Get-Command claude -ErrorAction SilentlyContinue) {
     foreach ($plugin in @("forge@rr-standards", "forge-product-management@rr-standards", "forge-skill-creator@rr-standards")) {
         $pluginName = $plugin -replace '@.*', ''
         Write-Run "Removing any existing $pluginName..."
-        try { & claude plugin remove $pluginName 2>&1 } catch {}
+        try { & claude plugin remove $plugin 2>&1 } catch {}
 
         Write-Run "Installing $plugin..."
         $Out  = & claude plugin install $plugin 2>&1
