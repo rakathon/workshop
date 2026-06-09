@@ -124,10 +124,17 @@ function Start-DishlyPlatform {
     Pop-Location
 
     Write-Run "Starting forge:docs server..."
-    $ForgeDocsSkill = Get-ChildItem "$env:USERPROFILE\.claude\plugins\cache\rr-standards\forge" -Recurse -Filter "generate.py" -ErrorAction SilentlyContinue |
+    $ForgeDocsSkill = Get-ChildItem "$Desktop\rr-standards\plugins\forge" -Recurse -Filter "generate.py" -ErrorAction SilentlyContinue |
         Where-Object { $_.FullName -like "*docs*scripts*" } | Sort-Object FullName | Select-Object -Last 1
+    if (-not $ForgeDocsSkill) {
+        $ForgeDocsSkill = Get-ChildItem "$env:USERPROFILE\.claude\plugins\cache\rr-standards\forge" -Recurse -Filter "generate.py" -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -like "*docs*scripts*" } | Sort-Object FullName | Select-Object -Last 1
+    }
     if ($ForgeDocsSkill) {
+        Write-Run "Found generate.py at $($ForgeDocsSkill.FullName)"
         Start-Process -FilePath "python" -ArgumentList $ForgeDocsSkill.FullName, "--serve", "--repo-root", $RbPath -WindowStyle Hidden -ErrorAction SilentlyContinue
+    } else {
+        Write-Warn "generate.py not found — forge:docs server will not start"
     }
 
     Write-Run "Running start.sh in background..."
