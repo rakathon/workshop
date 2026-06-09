@@ -113,18 +113,30 @@ function Install-DishlyPlatform {
     Write-Run "Extracting dishly-platform to Desktop..."
     $Dest = "$Desktop\dishly-platform"
     $Tmp  = "$env:TEMP\dishly-platform-extract"
-    if (Test-Path $Tmp)  { Remove-Item -Recurse -Force $Tmp }
-    if (Test-Path $Dest) {
-        Get-ChildItem $Dest -Recurse | ForEach-Object { $_.Attributes = $_.Attributes -band (-bnot [IO.FileAttributes]::ReadOnly) }
-        Remove-Item -Recurse -Force $Dest -ErrorAction SilentlyContinue
+
+    # Kill any processes holding ports so .git files are not locked
+    foreach ($port in @(3000, 3001, 7477)) {
+        try {
+            $pids = (netstat -ano | Select-String ":$port\s" | ForEach-Object { ($_ -split '\s+')[-1] } | Sort-Object -Unique)
+            foreach ($p in $pids) { if ($p -match '^\d+$' -and $p -ne '0') { Stop-Process -Id $p -Force -ErrorAction SilentlyContinue } }
+        } catch {}
     }
+    Start-Sleep -Seconds 1
+
+    if (Test-Path $Tmp) { & cmd /c "rd /s /q `"$Tmp`"" 2>$null }
+    if (Test-Path $Dest) { & cmd /c "rd /s /q `"$Dest`"" 2>$null }
+    New-Item -ItemType Directory -Path $Tmp -Force | Out-Null
+
     Expand-Archive -Path $ZipAsset -DestinationPath $Tmp -Force
     $Inner = Get-ChildItem $Tmp | Where-Object { $_.Name -ne '__MACOSX' } | Select-Object -First 1
-    if ($Inner -and $Inner.Name -ne "dishly-platform") {
-        Rename-Item $Inner.FullName "dishly-platform"
-    }
-    Move-Item "$Tmp\dishly-platform" $Dest
-    Remove-Item -Recurse -Force $Tmp -ErrorAction SilentlyContinue
+    if (-not $Inner) { Write-Warn "Zip appears empty — aborting"; return }
+    if ($Inner.Name -ne "dishly-platform") { Rename-Item $Inner.FullName "dishly-platform" }
+
+    # Use robocopy to copy into Dest (handles any residual locked files)
+    & robocopy "$Tmp\dishly-platform" $Dest /E /NFL /NDL /NJH /NJS /nc /ns /np 2>$null | Out-Null
+    & cmd /c "rd /s /q `"$Tmp`"" 2>$null
+
+    if (-not (Test-Path "$Dest\start.sh")) { Write-Warn "start.sh missing after extract — check zip contents"; return }
     Write-Ok "dishly-platform ready at Desktop\dishly-platform"
 
 
