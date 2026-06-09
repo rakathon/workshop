@@ -136,10 +136,18 @@ function Start-DishlyPlatform {
         Start-Process -FilePath "python" -ArgumentList $ForgeDocsSkill.FullName, "--serve", "--repo-root", $RbPath -WindowStyle Hidden -ErrorAction SilentlyContinue
     }
 
-    Write-Run "Starting backend and frontend in background..."
-    Start-Process -FilePath "npm" -ArgumentList "run", "dev:backend" -WorkingDirectory $RbPath -WindowStyle Hidden
-    Start-Process -FilePath "npm" -ArgumentList "run", "dev:frontend" -WorkingDirectory $RbPath -WindowStyle Hidden
-    Start-Sleep -Seconds 3
+    Write-Run "Running start.sh in background..."
+    $BashExe = "C:\Program Files\Git\bin\bash.exe"
+    if (-not (Test-Path $BashExe)) { $BashCmd = Get-Command bash -ErrorAction SilentlyContinue; if ($BashCmd) { $BashExe = $BashCmd.Source } }
+    if ($BashExe -and (Test-Path "$RbPath\start.sh")) {
+        $RbPathUnix = $RbPath -replace '\\', '/' -replace '^([A-Za-z]):', '/$1'
+        Start-Process -FilePath $BashExe -ArgumentList "-c", "cd '$RbPathUnix' && bash start.sh" -WorkingDirectory $RbPath -WindowStyle Hidden
+    } else {
+        Write-Warn "bash or start.sh not found — falling back to dev:backend + dev:frontend"
+        Start-Process -FilePath "npm" -ArgumentList "run", "dev:backend" -WorkingDirectory $RbPath -WindowStyle Hidden
+        Start-Process -FilePath "npm" -ArgumentList "run", "dev:frontend" -WorkingDirectory $RbPath -WindowStyle Hidden
+    }
+    Start-Sleep -Seconds 5
     try { Start-Process "http://localhost:3000" } catch {}
     try { Start-Process "http://localhost:7477/.forge/site/" } catch {}
     Write-Ok "Dev server started at http://localhost:3000 and http://localhost:7477/.forge/site/"
