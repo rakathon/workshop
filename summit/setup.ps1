@@ -141,7 +141,14 @@ function Start-DishlyPlatform {
         Start-Process -FilePath "npm" -ArgumentList "run", "dev:backend" -WorkingDirectory $RbPath -WindowStyle Hidden
         Start-Process -FilePath "npm" -ArgumentList "run", "dev:frontend" -WorkingDirectory $RbPath -WindowStyle Hidden
     }
-    Start-Sleep -Seconds 5
+    Write-Run "Waiting for servers to start..."
+    $waited = 0
+    while ($waited -lt 30) {
+        Start-Sleep -Seconds 2; $waited += 2
+        $listening = netstat -ano 2>$null | Select-String ':3000\s'
+        if ($listening) { break }
+        Write-Run "  still waiting... ($waited s)"
+    }
     try { Start-Process "http://localhost:3000" } catch {}
     try { Start-Process "http://localhost:7477/.forge/site/" } catch {}
     Write-Ok "Dev server started at http://localhost:3000 and http://localhost:7477/.forge/site/"
