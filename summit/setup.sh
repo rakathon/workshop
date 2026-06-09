@@ -188,11 +188,19 @@ else
   NODE_PKG=/tmp/node-lts.pkg
   # Get latest LTS version from tab-separated index (no python needed)
   NODE_VERSION=$(curl -fsSL https://nodejs.org/dist/index.tab 2>/dev/null \
-    | awk -F'\t' 'NR>1 && $10!="false" {print $1; exit}')
-  curl -fsSL "https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}.pkg" -o "$NODE_PKG"
-  run "Installing Node.js ${NODE_VERSION}..."
-  sudo installer -pkg "$NODE_PKG" -target / > /dev/null
-  rm -f "$NODE_PKG"
+    | awk -F'\t' 'NR>1 && $10!="false" {print $1; exit}') || true
+  if [[ -n "$NODE_VERSION" ]]; then
+    curl -fsSL "https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}.pkg" -o "$NODE_PKG" 2>&1 || true
+    if [[ -f "$NODE_PKG" ]]; then
+      run "Installing Node.js ${NODE_VERSION}..."
+      sudo installer -pkg "$NODE_PKG" -target / > /dev/null 2>&1 || true
+      rm -f "$NODE_PKG"
+    else
+      warn "Could not download Node.js — skipping (install manually from nodejs.org)"
+    fi
+  else
+    warn "Could not fetch Node.js version list — skipping (install manually from nodejs.org)"
+  fi
   export PATH="/usr/local/bin:$PATH"
   command -v node &>/dev/null && ok "Node.js installed ($(node --version))" \
     || warn "Node.js not found on PATH — you may need to restart Terminal"
