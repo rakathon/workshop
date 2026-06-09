@@ -6,6 +6,32 @@
 
 $ErrorActionPreference = 'Continue'
 
+# ── python check / install ────────────────────────────────────────────────────
+$PythonOk = $false
+$PythonCmd = Get-Command python -ErrorAction SilentlyContinue
+if ($PythonCmd) {
+    # Windows Store stub lives in WindowsApps and exits with code 9009 when run headlessly
+    $testOut = & python --version 2>&1
+    if ($testOut -match 'Python \d+\.\d+') { $PythonOk = $true }
+}
+if (-not $PythonOk) {
+    Write-Host ""
+    Write-Host "  Python not found — opening Microsoft Store to install it..." -ForegroundColor Yellow
+    Start-Process "ms-windows-store://pdp/?ProductId=9NRWMJLIVE9D"  # Python 3.12 from Store
+    Write-Host "  Please install Python from the Store, then press ENTER to continue..." -ForegroundColor Cyan
+    Read-Host | Out-Null
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+    $PythonCmd = Get-Command python -ErrorAction SilentlyContinue
+    if ($PythonCmd) {
+        $testOut = & python --version 2>&1
+        if ($testOut -match 'Python \d+\.\d+') {
+            Write-Host "  [OK]  Python installed ($testOut)" -ForegroundColor Green
+        } else {
+            Write-Host "  [!!]  Python still not detected — forge:docs server will be skipped" -ForegroundColor Yellow
+        }
+    }
+}
+
 $OktaIssuer  = "https://rakuten.okta.com/oauth2/ausxr4nv1gcTtBswT357"
 $ClientId    = "0oa1hk5jgg1Oz3zDm358"
 $RedirectUri = "https://developer.ai.public.rakuten-it.com/callback"
