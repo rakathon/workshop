@@ -167,7 +167,7 @@ function Start-DishlyPlatform {
     }
     if (Test-Path "backend\src\db\seed.js") {
         Write-Run "Seeding database..."
-        try { & node "backend/src/db/seed.js" 2>&1 | Write-Host } catch {}
+        try { & node "backend/src/db/seed.js" "--force" 2>&1 | Write-Host } catch {}
     }
     Pop-Location
 
@@ -613,16 +613,15 @@ if (Get-Command claude -ErrorAction SilentlyContinue) {
 Write-Section "Installing forge plugins"
 
 if (Get-Command claude -ErrorAction SilentlyContinue) {
-    foreach ($plugin in @("forge@rr-standards", "forge-product-management@rr-standards", "forge-skill-creator@rr-standards")) {
-        $pluginName = $plugin -replace '@.*', ''
-        Write-Run "Removing any existing $pluginName..."
+    foreach ($plugin in @("forge", "forge-product-management", "forge-skill-creator")) {
+        Write-Run "Removing any existing $plugin..."
         try { & claude plugin remove $plugin 2>&1 } catch {}
 
         Write-Run "Installing $plugin..."
         $Out  = & claude plugin install $plugin 2>&1
         Write-Host $Out
         if ($LASTEXITCODE -eq 0) {
-            Write-Ok "$pluginName installed"
+            Write-Ok "$plugin installed"
         } else {
             Write-Warn "Could not install $plugin"
         }
