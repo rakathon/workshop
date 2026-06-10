@@ -207,6 +207,7 @@ function Find-ChromiumExe {
 Clear-Host
 Write-Host ""
 Write-Host "  Rakuten Claude Code Setup  (Windows)" -ForegroundColor White
+Write-Host "  v2.0.0  |  Author: Jino Jose" -ForegroundColor DarkGray
 Write-Host "  ─────────────────────────────────────────" -ForegroundColor DarkGray
 Write-Host ""
 
