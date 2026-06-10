@@ -496,6 +496,23 @@ if command -v claude &>/dev/null; then
     rm -rf "$RR_TMP"
     ok "rr-standards extracted to ~/Desktop/rr-standards"
 
+    run "Patching marketplace.json to use local plugin sources..."
+    MARKETPLACE_JSON="${RR_DEST}/.claude-plugin/marketplace.json"
+    if [[ -f "$MARKETPLACE_JSON" ]] && command -v python3 &>/dev/null; then
+      python3 - "$MARKETPLACE_JSON" <<'PYEOF' || true
+import json, sys
+path = sys.argv[1]
+with open(path) as f:
+    data = json.load(f)
+for p in data.get("plugins", []):
+    if p.get("name") in ("forge", "forge-product-management", "forge-skill-creator"):
+        p["source"] = f"./plugins/{p['name']}"
+with open(path, "w") as f:
+    json.dump(data, f, indent=2)
+print("  marketplace.json patched — forge plugins use local source")
+PYEOF
+    fi
+
     run "Adding rr-standards marketplace from ~/Desktop/rr-standards..."
     claude plugin marketplace add "$RR_DEST" 2>&1 \
       && ok "rr-standards marketplace added" \
