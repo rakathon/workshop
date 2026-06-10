@@ -61,7 +61,7 @@ function ConvertTo-UrlEncoded($str) { return [Uri]::EscapeDataString($str) }
 
 $amp = [char]38
 
-$Desktop = "$env:USERPROFILE\Desktop"
+$Desktop = [Environment]::GetFolderPath('Desktop')
 
 # ── cert setup ────────────────────────────────────────────────────────────────
 $CertsDir = "$env:USERPROFILE\certs"
