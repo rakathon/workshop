@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AIDD Summit 2026: Building the Dishly Date Night Concierge</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+      color: #1a1a1a;
+      background: #fff;
+      display: flex;
+    }
+
+    /* Sidebar */
+    nav {
+      width: 240px;
+      min-width: 240px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      background: #f7f7f8;
+      border-right: 1px solid #e2e2e6;
+      padding: 28px 0 40px;
+      font-size: 13px;
+    }
+
+    nav .nav-logo {
+      padding: 0 20px 18px;
+      font-weight: 700;
+      font-size: 13px;
+      color: #555;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      border-bottom: 1px solid #e2e2e6;
+      margin-bottom: 14px;
+    }
+
+    nav .nav-group-label {
+      display: block;
+      padding: 10px 20px 4px;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #999;
+    }
+
+    nav a {
+      display: block;
+      padding: 5px 20px;
+      color: #444;
+      text-decoration: none;
+      border-left: 2px solid transparent;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+
+    nav a:hover {
+      color: #c0392b;
+      background: #f0e9e9;
+      border-left-color: #c0392b;
+    }
+
+    nav a.active {
+      color: #c0392b;
+      background: #f0e9e9;
+      border-left-color: #c0392b;
+      font-weight: 600;
+    }
+
+    nav .timer-badge {
+      float: right;
+      font-size: 10px;
+      font-weight: 600;
+      color: #888;
+      background: #e8e8ec;
+      border-radius: 10px;
+      padding: 1px 6px;
+      margin-top: 1px;
+    }
+
+    /* Main content */
+    main {
+      flex: 1;
+      padding: 48px 80px 80px 56px;
+      min-width: 0;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #111;
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 15px;
+      margin-bottom: 8px;
+    }
+
+    .meta-row {
+      display: flex;
+      gap: 18px;
+      margin: 14px 0 32px;
+      flex-wrap: wrap;
+    }
+
+    .meta-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #555;
+      background: #f2f2f5;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      padding: 4px 12px;
+    }
+
+    .meta-chip.red { background: #fdf0ef; border-color: #f5c6c2; color: #c0392b; }
+    .meta-chip.green { background: #edf7f0; border-color: #b9e4c7; color: #1a7a3a; }
+
+    hr.section-rule {
+      border: none;
+      border-top: 1px solid #e2e2e6;
+      margin: 40px 0 28px;
+    }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 4px;
+    }
+
+    .section-subtitle {
+      font-style: italic;
+      color: #777;
+      font-size: 13.5px;
+      margin-bottom: 18px;
+    }
+
+    h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #222;
+      margin: 20px 0 6px;
+    }
+
+    h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #333;
+      margin: 14px 0 4px;
+    }
+
+    p { margin-bottom: 12px; }
+
+    a { color: #c0392b; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Code */
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 12.5px;
+      background: #f4f4f7;
+      border: 1px solid #e0e0e6;
+      border-radius: 4px;
+      padding: 1px 5px;
+      color: #c0392b;
+    }
+
+    pre {
+      background: #1e1e2e;
+      color: #cdd6f4;
+      border-radius: 8px;
+      padding: 16px 20px;
+      font-size: 13px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      line-height: 1.55;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 10px 0 16px;
+    }
+
+    pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      color: inherit;
+      font-size: inherit;
+    }
+
+    /* Callouts */
+    blockquote {
+      margin: 12px 0 16px;
+      padding: 12px 16px;
+      border-radius: 6px;
+      border-left: 4px solid #e2e2e6;
+      background: #f9f9fc;
+      font-size: 13.5px;
+      line-height: 1.6;
+    }
+
+    blockquote.note { border-left-color: #3498db; background: #eef6fd; }
+    blockquote.gotcha { border-left-color: #e67e22; background: #fef6ee; }
+    blockquote.tip { border-left-color: #27ae60; background: #edfaf2; }
+    blockquote.time { border-left-color: #8e44ad; background: #f5eef8; }
+
+    blockquote strong:first-child { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+    blockquote.note strong:first-child { color: #2980b9; }
+    blockquote.gotcha strong:first-child { color: #d35400; }
+    blockquote.tip strong:first-child { color: #1e8449; }
+    blockquote.time strong:first-child { color: #7d3c98; }
+
+    /* Step list */
+    ol.steps {
+      counter-reset: step;
+      list-style: none;
+      padding: 0;
+      margin: 12px 0 20px;
+    }
+
+    ol.steps > li {
+      counter-increment: step;
+      display: flex;
+      gap: 14px;
+      margin-bottom: 18px;
+      align-items: flex-start;
+    }
+
+    ol.steps > li::before {
+      content: counter(step);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #c0392b;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    ol.steps > li .step-body { flex: 1; }
+
+    /* Act header bar */
+    .skill-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(135deg, #c0392b 0%, #96281b 100%);
+      color: #fff;
+      border-radius: 10px;
+      padding: 16px 22px;
+      margin: 24px 0 16px;
+    }
+
+    .skill-header .act-num {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0.75;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .skill-header .skill-name {
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+
+    .skill-header .skill-time {
+      font-size: 13px;
+      font-weight: 600;
+      background: rgba(255,255,255,0.2);
+      border-radius: 20px;
+      padding: 4px 14px;
+      white-space: nowrap;
+    }
+
+    /* Behind-the-scenes badge */
+    .skill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11.5px;
+      color: #777;
+      background: #f6f6f9;
+      border: 1px dashed #d0d0da;
+      border-radius: 6px;
+      padding: 6px 14px;
+      margin: 6px 0 20px;
+      line-height: 1.5;
+    }
+
+    .skill-badge .gear { font-size: 13px; }
+
+    .skill-badge code {
+      background: #ececf2;
+      border: none;
+      color: #666;
+      font-size: 11px;
+    }
+
+    /* Progress timeline (horizontal) */
+    .timeline {
+      display: flex;
+      gap: 0;
+      margin: 28px 0 36px;
+      overflow-x: auto;
+      padding: 8px 0 4px;
+    }
+
+    .timeline-step {
+      flex: 1;
+      min-width: 90px;
+      text-align: center;
+      position: relative;
+    }
+
+    .timeline-step::before {
+      content: '';
+      display: block;
+      height: 3px;
+      background: #e2e2e6;
+      position: absolute;
+      top: 13px;
+      left: 50%;
+      right: -50%;
+      z-index: 0;
+    }
+
+    .timeline-step:last-child::before { display: none; }
+
+    .timeline-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #c0392b;
+      border: 3px solid #fff;
+      box-shadow: 0 0 0 2px #c0392b;
+      margin: 0 auto 6px;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .timeline-label {
+      font-size: 10.5px;
+      color: #555;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .timeline-time {
+      font-size: 9.5px;
+      color: #bbb;
+      margin-top: 1px;
+    }
+
+    /* Prompt box */
+    .prompt-box {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 0;
+      margin: 10px 0 16px;
+      overflow: hidden;
+    }
+
+    .prompt-box-header {
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      padding: 7px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .prompt-box-header .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-red { background: #ff5f57; }
+    .dot-yellow { background: #febc2e; }
+    .dot-green { background: #28c840; }
+
+    .prompt-box-header .prompt-label {
+      font-size: 11px;
+      color: #8b949e;
+      font-family: monospace;
+      margin-left: 4px;
+    }
+
+    .copy-btn {
+      margin-left: auto;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 5px;
+      color: #8b949e;
+      font-size: 11px;
+      font-family: monospace;
+      padding: 2px 9px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+
+    .copy-btn:hover {
+      background: rgba(255,255,255,0.15);
+      color: #e6edf3;
+    }
+
+    .copy-btn.copied {
+      color: #28c840;
+      border-color: #28c840;
+    }
+
+    .prompt-box pre {
+      margin: 0;
+      border-radius: 0;
+      background: transparent;
+      padding: 14px 18px;
+      color: #e6edf3;
+    }
+
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      margin: 12px 0 20px;
+    }
+
+    th {
+      text-align: left;
+      background: #f4f4f7;
+      border: 1px solid #e2e2e6;
+      padding: 8px 12px;
+      font-weight: 700;
+      color: #333;
+    }
+
+    td {
+      border: 1px solid #e8e8ec;
+      padding: 8px 12px;
+      vertical-align: top;
+      color: #444;
+    }
+
+    tr:nth-child(even) td { background: #fafafa; }
+
+    /* Scenario card */
+    .scenario-card {
+      background: linear-gradient(135deg, #fff5f4 0%, #fff 100%);
+      border: 1px solid #f5c6c2;
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin: 20px 0;
+    }
+
+    .scenario-card h3 {
+      margin-top: 0;
+      color: #c0392b;
+    }
+
+    /* Divider label */
+    .phase-divider {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 36px 0 24px;
+    }
+
+    .phase-divider::before, .phase-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #e2e2e6;
+    }
+
+    .phase-divider span {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #999;
+      white-space: nowrap;
+    }
+
+    /* Total bar */
+    .total-bar {
+      display: flex;
+      gap: 20px;
+      background: #1a1a2e;
+      color: #fff;
+      border-radius: 10px;
+      padding: 18px 24px;
+      margin: 28px 0 0;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .total-bar .total-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #aaa;
+      flex: 1;
+    }
+
+    .total-bar .total-num {
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .total-bar .total-segment {
+      font-size: 12px;
+      color: #ccc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .total-bar .seg-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-bottom: 2px;
+    }
+
+    ul.checklist {
+      list-style: none;
+      padding: 0;
+      margin: 10px 0;
+    }
+
+    ul.checklist li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 5px 0;
+      font-size: 13.5px;
+      border-bottom: 1px solid #f0f0f4;
+    }
+
+    ul.checklist li:last-child { border: none; }
+
+    ul.checklist li::before {
+      content: '☐';
+      font-size: 15px;
+      color: #ccc;
+      flex-shrink: 0;
+      margin-top: -1px;
+    }
+
+    ul.checklist li > span { flex: 1; min-width: 0; }
+
+    /* Vertical progress timeline */
+    .phases-wrapper {
+      display: flex;
+      gap: 0;
+      align-items: flex-start;
+    }
+
+    .vtl {
+      width: 56px;
+      min-width: 56px;
+      align-self: stretch;
+      position: sticky;
+      top: 48px;
+      max-height: calc(100vh - 48px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 6px;
+      flex-shrink: 0;
+      margin-left: 32px;
+    }
+
+    .vtl-track {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+    }
+
+    .vtl-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .vtl-dot {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #e2e2e6;
+      border: 2px solid #fff;
+      box-shadow: 0 0 0 2px #e2e2e6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: #aaa;
+      flex-shrink: 0;
+      transition: background 0.2s, box-shadow 0.2s, color 0.2s, width 0.15s, height 0.15s;
+      position: relative;
+      z-index: 1;
+      cursor: default;
+    }
+
+    .vtl-line {
+      width: 2px;
+      flex: 1;
+      min-height: 40px;
+      background: #e2e2e6;
+      transition: background 0.3s;
+    }
+
+    .vtl-item:last-child .vtl-line { display: none; }
+
+    .vtl-item.done .vtl-dot {
+      background: #27ae60;
+      box-shadow: 0 0 0 2px #27ae60;
+      color: transparent;
+      font-size: 0;
+    }
+    .vtl-item.done .vtl-dot::before {
+      content: '✓';
+      font-size: 11px;
+      color: #fff;
+      font-weight: 700;
+    }
+    .vtl-item.done .vtl-line { background: #27ae60; }
+
+    .vtl-item.active .vtl-dot {
+      background: #c0392b;
+      box-shadow: 0 0 0 4px rgba(192,57,43,0.2);
+      color: #fff;
+      width: 30px;
+      height: 30px;
+    }
+
+    .vtl-dot::after {
+      content: attr(data-label);
+      position: absolute;
+      right: 34px;
+      left: auto;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #1a1a2e;
+      color: #fff;
+      font-size: 11px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      white-space: nowrap;
+      padding: 3px 8px;
+      border-radius: 4px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s;
+      z-index: 10;
+    }
+    .vtl-dot:hover::after { opacity: 1; }
+
+    .phases-content { flex: 1; min-width: 0; }
+
+    @media (max-width: 700px) {
+      nav { display: none; }
+      .vtl { display: none; }
+      main { padding: 28px 20px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav>
+  <div class="nav-logo">AIDD Summit 2026</div>
+
+  <span class="nav-group-label">Overview</span>
+  <a href="#intro">Introduction</a>
+  <a href="#scenario">The Scenario</a>
+  <a href="#journey">Journey at a Glance</a>
+
+  <span class="nav-group-label">The Conversation</span>
+  <a href="#act1">1 · Pitch the Pivot <span class="timer-badge">20m</span></a>
+  <a href="#act2">2 · Define the North Star <span class="timer-badge">15m</span></a>
+  <a href="#act3">3 · Decide Where to Play <span class="timer-badge">15m</span></a>
+  <a href="#act4">4 · Intent to Requirements <span class="timer-badge">20m</span></a>
+  <a href="#act5">5 · Design the Experience <span class="timer-badge">20m</span></a>
+  <a href="#act6">6 · Scope One Feature <span class="timer-badge">10m</span></a>
+
+  <span class="nav-group-label">Reference</span>
+  <a href="#skills-map">Skills Behind the Scenes</a>
+  <a href="#faq">Facilitation FAQ</a>
+</nav>
+
+<!-- MAIN -->
+<main>
+
+  <!-- Header -->
+  <h1>AIDD Summit 2026<br>Building the Dishly Date Night Concierge</h1>
+  <p class="subtitle">AI-Driven Development, hands-on: from a business pivot idea to a scoped feature, entirely through conversation.</p>
+  <div class="meta-row">
+    <span class="meta-chip red">&#9679; Live Workshop</span>
+    <span class="meta-chip">&#128336; Total: ~1 hr 45 min</span>
+    <span class="meta-chip green">&#9679; Scenario: Dishly Pivot</span>
+    <span class="meta-chip">Claude Code + Forge</span>
+  </div>
+
+  <!-- Intro -->
+  <hr class="section-rule" id="intro" />
+  <h2>Introduction</h2>
+  <p class="section-subtitle">You bring the intent. The tooling brings the discipline.</p>
+
+  <p>In this workshop you play a founder pivoting an existing product. You will take a raw business idea (an AI concierge for date nights) all the way to a scoped, estimated feature ready for development. You will do it the way product work should feel with AI: by describing what you want in plain language, answering focused questions, and reviewing drafts.</p>
+
+  <p>There is no tool syntax to memorize. As the conversation moves from market research to vision, strategy, requirements, user stories, UX, and scoping, the right product-discovery expertise loads itself behind the scenes. Each artifact feeds the next, so the system builds shared context progressively: by Act 4, it already knows your market, your vision, and your strategy, and its questions get sharper.</p>
+
+  <blockquote class="note">
+    <strong>Note:</strong> At the end of each act you will find a small gray badge showing which Forge skill did the work behind the curtain and what file it wrote. The skills matter (they enforce structure, traceability, and methodology), but the point of this workshop is the conversation. You steer; the skills execute.
+  </blockquote>
+
+  <h3>The three habits this workshop teaches</h3>
+  <ol class="steps">
+    <li>
+      <div class="step-body"><strong>State intent, not instructions.</strong> "I'm pivoting my business into a date night concierge, help me build this product" gets a better result than micro-managing each step. The AI asks the scoping questions a good consultant would ask.</div>
+    </li>
+    <li>
+      <div class="step-body"><strong>Review before it writes.</strong> Every artifact is presented for your approval before being persisted. Respond with specific corrections, or "looks good, write it". You are the decision-maker in the loop.</div>
+    </li>
+    <li>
+      <div class="step-body"><strong>Course-correct like an executive.</strong> Twice in this workshop you will catch the AI making a decision it should not make alone, and redirect it. That moment is the most important lesson of the day.</div>
+    </li>
+  </ol>
+
+  <h3>Prerequisites</h3>
+  <ul class="checklist">
+    <li><span>Claude Code open and connected to the <code>dishly-platform</code> repository</span></li>
+    <li><span><code>forge</code> plugin installed (v1.5 or later)</span></li>
+    <li><span><code>forge-product-management</code> plugin installed (v1.4.0 or later)</span></li>
+    <li><span>The original Dishly product registered under <code>.forge/products/dishly</code>, with its existing vision, strategy, and competitive brief (the pivot builds on these). To view it, run the <code>forge:docs --serve</code> skill to launch the document server, then access: <a href="http://localhost:7477/.forge/site/products/dishly/">http://localhost:7477/.forge/site/products/dishly/</a></span></li>
+  </ul>
+
+  <!-- Scenario -->
+  <hr class="section-rule" id="scenario" />
+  <h2>The Scenario</h2>
+  <p class="section-subtitle">Dishly grows up: from table booking to date night concierge.</p>
+
+  <div class="scenario-card">
+    <h3>The Dishly Pivot</h3>
+    <p>Dishly is a live, US-only restaurant booking webapp. It already has member login, a curated restaurant catalog, payment and billing, and its own delivery service. The business is pivoting: instead of just booking a table, Dishly will orchestrate the whole date night. One intent ("date night Saturday, 7pm, Italian, we have two kids at home") becomes three coordinated actions:</p>
+    <p><strong>1. Reserve the restaurant</strong> &nbsp;·&nbsp; <strong>2. Order the Uber</strong> &nbsp;·&nbsp; <strong>3. Send dinner to the kids at home</strong></p>
+    <p>The experience should feel like a hotel concierge, without the human: an agentic interface that members can talk to (chat) or click through (wizard). Revenue stays commission-based from restaurants; the service is free to members. Adults, US-only, webapp first.</p>
+  </div>
+
+  <p>Every prompt in this guide is adapted from the real conversation that produced the artifacts in the <code>dishly-platform</code> repo. You can compare your output against the committed files as you go. Your run will not match word for word, and that is fine: you are having a conversation, not executing a script.</p>
+
+  <!-- Journey -->
+  <hr class="section-rule" id="journey" />
+  <h2>Journey at a Glance</h2>
+  <p class="section-subtitle">Six conversational acts, one continuous thread of context.</p>
+
+  <div class="timeline">
+    <div class="timeline-step">
+      <div class="timeline-dot">1</div>
+      <div class="timeline-label">Pitch the pivot</div>
+      <div class="timeline-time">20m</div>
+    </div>
+    <div class="timeline-step">
+      <div class="timeline-dot">2</div>
+      <div class="timeline-label">North star</div>
+      <div class="timeline-time">15m</div>
+    </div>
+    <div class="timeline-step">
+      <div class="timeline-dot">3</div>
+      <div class="timeline-label">Where to play</div>
+      <div class="timeline-time">15m</div>
+    </div>
+    <div class="timeline-step">
+      <div class="timeline-dot">4</div>
+      <div class="timeline-label">Requirements</div>
+      <div class="timeline-time">20m</div>
+    </div>
+    <div class="timeline-step">
+      <div class="timeline-dot">5</div>
+      <div class="timeline-label">Experience</div>
+      <div class="timeline-time">20m</div>
+    </div>
+    <div class="timeline-step">
+      <div class="timeline-dot">6</div>
+      <div class="timeline-label">Scope a feature</div>
+      <div class="timeline-time">10m</div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Act</th>
+        <th>What you do</th>
+        <th>What you walk away with</th>
+        <th>Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>1 · Pitch the pivot</td><td>Describe the pivot in two sentences; answer scoping questions</td><td>Competitive brief grounded in live web research</td><td>20 min</td></tr>
+      <tr><td>2 · Define the north star</td><td>Short interview about who this serves and what changes for them</td><td>Product vision anchored in member transformation</td><td>15 min</td></tr>
+      <tr><td>3 · Decide where to play</td><td>Confirm the diagnosis, set OKRs, shape the roadmap</td><td>Strategy, OKRs, Now/Next/Later roadmap</td><td>15 min</td></tr>
+      <tr><td>4 · Intent to requirements</td><td>Choose the full-pivot framing; review section by section</td><td>PRD, prioritized business requirements, user stories</td><td>20 min</td></tr>
+      <tr><td>5 · Design the experience</td><td>Steer UX choices; review a clickable mockup; course-correct</td><td>UX spec for the chat + wizard concierge</td><td>20 min</td></tr>
+      <tr><td>6 · Scope one feature</td><td>Pick the AI Concierge Flow and ask for a buildable scope</td><td>Scoped effort with task breakdown and sizing</td><td>10 min</td></tr>
+    </tbody>
+  </table>
+
+  <div class="total-bar">
+    <div>
+      <div class="total-label">Total workshop time</div>
+      <div class="total-num">~1 hr 45 min</div>
+    </div>
+    <div class="total-segment"><div class="seg-dot" style="background:#8529cd"></div>Setup: 5 min</div>
+    <div class="total-segment"><div class="seg-dot" style="background:#e74c3c"></div>Direction (Acts 1&ndash;3): 50 min</div>
+    <div class="total-segment"><div class="seg-dot" style="background:#3498db"></div>Definition (Acts 4&ndash;5): 40 min</div>
+    <div class="total-segment"><div class="seg-dot" style="background:#27ae60"></div>Scoping (Act 6): 10 min</div>
+  </div>
+
+  <div class="phases-wrapper">
+
+  <!-- Act content -->
+  <div class="phases-content">
+
+  <!-- ═══════════════ DIRECTION ═══════════════ -->
+  <div class="phase-divider"><span>Direction · Acts 1&ndash;3</span></div>
+
+  <!-- Act 1 -->
+  <hr class="section-rule" id="act1" />
+
+  <div class="skill-header">
+    <div>
+      <span class="act-num">Act 1</span>
+      <div class="skill-name">Pitch the Pivot, Map the Market</div>
+    </div>
+    <div class="skill-time">&#128336; 20 minutes</div>
+  </div>
+
+  <p class="section-subtitle">Start with the business idea, not a brief. The AI asks the scoping questions, researches the landscape live, and drafts a competitive analysis for your approval.</p>
+
+  <p>You open the workshop the way a founder opens a conversation with a trusted advisor: two sentences of intent. Notice what you are <em>not</em> doing: you are not invoking a research tool, not listing competitors, not writing a template. You describe the pivot and ask for help.</p>
+
+  <h3>Say this</h3>
+  <div class="prompt-box">
+    <div class="prompt-box-header">
+      <div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div>
+      <span class="prompt-label">Claude Code: type this in the chat</span>
+    </div>
+    <pre><code>Hey, I'm looking to pivot my business. I want to move Dishly into a date night concierge: members can reserve a restaurant, order an Uber, and have dinner sent home to the kids. I may have more date night ideas in the future, but I want to start here. This is a pivot of the existing product, so keep the Dishly name and the dishly product directory. Can you help me build out this product, starting with a competitive analysis?</code></pre>
+  </div>
+
+  <h3>How the conversation flows</h3>
+  <ol class="steps">
+    <li>
+      <div class="step-body">The AI reads what it already knows: Dishly's existing vision, strategy, and competitive brief from the booking era. It will note the overlaps rather than starting from zero.</div>
+    </li>
+    <li>
+      <div class="step-body">It asks a handful of scoping questions before researching anything. This is the consultant move: clarify before you investigate. Sample answers from the real run are below.</div>
+    </li>
+    <li>
+      <div class="step-body">It runs live web research across the new competitive surface: booking platforms (OpenTable, Resy), ride-hailing, delivery players, and date-night planning services. The landscape is wider now because the product is.</div>
+    </li>
+    <li>
+      <div class="step-body">It presents preliminary findings and asks for confirmation before writing. Review the competitor list and tell it what to add or drop.</div>
+    </li>
+    <li>
+      <div class="step-body">On your approval, it writes the updated competitive brief into the Dishly product directory.</div>
+    </li>
+  </ol>
+
+  <h3>Answers to give when asked</h3>
+  <table>
+    <thead><tr><th>The AI asks about</th><th>You answer</th></tr></thead>
+    <tbody>
+      <tr><td>Market and audience</td><td>US-only. Adults of any kind. Webapp.</td></tr>
+      <tr><td>Business model</td><td>No fee to members. Revenue comes from restaurant commissions on the reservation, same as today.</td></tr>
+      <tr><td>v1 capabilities</td><td>Reserve a restaurant, order an Uber, and order delivery for the kids at home.</td></tr>
+      <tr><td>The experience</td><td>Some form of agentic experience: like the concierge you would see at a hotel, but without human involvement.</td></tr>
+      <tr><td>Which competitors to research</td><td>Let it find them. Confirm there will be overlap with the original Dishly brief and that's expected.</td></tr>
+    </tbody>
+  </table>
+
+  <blockquote class="gotcha">
+    <strong>Gotcha:</strong> The AI will summarize its findings and ask before writing the file. Respond with a specific correction or <strong>"looks good, write it"</strong>. A bare "yes" sometimes loops; specifics never do.
+  </blockquote>
+
+  <blockquote class="tip">
+    <strong>Tip:</strong> This brief is not throwaway research. It becomes the evidence base for the strategy diagnosis in Act 3. Strategy without research is just opinion, and the system knows it: it will cite this brief later without being told to.
+  </blockquote>
+
+  <div class="skill-badge"><span class="gear">&#9881;</span> Behind the scenes: <code>forge:competitive-brief</code> ran the research and wrote <code>products/dishly/competitive/</code>. You never typed its name.</div>
+
+  <!-- Act 2 -->
+  <hr class="section-rule" id="act2" />
+
+  <div class="skill-header">
+    <div>
+      <span class="act-num">Act 2</span>
+      <div class="skill-name">Define the North Star</div>
+    </div>
+    <div class="skill-time">&#128336; 15 minutes</div>
+  </div>
+
+  <p class="section-subtitle">A short interview that anchors the product in member transformation, not features. The most durable artifact you will write today.</p>
+
+  <p>With the market mapped, the natural next sentence is "so what are we really building, and for whom?" The AI interviews you question by question. Because it read the competitive brief, the questions arrive pre-loaded with context: it already knows you are commission-funded, US-only, and agentic-first.</p>
+
+  <h3>Say this</h3>
+  <div class="prompt-box">
+    <div class="prompt-box-header">
+      <div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div>
+      <span class="prompt-label">Claude Code: type this in the chat</span>
+    </div>
+    <pre><code>Next, let's create the product vision for the Dishly concierge pivot. I want to capture who it's for, what changes for them, and what this product explicitly is not. Interview me, then draft the vision for my review.</code></pre>
+  </div>
+
+  <h3>How the conversation flows</h3>
+  <ol class="steps">
+    <li>
+      <div class="step-body">It asks who the primary beneficiary is and what their "before" looks like. Think: a couple who wants a night out but faces three apps, three logins, and a babysitting logistics problem before they even pick a restaurant.</div>
+    </li>
+    <li>
+      <div class="step-body">It asks what the "after" looks like: one intent, one confirmation, the whole evening orchestrated.</div>
+    </li>
+    <li>
+      <div class="step-body">It asks about future scope. This is where you plant seeds without committing: in the real run the founder said a babysitter finder would be nice someday, and date nights may grow beyond eating out. The vision absorbs these as horizon items, not v1 scope.</div>
+    </li>
+    <li>
+      <div class="step-body">It asks what the conviction is based on. The honest answer from the run: "primarily my own thinking." A vision is allowed to be founder intuition; the document just says so explicitly.</div>
+    </li>
+    <li>
+      <div class="step-body">It drafts the vision, you review, and on "looks good" it persists the document.</div>
+    </li>
+  </ol>
+
+  <blockquote class="note">
+    <strong>Note:</strong> If the draft vision reads like a feature list ("A webapp that books restaurants and Ubers&hellip;"), push back. The test of a good vision statement: it describes what becomes possible for the member ("Any US couple can have a full date night arranged in one conversation"), and it would still be true if you swapped out every technology underneath it.
+  </blockquote>
+
+  <div class="skill-badge"><span class="gear">&#9881;</span> Behind the scenes: <code>forge:product-vision</code> ran the interview and rewrote <code>products/dishly/vision.md</code>, preserving the original's structure while pivoting its content.</div>
+
+  <!-- Act 3 -->
+  <hr class="section-rule" id="act3" />
+
+  <div class="skill-header">
+    <div>
+      <span class="act-num">Act 3</span>
+      <div class="skill-name">Decide Where to Play</div>
+    </div>
+    <div class="skill-time">&#128336; 15 minutes</div>
+  </div>
+
+  <p class="section-subtitle">Diagnosis, guiding policy, coherent actions: a real strategy grounded in the Act 1 research, cascading into OKRs and a Now/Next/Later roadmap.</p>
+
+  <p>Now the conversation turns from "what do we believe" to "what do we choose." You ask for a strategy and the AI assembles one from everything established so far. Where it lacks an input it would normally demand (company OKRs, for instance), you can simply ask it to propose some.</p>
+
+  <h3>Say this</h3>
+  <div class="prompt-box">
+    <div class="prompt-box-header">
+      <div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div>
+      <span class="prompt-label">Claude Code: type this in the chat</span>
+    </div>
+    <pre><code>Let's build the product strategy for the concierge pivot. Use the competitive brief and the new vision as inputs. I want to see the structural opening in the market, where we play and how we win, and the coherent set of actions for the MVP.</code></pre>
+  </div>
+
+  <h3>How the conversation flows</h3>
+  <ol class="steps">
+    <li>
+      <div class="step-body">It asks for company-level OKRs to cascade from. You don't have any for this scenario, so say: <strong>"Please recommend some company OKRs."</strong> It proposes a set; you approve or edit. Missing inputs are a conversation, not a blocker.</div>
+    </li>
+    <li>
+      <div class="step-body">It confirms product stage (Dishly is <strong>live</strong>, this is a pivot of a shipping product) and channel strategy (<strong>webapp only</strong>, growth through self-service adoption with some marketing support).</div>
+    </li>
+    <li>
+      <div class="step-body">It produces a DIBB diagnosis (Data, Insight, Belief, Bet) identifying the structural opening: every competitor owns one slice of the evening; nobody orchestrates the whole night, and the big platforms are structurally unable to follow without cannibalizing their marketplaces.</div>
+    </li>
+    <li>
+      <div class="step-body">It flags that the old north star metric (booking completion) no longer fits and proposes a new one centered on completed date nights, the full orchestrated bundle. Agree: the metric must follow the product.</div>
+    </li>
+    <li>
+      <div class="step-body">It cascades OKRs and offers roadmap formats. Pick <strong>Now/Next/Later</strong>. When it offers to sync to Jira, decline for the workshop: <strong>"No Jira, rest looks good."</strong></div>
+    </li>
+  </ol>
+
+  <blockquote class="tip">
+    <strong>Tip:</strong> Ask what jargon means. In the real run the founder asked "What does DIBB stand for?" mid-review and got a clear answer without derailing anything. Treating the AI as a colleague includes asking it to explain itself.
+  </blockquote>
+
+  <blockquote class="note">
+    <strong>Note:</strong> Acts 1&ndash;3 are deliberately one continuous thread. By now the AI has market evidence, a vision, OKRs, and a roadmap in its working context. Everything after this point gets faster because the foundation is paid for.
+  </blockquote>
+
+  <div class="skill-badge"><span class="gear">&#9881;</span> Behind the scenes: <code>forge:product-strategy</code> applied Rumelt-style strategy methodology and wrote <code>strategy.md</code>, <code>okrs.md</code>, and <code>roadmap.md</code> under the Dishly product.</div>
+
+  <!-- ═══════════════ DEFINITION ═══════════════ -->
+  <div class="phase-divider"><span>Definition · Acts 4&ndash;5</span></div>
+
+  <!-- Act 4 -->
+  <hr class="section-rule" id="act4" />
+
+  <div class="skill-header">
+    <div>
+      <span class="act-num">Act 4</span>
+      <div class="skill-name">Turn Intent into Requirements</div>
+    </div>
+    <div class="skill-time">&#128336; 20 minutes</div>
+  </div>
+
+  <p class="section-subtitle">One sentence from you produces a PRD, a prioritized requirements backlog, and user stories. Your job shifts from author to reviewer.</p>
+
+  <p>Here is where the front-loaded context from Acts 1&ndash;3 pays off. You ask for the PRD in five words. The AI already knows the market, the vision, the strategy, and the OKRs, so instead of a long interview it presents drafts section by section and asks you to confirm or correct each one.</p>
+
+  <h3>Say this</h3>
+  <div class="prompt-box">
+    <div class="prompt-box-header">
+      <div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div>
+      <span class="prompt-label">Claude Code: type this in the chat</span>
+    </div>
+    <pre><code>Let's do the PRD now.</code></pre>
+  </div>
+
+  <h3>How the conversation flows</h3>
+  <ol class="steps">
+    <li>
+      <div class="step-body">First decision: it asks whether this is a <strong>full pivot PRD</strong> or an incremental addition to the booking-era PRD. Choose <strong>full pivot</strong>. The concierge redefines what Dishly is; an incremental PRD would quietly inherit old assumptions.</div>
+    </li>
+    <li>
+      <div class="step-body">It walks the PRD one section at a time: problem statement, goals, non-goals, success metrics, open questions, timeline. Each section arrives as a draft for your verdict.</div>
+    </li>
+    <li>
+      <div class="step-body">In the real run, most verdicts were two words: "looks good", "matches", "looks right". That brevity is earned, not lazy: the drafts were correct because the context was built carefully in Acts 1&ndash;3. When a section is wrong, say exactly what's wrong and it regenerates.</div>
+    </li>
+    <li>
+      <div class="step-body">It then derives the business requirements backlog with MoSCoW priorities (Must, Should, Could), each traceable to a goal.</div>
+    </li>
+    <li>
+      <div class="step-body">Finally it writes user stories grouped by persona: the couple planning the night, the parent arranging the kids' dinner, the member managing an evening already in motion.</div>
+    </li>
+  </ol>
+
+  <blockquote class="tip">
+    <strong>Tip:</strong> Open questions are a feature, not a failure. Name the things you genuinely don't know yet ("how far ahead can a full evening be booked?", "what happens if the Uber is late but the table is ready?"). They land in the PRD with owners instead of becoming silent assumptions.
+  </blockquote>
+
+  <div class="skill-badge"><span class="gear">&#9881;</span> Behind the scenes: <code>forge:prd</code> wrote <code>requirements/prd.md</code>, <code>requirements/business.md</code>, and <code>requirements/user-stories.md</code>, and quietly created the effort container they live in. Three artifacts, one sentence of intent.</div>
+
+  <!-- Act 5 -->
+  <hr class="section-rule" id="act5" />
+
+  <div class="skill-header">
+    <div>
+      <span class="act-num">Act 5</span>
+      <div class="skill-name">Design the Experience</div>
+    </div>
+    <div class="skill-time">&#128336; 20 minutes</div>
+  </div>
+
+  <p class="section-subtitle">Chat or wizard? Both. This act produces the UX spec and a clickable mockup, and contains the two most important course-corrections of the workshop.</p>
+
+  <p>The concierge needs an interface, and this is where participants learn that "conversational" does not mean "hands-off." In the real run, the founder caught the AI twice: once making a UX decision without UX expertise, and once making a business decision that contradicted Dishly's own assets. Both corrections took one sentence.</p>
+
+  <h3>Say this</h3>
+  <div class="prompt-box">
+    <div class="prompt-box-header">
+      <div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div>
+      <span class="prompt-label">Claude Code: type this in the chat</span>
+    </div>
+    <pre><code>Let's design the experience for the concierge. Members should be able to either talk to it like a concierge or click through a guided flow. Support both chat and wizard. Design the UX and show me a mockup I can react to.</code></pre>
+  </div>
+
+  <h3>How the conversation flows</h3>
+  <ol class="steps">
+    <li>
+      <div class="step-body">It confirms the shape of the build: this is a <strong>full webapp experience extending the existing Dishly webapp</strong>, not a separate app. Login, the restaurant catalog, and payment/billing already exist. The genuinely new integration is <strong>Uber</strong>. Correct it if it assumes a greenfield build.</div>
+    </li>
+    <li>
+      <div class="step-body">It confirms the entry point (where the concierge lives in the existing navigation) and proposes the dual-mode design: a chat surface for "just handle my Saturday" and a wizard for members who prefer steps.</div>
+    </li>
+    <li>
+      <div class="step-body">It produces the UX spec: personas, information architecture, user flows for both modes, wireframes, and a component breakdown engineers can implement.</div>
+    </li>
+    <li>
+      <div class="step-body">It generates <code>mockup.html</code>, a clickable mockup of the concierge flow. Open it in the browser and walk through a full date night: restaurant, ride, kids' dinner.</div>
+    </li>
+  </ol>
+
+  <h3>The two course-corrections</h3>
+  <blockquote class="gotcha">
+    <strong>Moment 1 &middot; Hold it accountable for expertise.</strong> Mid-conversation, the AI started proposing interface choices on the fly. The founder's response, verbatim from the run: <em>"You are making a UX decision. Have you invoked the UX Design skill?"</em> The AI stopped, loaded its UX methodology, and restarted the design conversation properly, with personas and flows instead of improvised opinions. Lesson: you don't need to know the skill names to use the system, but you are allowed to demand that the right discipline is applied.
+  </blockquote>
+
+  <blockquote class="gotcha">
+    <strong>Moment 2 &middot; You own the business truth.</strong> The first mockup routed the kids' dinner through DoorDash. Plausible, except Dishly <em>has its own delivery service</em>. The founder asked one question ("why DoorDash when we have delivery ourselves?") and the AI corrected the mockup and the spec. Lesson: the AI optimizes for plausibility; only you know your business. Review every artifact like an owner.
+  </blockquote>
+
+  <div class="skill-badge"><span class="gear">&#9881;</span> Behind the scenes: <code>forge:ux-design</code> wrote <code>spec/ui-spec.md</code> and generated <code>mockup.html</code>. It was invoked the second time by name, on purpose, by you.</div>
+
+  <!-- ═══════════════ SCOPING ═══════════════ -->
+  <div class="phase-divider"><span>Scoping · Act 6</span></div>
+
+  <!-- Act 6 -->
+  <hr class="section-rule" id="act6" />
+
+  <div class="skill-header" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
+    <div>
+      <span class="act-num">Act 6</span>
+      <div class="skill-name">Scope One Feature for Development</div>
+    </div>
+    <div class="skill-time">&#128336; 10 minutes</div>
+  </div>
+
+  <p class="section-subtitle">Pick the heart of the product, the AI Concierge Flow, and turn it into a scoped, sized, buildable unit of work.</p>
+
+  <p>Discovery is worthless if it doesn't become development. To close the loop, take the feature that defines the pivot (the concierge flow that turns one member intent into a reservation, a ride, and a kids' dinner) and ask for it to be scoped as its own piece of work, with a task breakdown and a size estimate a squad could pick up on Monday.</p>
+
+  <h3>Say this</h3>
+  <div class="prompt-box">
+    <div class="prompt-box-header">
+      <div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div>
+      <span class="prompt-label">Claude Code: type this in the chat</span>
+    </div>
+    <pre><code>Let's get one feature ready for development: the AI Concierge Flow. Create a scoped effort for it under the concierge work, pull in the relevant requirements, break it into implementation tasks, and give me a sizing with your confidence level.</code></pre>
+  </div>
+
+  <h3>How the conversation flows</h3>
+  <ol class="steps">
+    <li>
+      <div class="step-body">It creates a scoped effort (a feature under the concierge epic) and pulls in only the requirements and user stories that touch the concierge flow.</div>
+    </li>
+    <li>
+      <div class="step-body">It asks the scoping questions an engineering lead would: how member intent is parsed into the three actions (reserve, ride, kids' dinner), how the conversation hands off to the wizard when a member stalls, what happens when one leg of the evening fails (no table, no driver), and what is mocked in v1 versus integrated for real.</div>
+    </li>
+    <li>
+      <div class="step-body">It produces a task breakdown grouped into waves (conversation UI, intent handling, orchestration across reservation, Uber, and Dishly delivery, failure and recovery states) with dependencies between tasks.</div>
+    </li>
+    <li>
+      <div class="step-body">It attaches a sizing with explicit confidence, and lists what would change the estimate. You now have the artifact a PM brings to sprint planning.</div>
+    </li>
+  </ol>
+
+  <blockquote class="time">
+    <strong>Where this goes next:</strong> In a real cycle, the same conversation continues into engineering: elaborating technical requirements, speccing storage and tests, validating that every requirement is covered, and generating the implementation plan. Same pattern throughout: you state intent, review drafts, and course-correct; the discipline runs behind the scenes.
+  </blockquote>
+
+  <div class="skill-badge"><span class="gear">&#9881;</span> Behind the scenes: <code>forge:effort</code> created the scoped container and <code>forge:plan</code> generated the wave-based task breakdown in <code>plan/tasks.md</code>.</div>
+
+
+  </div><!-- /.phases-content -->
+
+  <!-- Vertical timeline -->
+  <div class="vtl">
+    <div class="vtl-track" id="vtl-track">
+      <div class="vtl-item" data-section="act1">
+        <div class="vtl-dot" data-label="Pitch the pivot">1</div>
+        <div class="vtl-line"></div>
+      </div>
+      <div class="vtl-item" data-section="act2">
+        <div class="vtl-dot" data-label="Define the north star">2</div>
+        <div class="vtl-line"></div>
+      </div>
+      <div class="vtl-item" data-section="act3">
+        <div class="vtl-dot" data-label="Decide where to play">3</div>
+        <div class="vtl-line"></div>
+      </div>
+      <div class="vtl-item" data-section="act4">
+        <div class="vtl-dot" data-label="Intent to requirements">4</div>
+        <div class="vtl-line"></div>
+      </div>
+      <div class="vtl-item" data-section="act5">
+        <div class="vtl-dot" data-label="Design the experience">5</div>
+        <div class="vtl-line"></div>
+      </div>
+      <div class="vtl-item" data-section="act6">
+        <div class="vtl-dot" data-label="Scope one feature">6</div>
+        <div class="vtl-line"></div>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- /.phases-wrapper -->
+
+  <!-- Skills map -->
+  <hr class="section-rule" id="skills-map" />
+  <h2>Skills Behind the Scenes</h2>
+  <p class="section-subtitle">For the curious: what actually fired during each act, and what it wrote.</p>
+
+  <p>You never needed this table during the workshop, and that is the point. Intent triggered the right skill every time. But facilitators and participants who want to look under the hood can trace every conversation stage to the Forge skill that executed it.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Act</th>
+        <th>You said (roughly)</th>
+        <th>Skill that fired</th>
+        <th>Artifacts written</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>1 · Pitch the pivot</td><td>"I'm pivoting into a date night concierge, help me with a competitive analysis"</td><td><code>forge:competitive-brief</code></td><td><code>products/dishly/competitive/</code></td></tr>
+      <tr><td>2 · North star</td><td>"Next, let's create the product vision"</td><td><code>forge:product-vision</code></td><td><code>products/dishly/vision.md</code></td></tr>
+      <tr><td>3 · Where to play</td><td>"Let's build the product strategy"</td><td><code>forge:product-strategy</code></td><td><code>strategy.md</code>, <code>okrs.md</code>, <code>roadmap.md</code></td></tr>
+      <tr><td>4 · Requirements</td><td>"Let's do the PRD now"</td><td><code>forge:prd</code> (with <code>forge:effort</code> creating the container)</td><td><code>requirements/prd.md</code>, <code>business.md</code>, <code>user-stories.md</code></td></tr>
+      <tr><td>5 · Experience</td><td>"Support both chat and wizard&hellip; have you invoked the UX Design skill?"</td><td><code>forge:ux-design</code></td><td><code>spec/ui-spec.md</code>, <code>mockup.html</code></td></tr>
+      <tr><td>6 · Scope a feature</td><td>"Get the AI Concierge Flow ready for development"</td><td><code>forge:effort</code> + <code>forge:plan</code></td><td><code>.forge/efforts/&hellip;/plan/tasks.md</code></td></tr>
+    </tbody>
+  </table>
+
+  <blockquote class="note">
+    <strong>Note:</strong> The full Forge engineering chain (<code>forge:elaborate</code> for technical requirements, <code>forge:spec-storage</code>, <code>forge:spec-tests</code>, <code>forge:validate</code>, <code>forge:promote</code>) continues from where Act 6 ends. It follows the identical conversational pattern and is intentionally out of scope for this session.
+  </blockquote>
+
+  <!-- FAQ -->
+  <hr class="section-rule" id="faq" />
+  <h2>Facilitation FAQ</h2>
+  <p class="section-subtitle">The questions participants actually ask, and what to tell them.</p>
+
+  <h3>Do participants need to know any Forge commands?</h3>
+  <p>No. Every act starts with plain-language intent and the right skill loads itself. The one exception is deliberate: in Act 5 the founder invokes the UX Design skill by name to make a point about accountability. Knowing the names gives you precision; not knowing them costs you nothing.</p>
+
+  <h3>Why does the AI ask for confirmation before writing files?</h3>
+  <p>It is designed to be conversational, not unilateral. It surfaces its intent before persisting anything so you can catch misalignments early. A confirmation prompt is a handshake, not a bug. Respond with specific corrections or "looks good, write it".</p>
+
+  <h3>The AI researched competitors I didn't ask about. How do I redirect?</h3>
+  <p>At the confirmation step in Act 1, say exactly which competitors to keep or drop ("focus on OpenTable and Resy, drop the rest"). It re-scopes and regenerates before writing. Redirection is cheap before the file is written; that is why the handshake exists.</p>
+
+  <h3>The AI made a product decision I disagree with. Now what?</h3>
+  <p>Say so, in one sentence, the way the founder did with the DoorDash mockup. The AI corrects the artifact and the decision propagates to dependent documents. The system assumes you are the owner; it never argues for its own guess over your business knowledge.</p>
+
+  <h3>Can the acts run out of order?</h3>
+  <p>Yes, but each act reads the artifacts of the previous ones to seed its questions. Run the PRD before the vision and you will face a longer interview because less context exists. The artifacts are additive: you can always go back, and later steps pick up the new context on their next run.</p>
+
+  <h3>My session restarted and the AI lost track of the active work. What happened?</h3>
+  <p>The active effort pointer is session-local. Nothing is lost: all artifacts are still on disk under <code>.forge/</code>. Ask to "continue working on the date night concierge effort" (or run <code>forge:effort</code> and pick it from the list) and the context reattaches.</p>
+
+  <h3>How do I see everything that has been produced so far?</h3>
+  <p>Ask: "show me the status of this effort" (or run <code>forge:status</code>). You get the artifact inventory, the current phase, and a suggested next action.</p>
+
+  <h3>Can I run this workshop with my own product instead of Dishly?</h3>
+  <p>Yes. Every prompt in this guide is a template: swap the pivot story, the capabilities, and the constraints for your own. The conversation pattern (intent, scoping questions, draft, review, course-correct) is product-agnostic.</p>
+
+
+
+</main>
+
+<script>
+  // Active nav highlight + vertical timeline
+  const navLinks = Array.from(document.querySelectorAll('nav a[href^="#"]'));
+  const sectionIds = navLinks.map(a => a.getAttribute('href').slice(1));
+  const sections = sectionIds.map(id => document.getElementById(id)).filter(Boolean);
+
+  const vtlIds = ['act1','act2','act3','act4','act5','act6'];
+  const vtlItems = vtlIds.map(id => document.querySelector(`.vtl-item[data-section="${id}"]`)).filter(Boolean);
+
+  let activeSectionId = null;
+
+  function updateVtl(activeId) {
+    const activeIdx = vtlIds.indexOf(activeId);
+    vtlItems.forEach((item, i) => {
+      item.classList.remove('done', 'active');
+      if (i < activeIdx)      item.classList.add('done');
+      else if (i === activeIdx) item.classList.add('active');
+    });
+    if (activeIdx >= 0 && vtlItems[activeIdx]) {
+      vtlItems[activeIdx].scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        activeSectionId = entry.target.id;
+      }
+    });
+    navLinks.forEach(a => {
+      const isActive = a.getAttribute('href') === '#' + activeSectionId;
+      a.classList.toggle('active', isActive);
+      if (isActive) {
+        a.scrollIntoView({ block: 'nearest' });
+      }
+    });
+    updateVtl(activeSectionId);
+  }, { rootMargin: '0px 0px -60% 0px', threshold: 0 });
+
+  sections.forEach(s => observer.observe(s));
+
+  // Copy buttons
+  document.querySelectorAll('.prompt-box').forEach(box => {
+    const header = box.querySelector('.prompt-box-header');
+    const pre = box.querySelector('pre');
+    if (!header || !pre) return;
+
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    header.appendChild(btn);
+
+    btn.addEventListener('click', () => {
+      navigator.clipboard.writeText(pre.innerText).then(() => {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
