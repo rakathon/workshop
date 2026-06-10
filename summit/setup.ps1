@@ -6,31 +6,6 @@
 
 $ErrorActionPreference = 'Continue'
 
-# ── python check / install ────────────────────────────────────────────────────
-$PythonOk = $false
-$PythonCmd = Get-Command python -ErrorAction SilentlyContinue
-if ($PythonCmd) {
-    # Windows Store stub lives in WindowsApps and exits with code 9009 when run headlessly
-    $testOut = & python --version 2>&1
-    if ($testOut -match 'Python \d+\.\d+') { $PythonOk = $true }
-}
-if (-not $PythonOk) {
-    Write-Host ""
-    Write-Host "  Python not found — opening Microsoft Store to install it..." -ForegroundColor Yellow
-    Start-Process "ms-windows-store://pdp/?ProductId=9NRWMJLIVE9D"  # Python 3.12 from Store
-    Write-Host "  Please install Python from the Store, then press ENTER to continue..." -ForegroundColor Cyan
-    Read-Host | Out-Null
-    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-    $PythonCmd = Get-Command python -ErrorAction SilentlyContinue
-    if ($PythonCmd) {
-        $testOut = & python --version 2>&1
-        if ($testOut -match 'Python \d+\.\d+') {
-            Write-Host "  [OK]  Python installed ($testOut)" -ForegroundColor Green
-        } else {
-            Write-Host "  [!!]  Python still not detected — forge:docs server will be skipped" -ForegroundColor Yellow
-        }
-    }
-}
 
 $OktaIssuer  = "https://rakuten.okta.com/oauth2/ausxr4nv1gcTtBswT357"
 $ClientId    = "0oa1hk5jgg1Oz3zDm358"
@@ -42,7 +17,7 @@ $PollSecs    = 2
 $TimeoutSecs = 300
 $DebugPort   = 9229
 $Step        = 0
-$Total       = 11
+$Total       = 13
 
 # ── helpers ────────────────────────────────────────────────────────────────────
 
@@ -238,12 +213,19 @@ Write-Host ""
 # ── already installed? ────────────────────────────────────────────────────────
 
 Add-Type -AssemblyName System.Windows.Forms | Out-Null
+$TopForm = New-Object System.Windows.Forms.Form
+$TopForm.TopMost = $true
+$TopForm.WindowState = 'Minimized'
+$TopForm.ShowInTaskbar = $false
+$TopForm.Show()
 $DialogResult = [System.Windows.Forms.MessageBox]::Show(
+    $TopForm,
     "Did you install this setup before?",
     "Rakuten Claude Code Setup",
     [System.Windows.Forms.MessageBoxButtons]::YesNo,
     [System.Windows.Forms.MessageBoxIcon]::Question
 )
+$TopForm.Dispose()
 
 if ($DialogResult -eq [System.Windows.Forms.DialogResult]::Yes) {
     Write-Host ""
@@ -272,7 +254,40 @@ if ($DialogResult -eq [System.Windows.Forms.DialogResult]::Yes) {
     exit 0
 }
 
-# ── step 1: git ────────────────────────────────────────────────────────────────
+# ── step 1: python ────────────────────────────────────────────────────────────
+
+Write-Section "Python"
+
+function Test-Python {
+    $cmd = Get-Command python -ErrorAction SilentlyContinue
+    if (-not $cmd) { return $false }
+    $out = & python --version 2>&1
+    return ($out -match 'Python \d+\.\d+')
+}
+
+if (Test-Python) {
+    $PyVer = & python --version 2>&1
+    Write-Ok "Python already installed ($PyVer)"
+} else {
+    Write-Warn "Python not found — opening Microsoft Store to install Python 3.12..."
+    Start-Process "ms-windows-store://pdp/?ProductId=9NRWMJLIVE9D"
+
+    $PyInstalled = $false
+    while (-not $PyInstalled) {
+        Write-Host "  Please install Python from the Store window, then press ENTER to continue..." -ForegroundColor Cyan
+        Read-Host | Out-Null
+        Refresh-Path
+        if (Test-Python) {
+            $PyVer = & python --version 2>&1
+            Write-Ok "Python installed ($PyVer)"
+            $PyInstalled = $true
+        } else {
+            Write-Warn "Python still not detected — please finish the Store install and press ENTER again"
+        }
+    }
+}
+
+# ── step 2: git ───────────────────────────────────────────────────────────────
 
 Write-Section "Git"
 
@@ -296,7 +311,7 @@ if (Get-Command git -ErrorAction SilentlyContinue) {
     }
 }
 
-# ── step 2: node.js ────────────────────────────────────────────────────────────
+# ── step 3: node.js ────────────────────────────────────────────────────────────
 
 Write-Section "Node.js"
 
@@ -321,7 +336,7 @@ if (Get-Command node -ErrorAction SilentlyContinue) {
     }
 }
 
-# ── step 3: claude code cli ────────────────────────────────────────────────────
+# ── step 4: claude code cli ────────────────────────────────────────────────────
 
 Write-Section "Claude Code CLI"
 
@@ -344,7 +359,7 @@ if (Get-Command claude -ErrorAction SilentlyContinue) {
     }
 }
 
-# ── step 4: visual studio code ────────────────────────────────────────────────
+# ── step 5: visual studio code ────────────────────────────────────────────────
 
 Write-Section "Visual Studio Code"
 
@@ -367,7 +382,7 @@ if ((Get-Command code -ErrorAction SilentlyContinue) -or (Test-Path $VsCodeExe))
     }
 }
 
-# ── step 5: claude code vs code extension ─────────────────────────────────────
+# ── step 6: claude code vs code extension ─────────────────────────────────────
 
 Write-Section "Claude Code VS Code extension"
 
@@ -388,7 +403,7 @@ if (Get-Command code -ErrorAction SilentlyContinue) {
     Write-Warn "VS Code CLI not on PATH — skipping extension install"
 }
 
-# ── step 6: okta sign-in ───────────────────────────────────────────────────────
+# ── step 7: okta sign-in ───────────────────────────────────────────────────────
 
 Write-Section "Rakuten OKTA sign-in"
 
@@ -507,7 +522,7 @@ if ([string]::IsNullOrEmpty($Pat)) { Exit-Error "No secret_key in response." }
 
 Write-Ok "Signed in successfully"
 
-# ── step 7: write settings.json ───────────────────────────────────────────────
+# ── step 8: write settings.json ───────────────────────────────────────────────
 
 Write-Section "Rakuten AI Gateway config"
 
@@ -557,29 +572,44 @@ if (Test-Path $SettingsFile) {
 
 Write-Ok "Claude Code configured -> Rakuten AI gateway"
 
-# ── step 8: rr-standards marketplace ─────────────────────────────────────────
+# ── step 9: copy project files to Desktop ────────────────────────────────────
 
-Write-Section "rr-standards marketplace"
+Write-Section "Copying project files to Desktop"
 
 $RrZipAsset = Join-Path $PSScriptRoot "assets\rr-standards.zip"
 $RrDest     = "$Desktop\rr-standards"
 $RrTmp      = "$env:TEMP\rr-standards-extract"
 
+if (Test-Path $RrZipAsset) {
+    Write-Run "Extracting rr-standards to Desktop..."
+    try {
+        if (Test-Path $RrTmp) { Remove-Item -Recurse -Force $RrTmp }
+        Expand-Archive -Path $RrZipAsset -DestinationPath $RrTmp -Force
+        if (Test-Path $RrDest) { Remove-Item -Recurse -Force $RrDest }
+        $RrTop = Get-ChildItem $RrTmp | Where-Object { $_.Name -ne '__MACOSX' } | Select-Object -First 1
+        Copy-Item -Recurse $RrTop.FullName $RrDest
+        Remove-Item -Recurse -Force $RrTmp -ErrorAction SilentlyContinue
+        Write-Ok "rr-standards ready at Desktop\rr-standards"
+    } catch {
+        Write-Warn "Could not extract rr-standards: $_"
+    }
+} else {
+    Write-Warn "rr-standards.zip not found — skipping"
+}
+
+Install-DishlyPlatform
+Make-Playground
+
+# ── step 10: rr-standards marketplace ────────────────────────────────────────
+
+Write-Section "rr-standards marketplace"
+
 if (Get-Command claude -ErrorAction SilentlyContinue) {
     Write-Run "Removing any existing rr-standards marketplace entry..."
-    try { & claude plugin marketplace remove rr-standards 2>&1 } catch {}
+    try { & claude plugin marketplace remove rr-standards 2>&1 | Out-Null } catch {}
 
-    if (Test-Path $RrZipAsset) {
-        Write-Run "Extracting rr-standards from bundled zip..."
+    if (Test-Path $RrDest) {
         try {
-            if (Test-Path $RrTmp) { Remove-Item -Recurse -Force $RrTmp }
-            Expand-Archive -Path $RrZipAsset -DestinationPath $RrTmp -Force
-            if (Test-Path $RrDest) { Remove-Item -Recurse -Force $RrDest }
-            $RrTop = Get-ChildItem $RrTmp | Where-Object { $_.Name -ne '__MACOSX' } | Select-Object -First 1
-            Copy-Item -Recurse $RrTop.FullName $RrDest
-            Remove-Item -Recurse -Force $RrTmp -ErrorAction SilentlyContinue
-            Write-Ok "rr-standards extracted to Desktop\rr-standards"
-
             Write-Run "Patching marketplace.json to use local plugin sources..."
             $MarketplaceJson = "$RrDest\.claude-plugin\marketplace.json"
             if (Test-Path $MarketplaceJson) {
@@ -602,20 +632,21 @@ if (Get-Command claude -ErrorAction SilentlyContinue) {
             Write-Warn "Could not add rr-standards marketplace: $_"
         }
     } else {
-        Write-Warn "rr-standards.zip not found — cannot add marketplace"
+        Write-Warn "rr-standards not found on Desktop — cannot add marketplace"
     }
 } else {
     Write-Warn "claude CLI not on PATH — skipping marketplace step"
 }
 
-# ── step 9: install forge plugins ─────────────────────────────────────────────
+# ── step 11: install forge plugins ───────────────────────────────────────────
 
 Write-Section "Installing forge plugins"
 
 if (Get-Command claude -ErrorAction SilentlyContinue) {
-    foreach ($plugin in @("forge", "forge-product-management", "forge-skill-creator")) {
-        Write-Run "Removing any existing $plugin..."
-        try { & claude plugin remove $plugin 2>&1 } catch {}
+    foreach ($plugin in @("forge@rr-standards", "forge-product-management@rr-standards", "forge-skill-creator@rr-standards")) {
+        $pluginName = $plugin -replace '@.*', ''
+        Write-Run "Removing any existing $pluginName..."
+        try { & claude plugin remove $pluginName 2>&1 | Out-Null } catch {}
 
         Write-Run "Installing $plugin..."
         $Out  = & claude plugin install $plugin 2>&1
@@ -630,31 +661,33 @@ if (Get-Command claude -ErrorAction SilentlyContinue) {
     Write-Warn "claude CLI not on PATH — skipping plugin install"
 }
 
-# ── step 10: mcp integrations ─────────────────────────────────────────────────
+# ── step 12: mcp integrations ────────────────────────────────────────────────
 
 Write-Section "MCP integrations"
 
 if (Get-Command claude -ErrorAction SilentlyContinue) {
     Write-Run "Adding Monday.com MCP..."
-    try { & claude mcp add --transport sse mondaycom https://mcp.monday.com/sse --scope user 2>&1; Write-Ok "Monday.com MCP added" } catch { Write-Warn "Monday.com MCP may already be configured" }
+    & claude mcp add --transport sse mondaycom https://mcp.monday.com/sse --scope user 2>$null | Out-Null
+    Write-Ok "Monday.com MCP configured"
 
     Write-Run "Adding Playwright MCP..."
-    try { & claude mcp add playwright -- npx @executeautomation/playwright-mcp-server 2>&1; Write-Ok "Playwright MCP added" } catch { Write-Warn "Playwright MCP may already be configured" }
+    & claude mcp add playwright -- npx @executeautomation/playwright-mcp-server 2>$null | Out-Null
+    Write-Ok "Playwright MCP configured"
 
     Write-Run "Adding BrowserStack MCP..."
-    try { & claude mcp add --transport http browserstack-remote https://mcp.browserstack.com/mcp 2>&1; Write-Ok "BrowserStack MCP added" } catch { Write-Warn "BrowserStack MCP may already be configured" }
+    & claude mcp add --transport http browserstack-remote https://mcp.browserstack.com/mcp 2>$null | Out-Null
+    Write-Ok "BrowserStack MCP configured"
 
     Write-Run "Adding Figma MCP..."
-    try { & claude mcp add --transport http --scope user figma https://mcp.figma.com/mcp 2>&1; Write-Ok "Figma MCP added" } catch { Write-Warn "Figma MCP may already be configured" }
+    & claude mcp add --transport http --scope user figma https://mcp.figma.com/mcp 2>$null | Out-Null
+    Write-Ok "Figma MCP configured"
 } else {
     Write-Warn "claude CLI not on PATH — skipping MCP integrations"
 }
 
-# ── step 11: dishly-platform project ─────────────────────────────────────────
+# ── step 13: start dishly-platform ──────────────────────────────────────────
 
-Write-Section "dishly-platform project"
-Install-DishlyPlatform
-Make-Playground
+Write-Section "Starting dishly-platform"
 
 Start-DishlyPlatform
 
