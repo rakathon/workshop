@@ -289,21 +289,40 @@ fi
 
 section "Rakuten OKTA sign-in"
 
-run "Opening browser for Rakuten OKTA sign-in..."
+PAT=""
 
-urlencode() {
-  python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1], safe=''))" "$1"
-}
+# Check if token already exists in settings.json
+EXISTING_SETTINGS="$HOME/.claude/settings.json"
+if [[ -f "$EXISTING_SETTINGS" ]] && command -v python3 &>/dev/null; then
+  EXISTING_PAT=$(python3 -c "
+import json, sys
+try:
+    d = json.load(open('$EXISTING_SETTINGS'))
+    print(d.get('env', {}).get('AWS_BEARER_TOKEN_BEDROCK', ''))
+except: pass
+" 2>/dev/null) || true
+  if [[ -n "$EXISTING_PAT" ]]; then
+    PAT="$EXISTING_PAT"
+    ok "Existing Rakuten AI token found in ~/.claude/settings.json — skipping sign-in"
+  fi
+fi
 
-VERIFIER=$(openssl rand -base64 48 | tr -d '=+/\n' | tr '+/' '-_' | cut -c1-64)
-CHALLENGE=$(printf '%s' "$VERIFIER" \
-  | openssl dgst -binary -sha256 \
-  | openssl base64 \
-  | tr -d '=\n' \
-  | tr '+/' '-_')
-STATE=$(openssl rand -hex 16)
+if [[ -z "$PAT" ]]; then
+  run "Opening browser for Rakuten OKTA sign-in..."
 
-AUTH_URL="${OKTA_ISSUER}/v1/authorize\
+  urlencode() {
+    python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1], safe=''))" "$1"
+  }
+
+  VERIFIER=$(openssl rand -base64 48 | tr -d '=+/\n' | tr '+/' '-_' | cut -c1-64)
+  CHALLENGE=$(printf '%s' "$VERIFIER" \
+    | openssl dgst -binary -sha256 \
+    | openssl base64 \
+    | tr -d '=\n' \
+    | tr '+/' '-_')
+  STATE=$(openssl rand -hex 16)
+
+  AUTH_URL="${OKTA_ISSUER}/v1/authorize\
 ?response_type=code\
 &client_id=${CLIENT_ID}\
 &redirect_uri=$(urlencode "$REDIRECT_URI")\
@@ -312,13 +331,13 @@ AUTH_URL="${OKTA_ISSUER}/v1/authorize\
 &code_challenge=${CHALLENGE}\
 &code_challenge_method=S256"
 
-open -a Safari
-for i in $(seq 1 30); do
-  osascript -e 'tell application "Safari" to get version' &>/dev/null && break
-  sleep 1
-done
+  open -a Safari
+  for i in $(seq 1 30); do
+    osascript -e 'tell application "Safari" to get version' &>/dev/null && break
+    sleep 1
+  done
 
-osascript <<APPLES
+  osascript <<APPLES
 tell application "Safari"
   activate
   if (count of windows) = 0 then
@@ -329,10 +348,10 @@ tell application "Safari"
 end tell
 APPLES
 
-elapsed=0
-CODE=""
-while (( elapsed < TIMEOUT )); do
-  TAB_URL=$(osascript 2>/dev/null <<'APPLES' || true
+  elapsed=0
+  CODE=""
+  while (( elapsed < TIMEOUT )); do
+    TAB_URL=$(osascript 2>/dev/null <<'APPLES' || true
 tell application "Safari"
   if (count of windows) > 0 then
     return URL of current tab of front window
@@ -340,73 +359,74 @@ tell application "Safari"
   return ""
 end tell
 APPLES
-  )
+    )
 
-  if [[ "$TAB_URL" == *"developer.ai.public.rakuten-it.com/callback"* ]] \
-  && [[ "$TAB_URL" == *"code="* ]]; then
-    CODE=$(printf '%s' "$TAB_URL" | grep -o 'code=[^&]*' | head -1 | cut -d= -f2)
-    GOT_STATE=$(printf '%s' "$TAB_URL" | grep -o 'state=[^&]*' | head -1 | cut -d= -f2)
-    [[ "$GOT_STATE" == "$STATE" ]] || die "State mismatch — possible CSRF. Aborting."
-    osascript 2>/dev/null <<'APPLES' || true
+    if [[ "$TAB_URL" == *"developer.ai.public.rakuten-it.com/callback"* ]] \
+    && [[ "$TAB_URL" == *"code="* ]]; then
+      CODE=$(printf '%s' "$TAB_URL" | grep -o 'code=[^&]*' | head -1 | cut -d= -f2)
+      GOT_STATE=$(printf '%s' "$TAB_URL" | grep -o 'state=[^&]*' | head -1 | cut -d= -f2)
+      [[ "$GOT_STATE" == "$STATE" ]] || die "State mismatch — possible CSRF. Aborting."
+      osascript 2>/dev/null <<'APPLES' || true
 tell application "Safari"
   close front window
 end tell
 APPLES
-    break
-  fi
+      break
+    fi
 
-  printf "\r  ${DIM}Waiting for sign-in... (${elapsed}s)${RESET}   "
-  sleep "$POLL"
-  elapsed=$(( elapsed + POLL ))
-done
-printf "\r\033[2K"
+    printf "\r  ${DIM}Waiting for sign-in... (${elapsed}s)${RESET}   "
+    sleep "$POLL"
+    elapsed=$(( elapsed + POLL ))
+  done
+  printf "\r\033[2K"
 
-[[ -n "$CODE" ]] || die "Timed out after ${TIMEOUT}s. Did you complete sign-in?"
+  [[ -n "$CODE" ]] || die "Timed out after ${TIMEOUT}s. Did you complete sign-in?"
 
-run "Exchanging token..."
+  run "Exchanging token..."
 
-TOKEN_RESPONSE=$(curl -fsS \
-  -X POST "${OKTA_ISSUER}/v1/token" \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -H "Accept: application/json" \
-  --data-urlencode "grant_type=authorization_code" \
-  --data-urlencode "client_id=${CLIENT_ID}" \
-  --data-urlencode "redirect_uri=${REDIRECT_URI}" \
-  --data-urlencode "code=${CODE}" \
-  --data-urlencode "code_verifier=${VERIFIER}" \
-) || die "Token exchange failed."
+  TOKEN_RESPONSE=$(curl -fsS \
+    -X POST "${OKTA_ISSUER}/v1/token" \
+    -H "Content-Type: application/x-www-form-urlencoded" \
+    -H "Accept: application/json" \
+    --data-urlencode "grant_type=authorization_code" \
+    --data-urlencode "client_id=${CLIENT_ID}" \
+    --data-urlencode "redirect_uri=${REDIRECT_URI}" \
+    --data-urlencode "code=${CODE}" \
+    --data-urlencode "code_verifier=${VERIFIER}" \
+  ) || die "Token exchange failed."
 
-ACCESS_TOKEN=$(printf '%s' "$TOKEN_RESPONSE" \
-  | grep -o '"access_token":"[^"]*"' \
-  | sed 's/"access_token":"//;s/"$//')
-[[ -n "$ACCESS_TOKEN" ]] || die "No access_token in response."
+  ACCESS_TOKEN=$(printf '%s' "$TOKEN_RESPONSE" \
+    | grep -o '"access_token":"[^"]*"' \
+    | sed 's/"access_token":"//;s/"$//')
+  [[ -n "$ACCESS_TOKEN" ]] || die "No access_token in response."
 
-run "Fetching Rakuten AI access key..."
+  run "Fetching Rakuten AI access key..."
 
-PAT_RESPONSE=$(curl -sS \
-  -X POST "$PAT_URL" \
-  -H "Authorization: Bearer $ACCESS_TOKEN" \
-  -H "Accept: application/json, text/plain, */*" \
-  -H "Origin: https://developer.ai.public.rakuten-it.com" \
-  -H "Referer: https://developer.ai.public.rakuten-it.com/" \
-  --write-out "\nHTTP_STATUS:%{http_code}" 2>&1)
+  PAT_RESPONSE=$(curl -sS \
+    -X POST "$PAT_URL" \
+    -H "Authorization: Bearer $ACCESS_TOKEN" \
+    -H "Accept: application/json, text/plain, */*" \
+    -H "Origin: https://developer.ai.public.rakuten-it.com" \
+    -H "Referer: https://developer.ai.public.rakuten-it.com/" \
+    --write-out "\nHTTP_STATUS:%{http_code}" 2>&1)
 
-HTTP_CODE=$(printf '%s' "$PAT_RESPONSE" | grep -o 'HTTP_STATUS:[0-9]*' | cut -d: -f2)
-PAT_BODY=$(printf '%s' "$PAT_RESPONSE" | sed '/HTTP_STATUS:/d')
-[[ "$HTTP_CODE" == "200" || "$HTTP_CODE" == "201" ]] \
-  || die "Access key request failed (HTTP $HTTP_CODE): $PAT_BODY"
+  HTTP_CODE=$(printf '%s' "$PAT_RESPONSE" | grep -o 'HTTP_STATUS:[0-9]*' | cut -d: -f2)
+  PAT_BODY=$(printf '%s' "$PAT_RESPONSE" | sed '/HTTP_STATUS:/d')
+  [[ "$HTTP_CODE" == "200" || "$HTTP_CODE" == "201" ]] \
+    || die "Access key request failed (HTTP $HTTP_CODE): $PAT_BODY"
 
-PAT=$(printf '%s' "$PAT_BODY" \
-  | grep -o '"secret_key":"[^"]*"' \
-  | sed 's/"secret_key":"//;s/"$//')
-[[ -n "$PAT" ]] || die "No secret_key in response."
+  PAT=$(printf '%s' "$PAT_BODY" \
+    | grep -o '"secret_key":"[^"]*"' \
+    | sed 's/"secret_key":"//;s/"$//')
+  [[ -n "$PAT" ]] || die "No secret_key in response."
 
-USER_EMAIL=$(curl -sS "${OKTA_ISSUER}/v1/userinfo" \
-  -H "Authorization: Bearer $ACCESS_TOKEN" \
-  | grep -o '"email":"[^"]*"' \
-  | sed 's/"email":"//;s/"$//')
+  USER_EMAIL=$(curl -sS "${OKTA_ISSUER}/v1/userinfo" \
+    -H "Authorization: Bearer $ACCESS_TOKEN" \
+    | grep -o '"email":"[^"]*"' \
+    | sed 's/"email":"//;s/"$//')
 
-ok "Signed in${USER_EMAIL:+ as ${USER_EMAIL}}"
+  ok "Signed in${USER_EMAIL:+ as ${USER_EMAIL}}"
+fi
 
 # ── step 7: write ~/.claude/settings.json ─────────────────────────────────────
 
