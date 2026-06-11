@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AIDD Summit 2026 — Testing Pipeline</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+      color: #1a1a1a;
+      background: #fff;
+      display: flex;
+    }
+
+    /* Sidebar */
+    nav {
+      width: 240px;
+      min-width: 240px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      background: #f7f7f8;
+      border-right: 1px solid #e2e2e6;
+      padding: 28px 0 40px;
+      font-size: 13px;
+    }
+
+    nav .nav-logo {
+      padding: 0 20px 18px;
+      font-weight: 700;
+      font-size: 13px;
+      color: #555;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      border-bottom: 1px solid #e2e2e6;
+      margin-bottom: 14px;
+    }
+
+    nav .nav-group-label {
+      display: block;
+      padding: 10px 20px 4px;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #999;
+    }
+
+    nav a {
+      display: block;
+      padding: 5px 20px;
+      color: #444;
+      text-decoration: none;
+      border-left: 2px solid transparent;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+
+    nav a:hover {
+      color: #c0392b;
+      background: #f0e9e9;
+      border-left-color: #c0392b;
+    }
+
+    nav a.active {
+      color: #c0392b;
+      background: #f0e9e9;
+      border-left-color: #c0392b;
+      font-weight: 600;
+    }
+
+    nav .timer-badge {
+      float: right;
+      font-size: 10px;
+      font-weight: 600;
+      color: #888;
+      background: #e8e8ec;
+      border-radius: 10px;
+      padding: 1px 6px;
+      margin-top: 1px;
+    }
+
+    /* Main content */
+    main {
+      flex: 1;
+      padding: 48px 80px 80px 56px;
+      min-width: 0;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #111;
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 15px;
+      margin-bottom: 8px;
+    }
+
+    .meta-row {
+      display: flex;
+      gap: 18px;
+      margin: 14px 0 32px;
+      flex-wrap: wrap;
+    }
+
+    .meta-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #555;
+      background: #f2f2f5;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      padding: 4px 12px;
+    }
+
+    .meta-chip.red { background: #fdf0ef; border-color: #f5c6c2; color: #c0392b; }
+    .meta-chip.green { background: #edf7f0; border-color: #b9e4c7; color: #1a7a3a; }
+
+    hr.section-rule {
+      border: none;
+      border-top: 1px solid #e2e2e6;
+      margin: 40px 0 28px;
+    }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 4px;
+    }
+
+    .section-subtitle {
+      font-style: italic;
+      color: #777;
+      font-size: 13.5px;
+      margin-bottom: 18px;
+    }
+
+    h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #222;
+      margin: 20px 0 6px;
+    }
+
+    h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #333;
+      margin: 14px 0 4px;
+    }
+
+    p { margin-bottom: 12px; }
+
+    a { color: #c0392b; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Code */
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 12.5px;
+      background: #f4f4f7;
+      border: 1px solid #e0e0e6;
+      border-radius: 4px;
+      padding: 1px 5px;
+      color: #c0392b;
+    }
+
+    pre {
+      background: #1e1e2e;
+      color: #cdd6f4;
+      border-radius: 8px;
+      padding: 16px 20px;
+      font-size: 13px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      line-height: 1.55;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 10px 0 16px;
+    }
+
+    pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      color: inherit;
+      font-size: inherit;
+    }
+
+    /* Callouts */
+    blockquote {
+      margin: 12px 0 16px;
+      padding: 12px 16px;
+      border-radius: 6px;
+      border-left: 4px solid #e2e2e6;
+      background: #f9f9fc;
+      font-size: 13.5px;
+      line-height: 1.6;
+    }
+
+    blockquote.note { border-left-color: #3498db; background: #eef6fd; }
+    blockquote.gotcha { border-left-color: #e67e22; background: #fef6ee; }
+    blockquote.tip { border-left-color: #27ae60; background: #edfaf2; }
+    blockquote.time { border-left-color: #8e44ad; background: #f5eef8; }
+
+    blockquote strong:first-child { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+    blockquote.note strong:first-child { color: #2980b9; }
+    blockquote.gotcha strong:first-child { color: #d35400; }
+    blockquote.tip strong:first-child { color: #1e8449; }
+    blockquote.time strong:first-child { color: #7d3c98; }
+
+    /* Step list */
+    ol.steps {
+      counter-reset: step;
+      list-style: none;
+      padding: 0;
+      margin: 12px 0 20px;
+    }
+
+    ol.steps > li {
+      counter-increment: step;
+      display: flex;
+      gap: 14px;
+      margin-bottom: 18px;
+      align-items: flex-start;
+    }
+
+    ol.steps > li::before {
+      content: counter(step);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #c0392b;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    ol.steps > li .step-body { flex: 1; }
+
+    /* Act header bar */
+    .skill-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(135deg, #c0392b 0%, #96281b 100%);
+      color: #fff;
+      border-radius: 10px;
+      padding: 16px 22px;
+      margin: 24px 0 16px;
+    }
+
+    .skill-header .act-num {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0.75;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .skill-header .skill-name {
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+
+    .skill-header .skill-time {
+      font-size: 13px;
+      font-weight: 600;
+      background: rgba(255,255,255,0.2);
+      border-radius: 20px;
+      padding: 4px 14px;
+      white-space: nowrap;
+    }
+
+    /* Behind-the-scenes badge */
+    .skill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11.5px;
+      color: #777;
+      background: #f6f6f9;
+      border: 1px dashed #d0d0da;
+      border-radius: 6px;
+      padding: 6px 14px;
+      margin: 6px 0 20px;
+      line-height: 1.5;
+    }
+
+    .skill-badge .gear { font-size: 13px; }
+
+    .skill-badge code {
+      background: #ececf2;
+      border: none;
+      color: #666;
+      font-size: 11px;
+    }
+
+    /* Progress timeline (horizontal) */
+    .timeline {
+      display: flex;
+      gap: 0;
+      margin: 28px 0 36px;
+      overflow-x: auto;
+      padding: 8px 0 4px;
+    }
+
+    .timeline-step {
+      flex: 1;
+      min-width: 90px;
+      text-align: center;
+      position: relative;
+    }
+
+    .timeline-step::before {
+      content: '';
+      display: block;
+      height: 3px;
+      background: #e2e2e6;
+      position: absolute;
+      top: 13px;
+      left: 50%;
+      right: -50%;
+      z-index: 0;
+    }
+
+    .timeline-step:last-child::before { display: none; }
+
+    .timeline-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #c0392b;
+      border: 3px solid #fff;
+      box-shadow: 0 0 0 2px #c0392b;
+      margin: 0 auto 6px;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .timeline-label {
+      font-size: 10.5px;
+      color: #555;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .timeline-time {
+      font-size: 9.5px;
+      color: #bbb;
+      margin-top: 1px;
+    }
+
+    /* Prompt box */
+    .prompt-box {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 0;
+      margin: 10px 0 16px;
+      overflow: hidden;
+    }
+
+    .prompt-box-header {
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      padding: 7px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .prompt-box-header .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-red { background: #ff5f57; }
+    .dot-yellow { background: #febc2e; }
+    .dot-green { background: #28c840; }
+
+    .prompt-box-header .prompt-label {
+      font-size: 11px;
+      color: #8b949e;
+      font-family: monospace;
+      margin-left: 4px;
+    }
+
+    .copy-btn {
+      margin-left: auto;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 5px;
+      color: #8b949e;
+      font-size: 11px;
+      font-family: monospace;
+      padding: 2px 9px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+
+    .copy-btn:hover {
+      background: rgba(255,255,255,0.15);
+      color: #e6edf3;
+    }
+
+    .copy-btn.copied {
+      color: #28c840;
+      border-color: #28c840;
+    }
+
+    .prompt-box pre {
+      margin: 0;
+      border-radius: 0;
+      background: transparent;
+      padding: 14px 18px;
+      color: #e6edf3;
+    }
+
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      margin: 12px 0 20px;
+    }
+
+    th {
+      text-align: left;
+      background: #f4f4f7;
+      border: 1px solid #e2e2e6;
+      padding: 8px 12px;
+      font-weight: 700;
+      color: #333;
+    }
+
+    td {
+      border: 1px solid #e8e8ec;
+      padding: 8px 12px;
+      vertical-align: top;
+      color: #444;
+    }
+
+    tr:nth-child(even) td { background: #fafafa; }
+
+    /* Scenario card */
+    .scenario-card {
+      background: linear-gradient(135deg, #fff5f4 0%, #fff 100%);
+      border: 1px solid #f5c6c2;
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin: 20px 0;
+    }
+
+    .scenario-card h3 {
+      margin-top: 0;
+      color: #c0392b;
+    }
+
+    /* Divider label */
+    .phase-divider {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 36px 0 24px;
+    }
+
+    .phase-divider::before, .phase-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #e2e2e6;
+    }
+
+    .phase-divider span {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #999;
+      white-space: nowrap;
+    }
+
+    /* Total bar */
+    .total-bar {
+      display: flex;
+      gap: 20px;
+      background: #1a1a2e;
+      color: #fff;
+      border-radius: 10px;
+      padding: 18px 24px;
+      margin: 28px 0 0;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .total-bar .total-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #aaa;
+      flex: 1;
+    }
+
+    .total-bar .total-num {
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .total-bar .total-segment {
+      font-size: 12px;
+      color: #ccc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .total-bar .seg-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-bottom: 2px;
+    }
+
+    ul.checklist {
+      list-style: none;
+      padding: 0;
+      margin: 10px 0;
+    }
+
+    ul.checklist li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 5px 0;
+      font-size: 13.5px;
+      border-bottom: 1px solid #f0f0f4;
+    }
+
+    ul.checklist li:last-child { border: none; }
+
+    ul.checklist li::before {
+      content: '☐';
+      font-size: 15px;
+      color: #ccc;
+      flex-shrink: 0;
+      margin-top: -1px;
+    }
+
+    ul.checklist li > span { flex: 1; min-width: 0; }
+
+    /* Vertical progress timeline */
+    .phases-wrapper {
+      display: flex;
+      gap: 0;
+      align-items: flex-start;
+    }
+
+    .vtl {
+      width: 56px;
+      min-width: 56px;
+      align-self: stretch;
+      position: sticky;
+      top: 48px;
+      max-height: calc(100vh - 48px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 6px;
+      flex-shrink: 0;
+      margin-left: 32px;
+    }
+
+    .vtl-track {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+    }
+
+    .vtl-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .vtl-dot {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #e2e2e6;
+      border: 2px solid #fff;
+      box-shadow: 0 0 0 2px #e2e2e6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: #aaa;
+      flex-shrink: 0;
+      transition: background 0.2s, box-shadow 0.2s, color 0.2s, width 0.15s, height 0.15s;
+      position: relative;
+      z-index: 1;
+      cursor: default;
+    }
+
+    .vtl-line {
+      width: 2px;
+      flex: 1;
+      min-height: 40px;
+      background: #e2e2e6;
+      transition: background 0.3s;
+    }
+
+    .vtl-item:last-child .vtl-line { display: none; }
+
+    .vtl-item.done .vtl-dot {
+      background: #27ae60;
+      box-shadow: 0 0 0 2px #27ae60;
+      color: transparent;
+      font-size: 0;
+    }
+    .vtl-item.done .vtl-dot::before {
+      content: '✓';
+      font-size: 11px;
+      color: #fff;
+      font-weight: 700;
+    }
+    .vtl-item.done .vtl-line { background: #27ae60; }
+
+    .vtl-item.active .vtl-dot {
+      background: #c0392b;
+      box-shadow: 0 0 0 4px rgba(192,57,43,0.2);
+      color: #fff;
+      width: 30px;
+      height: 30px;
+    }
+
+    .vtl-dot::after {
+      content: attr(data-label);
+      position: absolute;
+      right: 34px;
+      left: auto;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #1a1a2e;
+      color: #fff;
+      font-size: 11px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      white-space: nowrap;
+      padding: 3px 8px;
+      border-radius: 4px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s;
+      z-index: 10;
+    }
+    .vtl-dot:hover::after { opacity: 1; }
+
+    .phases-content { flex: 1; min-width: 0; }
+
+    @media (max-width: 700px) {
+      nav { display: none; }
+      .vtl { display: none; }
+      main { padding: 28px 20px 60px; }
+    }
+
+    .prompt-box {
+      background: #0d1117; border: 1px solid #30363d;
+      border-radius: 8px; margin: 8px 0 14px; overflow: hidden;
+    }
+    .prompt-box-header {
+      background: #161b22; border-bottom: 1px solid #30363d;
+      padding: 6px 14px; display: flex; align-items: center; gap: 7px;
+    }
+    .prompt-box-header .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-red { background: #ff5f57; }
+    .dot-yellow { background: #febc2e; }
+    .dot-green { background: #28c840; }
+    .prompt-box-header .prompt-label {
+      font-size: 11px; color: #8b949e; font-family: monospace; margin-left: 4px; flex: 1;
+    }
+    .copy-btn {
+      font-size: 11px; font-weight: 600; color: #8b949e;
+      background: #21262d; border: 1px solid #30363d;
+      border-radius: 5px; padding: 3px 10px; cursor: pointer;
+    }
+    .copy-btn:hover, .copy-btn.copied { background: #c0392b; color: #fff; border-color: #c0392b; }
+    .prompt-box pre { margin: 0; border-radius: 0; background: transparent; padding: 14px 18px; color: #e6edf3; }
+    .phase-divider {
+      display: flex; align-items: center; gap: 14px; margin: 36px 0 24px;
+    }
+    .phase-divider::before, .phase-divider::after {
+      content: ""; flex: 1; height: 1px; background: #e2e2e6;
+    }
+    .phase-divider span {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; color: #999; white-space: nowrap;
+    }
+    .act-num { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.75; display: block; margin-bottom: 2px; }
+
+  </style>
+
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">AIDD Summit 2026</div>
+
+  <span class="nav-group-label">Overview</span>
+  <a href="#intro">Introduction</a>
+  <a href="#prerequisites">Before You Begin</a>
+  <a href="#journey">Journey at a Glance</a>
+
+  <span class="nav-group-label">The Conversation</span>
+  <a href="#spec-tests">1 · forge:spec-tests <span class="timer-badge">5m</span></a>
+  <a href="#build-tests">2 · forge:build-tests <span class="timer-badge">5m</span></a>
+  <a href="#spec-ui-e2e">3 · forge:spec-ui-e2e <span class="timer-badge">3m</span></a>
+  <a href="#build-playwright">4 · forge:build-playwright-tests <span class="timer-badge">10m</span></a>
+
+  <span class="nav-group-label">Reference</span>
+  <a href="#skills-table">Skills Quick-Ref</a>
+</nav>
+
+<main>
+
+  <h1>AIDD Summit 2026<br>Testing Pipeline</h1>
+  <p class="subtitle">Run these 4 skills after your implementation is complete — design test suites, build backend tests, generate feature files, and run Playwright specs.</p>
+  <div class="meta-row">
+    <span class="meta-chip green">&#9679; Post-Implementation</span>
+    <span class="meta-chip">&#128336; Total: ~23 minutes</span>
+    <span class="meta-chip">Scenario: Dishly Platform</span>
+    <span class="meta-chip">Forge v1.5+</span>
+  </div>
+
+  <!-- Intro -->
+  <hr class="section-rule" id="intro" />
+  <h2>Introduction</h2>
+  <p class="section-subtitle">Your plan is ready and your app is built. Now let's test it.</p>
+  <p>The AIDD workshop ended at <code>forge:promote</code>. This guide covers the 4 Forge skills that turn your requirements and implementation into a complete test suite — from BDD scenarios all the way to running Playwright specs against your live app.</p>
+
+  <blockquote class="note">
+    <strong>Note:</strong> Each skill checks its own prerequisites automatically. Just run them in order.
+  </blockquote>
+
+  <!-- Journey -->
+  <!-- Prerequisites -->
+  <hr class="section-rule" id="prerequisites" />
+  <h2>Before You Begin</h2>
+  <blockquote class="note">
+    <strong>Note:</strong> This guide picks up where the AIDD workshop left off. You should have already completed the full workshop flow — from competitive brief through to <code>forge:promote</code> — and have a working implementation running locally before starting these steps.
+  </blockquote>
+
+    <hr class="section-rule" id="journey" />
+  <h2>Journey at a Glance</h2>
+  <p class="section-subtitle">4 skills, run in sequence.</p>
+
+  <table>
+    <thead>
+      <tr><th>#</th><th>Skill</th><th>Time</th><th>Output</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td><code>forge:spec-tests</code></td><td>~5 min</td><td>BDD test suite files (<code>spec/test/*.md</code>)</td></tr>
+      <tr><td>2</td><td><code>forge:build-tests</code></td><td>~5 min</td><td>Executable backend test code</td></tr>
+      <tr><td>3</td><td><code>forge:spec-ui-e2e</code></td><td>~3 min</td><td>Gherkin <code>.feature</code> files</td></tr>
+      <tr><td>4</td><td><code>forge:build-playwright-tests</code></td><td>~10 min</td><td>Playwright <code>.spec.ts</code> files + run results</td></tr>
+    </tbody>
+  </table>
+
+  <!-- Step 1: spec-tests -->
+  <div class="phase-divider"><span>Step 1</span></div>
+  <hr class="section-rule" id="spec-tests" />
+
+  <div class="skill-header">
+    <div>
+      <span class="act-num">Step 1</span>
+      <div class="skill-name">forge:spec-tests</div>
+    </div>
+    <div class="skill-time">&#128336; ~5 minutes</div>
+  </div>
+
+  <p class="section-subtitle">Reads your requirements and spec artifacts and produces BDD test suites — one file per test type.</p>
+
+  <p>This skill reads your <code>business.md</code>, <code>technical.md</code>, API spec, storage schema, and UX strategy, then produces BDD scenario files for every achievable test type. For Dishly this means e2e, contract, integration, and UI e2e suites.</p>
+
+  <h3>Say this</h3>
+  <div class="prompt-box">
+    <div class="prompt-box-header">
+      <div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div>
+      <span class="prompt-label">Claude Code — type this in the chat</span>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+    </div>
+    <pre>Can we design the tests</pre>
+  </div>
+
+  <h3>How the conversation flows</h3>
+  <ol class="steps">
+    <li><div class="step-body">Reads all available artifacts — <code>business.md</code>, <code>technical.md</code>, <code>spec/api/*.yaml</code>, <code>spec/storage/*.md</code>, <code>spec/ux/ux-strategy.md</code>.</div></li>
+    <li><div class="step-body">Determines achievable test types based on what specs exist. If an API spec is present, contract tests are generated. If a UX strategy exists, UI e2e scenarios are added.</div></li>
+    <li><div class="step-body">Writes one BDD suite file per test type to <code>.forge/efforts/dishly-wave-1/spec/test/</code> (backend suites) and <code>.forge/products/dishly/test/</code> (UI e2e suite).</div></li>
+    <li><div class="step-body">Each scenario includes a <code>Verifies: BR-N</code> traceability link back to the business requirement it covers.</div></li>
+  </ol>
+
+  <blockquote class="tip">
+    <strong>Tip:</strong> If you only want UI tests, say <strong>"design e2e tests for dishly-wave-1"</strong> instead. The skill accepts a <code>--type</code> flag to scope the output.
+  </blockquote>
+
+  <!-- Step 2: build-tests -->
+  <div class="phase-divider"><span>Step 2</span></div>
+  <hr class="section-rule" id="build-tests" />
+
+  <div class="skill-header">
+    <div>
+      <span class="act-num">Step 2</span>
+      <div class="skill-name">forge:build-tests</div>
+    </div>
+    <div class="skill-time">&#128336; ~5 minutes</div>
+  </div>
+
+  <p class="section-subtitle">Converts the BDD scenarios from <code>forge:spec-tests</code> into executable backend test code.</p>
+
+  <p>Reads the contract, integration, and e2e suite files and writes actual runnable test code in your project's language (TypeScript for Dishly). The skill auto-detects language and framework, writes the tests, and confirms they pass.</p>
+
+  <h3>Say this</h3>
+  <div class="prompt-box">
+    <div class="prompt-box-header">
+      <div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div>
+      <span class="prompt-label">Claude Code — type this in the chat</span>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+    </div>
+    <pre>Can we implement the tests</pre>
+  </div>
+
+  <h3>How the conversation flows</h3>
+  <ol class="steps">
+    <li><div class="step-body">Reads BDD suite files from <code>spec/test/</code> — e2e, contract, and integration suites.</div></li>
+    <li><div class="step-body">Auto-detects language (TypeScript/Node.js for Dishly) and writes executable test files.</div></li>
+    <li><div class="step-body">Runs the generated tests against the local app and confirms they pass.</div></li>
+    <li><div class="step-body">Reports pass/fail per scenario with traceability back to BR-N requirements.</div></li>
+  </ol>
+
+  <blockquote class="tip">
+    <strong>Tip:</strong> For Dishly (React SPA, no backend API) focus on the <code>e2e</code> type. Contract and integration tests are more relevant for Go/Java backend services.
+  </blockquote>
+
+  <!-- Step 3: spec-ui-e2e -->
+  <div class="phase-divider"><span>Step 3</span></div>
+  <hr class="section-rule" id="spec-ui-e2e" />
+
+  <div class="skill-header">
+    <div>
+      <span class="act-num">Step 3</span>
+      <div class="skill-name">forge:spec-ui-e2e</div>
+    </div>
+    <div class="skill-time">&#128336; ~3 minutes</div>
+  </div>
+
+  <p class="section-subtitle">Converts the <code>ui-e2e-test-suite.md</code> into Gherkin <code>.feature</code> files — one per UI surface — ready for Playwright.</p>
+
+  <p>Bridges the gap between the BDD test spec and Playwright. Validates for duplicate scenarios and missing screen coverage before writing, ensuring clean feature files before test generation begins.</p>
+
+  <h3>Say this</h3>
+  <div class="prompt-box">
+    <div class="prompt-box-header">
+      <div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div>
+      <span class="prompt-label">Claude Code — type this in the chat</span>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+    </div>
+    <pre>Convert the UI test suite into Gherkin feature files, one per screen.</pre>
+  </div>
+
+  <h3>How the conversation flows</h3>
+  <ol class="steps">
+    <li><div class="step-body">Reads <code>ui-e2e-test-suite.md</code> and extracts all SC-N scenarios.</div></li>
+    <li><div class="step-body">Validates for duplicates, merge candidates, and missing screen coverage against <code>ux-strategy.md</code>.</div></li>
+    <li><div class="step-body">Proposes the file list — one <code>.feature</code> file per UI surface — and waits for your confirmation before writing.</div></li>
+    <li><div class="step-body">Writes files to <code>features/us/&lt;surface-name&gt;/</code> with <code>@SC-N</code> traceability tags on each scenario.</div></li>
+  </ol>
+
+  <blockquote class="gotcha">
+    <strong>Gotcha:</strong> If Forge detects duplicate scenarios it will ask you to confirm removal before writing. Reply <strong>"yes, remove duplicates"</strong> to proceed.
+  </blockquote>
+
+  <!-- Step 4: build-playwright-tests -->
+  <div class="phase-divider"><span>Step 4</span></div>
+  <hr class="section-rule" id="build-playwright" />
+
+  <div class="skill-header">
+    <div>
+      <span class="act-num">Step 4</span>
+      <div class="skill-name">forge:build-playwright-tests</div>
+    </div>
+    <div class="skill-time">&#128336; ~10 minutes</div>
+  </div>
+
+  <p class="section-subtitle">Takes the Gherkin <code>.feature</code> files, navigates your live app via browser to discover real selectors, generates Playwright <code>.spec.ts</code> files, runs them, and auto-fixes failures.</p>
+
+  <p>Full UI test lifecycle in one command. Forge uses a live browser via Playwright MCP to discover real CSS selectors from the DOM — no guessing. It generates the spec files, runs them, auto-fixes any failing selectors (up to 3 cycles), and validates the output.</p>
+
+  <h3>Say this</h3>
+  <div class="prompt-box">
+    <div class="prompt-box-header">
+      <div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div>
+      <span class="prompt-label">Claude Code — type this in the chat</span>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+    </div>
+    <pre>The feature files are ready. Generate Playwright specs, run them against the local app, and fix any failures.</pre>
+  </div>
+
+  <h3>How the conversation flows</h3>
+  <ol class="steps">
+    <li><div class="step-body">Verifies Playwright MCP is running — auto-installs if missing. Navigates to your local app to confirm it's live.</div></li>
+    <li><div class="step-body">Reads each <code>.feature</code> file and walks through every step using a live browser — querying the DOM to find real CSS selectors.</div></li>
+    <li><div class="step-body">Generates <code>.spec.ts</code> files with real selectors, environment guards, and user-type checks.</div></li>
+    <li><div class="step-body">Runs the specs. If any fail, re-queries the DOM and fixes selectors — up to 3 auto-fix cycles.</div></li>
+    <li><div class="step-body">Validates the final specs and prints a summary report of passed/failed/skipped.</div></li>
+  </ol>
+
+  <blockquote class="gotcha">
+    <strong>Gotcha:</strong> Make sure your app is running on <code>http://localhost:5173</code> before running this skill. Forge needs a live browser to discover selectors.
+  </blockquote>
+
+  <blockquote class="tip">
+    <strong>Tip:</strong> If Playwright MCP is not installed, Forge will auto-install it and ask you to restart Claude Code. Just restart and re-run — it picks up where it left off.
+  </blockquote>
+
+  <!-- Skills Quick-Ref -->
+  <hr class="section-rule" id="skills-table" />
+  <h2>Skills Quick Reference</h2>
+  <p class="section-subtitle">All four testing skills at a glance.</p>
+
+  <table>
+    <thead>
+      <tr><th>Skill</th><th>Input</th><th>Output</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>forge:spec-tests</code></td>
+        <td><code>business.md</code>, <code>technical.md</code>, spec artifacts</td>
+        <td>BDD suite files in <code>spec/test/</code></td>
+      </tr>
+      <tr>
+        <td><code>forge:build-tests</code></td>
+        <td>BDD suite files from <code>forge:spec-tests</code></td>
+        <td>Runnable backend test code</td>
+      </tr>
+      <tr>
+        <td><code>forge:spec-ui-e2e</code></td>
+        <td><code>ui-e2e-test-suite.md</code></td>
+        <td><code>features/us/&lt;surface&gt;/*.feature</code></td>
+      </tr>
+      <tr>
+        <td><code>forge:build-playwright-tests</code></td>
+        <td><code>.feature</code> files + running app</td>
+        <td><code>tests/bdd/us/&lt;area&gt;/*.spec.ts</code> + run results</td>
+      </tr>
+    </tbody>
+  </table>
+
+</main>
+
+<script>
+  function copyPrompt(btn) {
+    const pre = btn.closest('.prompt-box').querySelector('pre');
+    navigator.clipboard.writeText(pre.textContent.trim()).then(() => {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+
+  // Active nav highlight on scroll
+  const sections = document.querySelectorAll('hr.section-rule[id]');
+  const navLinks = document.querySelectorAll('nav a[href^="#"]');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => { if (window.scrollY >= s.offsetTop - 100) current = s.id; });
+    navLinks.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+  });
+</script>
+
+</body>
+</html>
